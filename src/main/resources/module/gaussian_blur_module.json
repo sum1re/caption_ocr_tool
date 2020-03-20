@@ -1,0 +1,54 @@
+[
+  {
+    "paramName": "Kernel Width",
+    "paramTag": "kw",
+    "paramNodeType": "SPINNER",
+    "paramDefaultValue": 3.0,
+    "paramMaxValue": 999.0,
+    "paramMinValue": 1.0,
+    "paramIncrement": 1.0
+  },
+  {
+    "paramName": "Kernel Height",
+    "paramTag": "kh",
+    "paramNodeType": "SPINNER",
+    "paramDefaultValue": 3.0,
+    "paramMaxValue": 999.0,
+    "paramMinValue": 1.0,
+    "paramIncrement": 1.0
+  },
+  {
+    "paramName": "Sigma X",
+    "paramTag": "sx",
+    "paramNodeType": "SPINNER",
+    "paramDefaultValue": 0.0,
+    "paramMaxValue": 99.0,
+    "paramMinValue": 0.0,
+    "paramIncrement": 0.1
+  },
+  {
+    "paramName": "Sigma Y",
+    "paramTag": "sy",
+    "paramNodeType": "SPINNER",
+    "paramDefaultValue": 0.0,
+    "paramMaxValue": 99.0,
+    "paramMinValue": 0.0,
+    "paramIncrement": 0.1
+  },
+  {
+    "paramName": "Border Type",
+    "paramTag": "bt",
+    "paramNodeType": "CHOICE_BOX",
+    "paramDefaultValue": 6,
+    "paramOptions": [
+      "BORDER_CONSTANT",
+      "BORDER_REPLICATE",
+      "BORDER_REFLECT",
+      "BORDER_WRAP",
+      "BORDER_REFLECT_101",
+      "BORDER_TRANSPARENT",
+      "BORDER_DEFAULT",
+      "BORDER_ISOLATED"
+    ]
+  }
+]

@@ -1,0 +1,2 @@
+JAVA_VERSION="11.0.5"
+MODULES="java.base java.compiler java.datatransfer java.xml java.prefs java.desktop java.instrument java.logging java.management java.security.sasl java.naming java.rmi java.scripting java.transaction.xa java.sql javafx.base jdk.unsupported javafx.graphics javafx.controls javafx.fxml jdk.httpserver"

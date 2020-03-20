@@ -1,0 +1,44 @@
+[
+  {
+    "paramName": "upper-left X",
+    "paramTag": "ulx",
+    "paramNodeType": "SPINNER",
+    "paramDefaultValue": 0.0,
+    "paramMaxValue": 9999.0,
+    "paramMinValue": 0.0,
+    "paramIncrement": 1.0
+  },
+  {
+    "paramName": "upper-left Y",
+    "paramTag": "uly",
+    "paramNodeType": "SPINNER",
+    "paramDefaultValue": 0.0,
+    "paramMaxValue": 9999.0,
+    "paramMinValue": 0.0,
+    "paramIncrement": 1.0
+  },
+  {
+    "paramName": "lower-right X",
+    "paramTag": "lrx",
+    "paramNodeType": "SPINNER",
+    "paramDefaultValue": 0.0,
+    "paramMaxValue": 9999.0,
+    "paramMinValue": 0.0,
+    "paramIncrement": 1.0
+  },
+  {
+    "paramName": "lower-right Y",
+    "paramTag": "lry",
+    "paramNodeType": "SPINNER",
+    "paramDefaultValue": 0.0,
+    "paramMaxValue": 9999.0,
+    "paramMinValue": 0.0,
+    "paramIncrement": 1.0
+  },
+  {
+    "paramName": "Show Region",
+    "paramTag": "sr",
+    "paramNodeType": "CHECK_BOX",
+    "paramDefaultValue": 0
+  }
+]

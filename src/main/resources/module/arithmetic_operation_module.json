@@ -1,0 +1,40 @@
+[
+  {
+    "paramName": "operation type",
+    "paramTag": "ot",
+    "paramNodeType": "CHOICE_BOX",
+    "paramDefaultValue": 0,
+    "paramOptions": [
+      "ADD",
+      "SUBTRACT",
+      "MULTIPLY",
+      "DIVIDE",
+      "ABS_DIFF",
+      "BITWISE_AND",
+      "BITWISE_OR",
+      "BITWISE_XOR",
+      "MAX",
+      "MIN"
+    ]
+  },
+  {
+    "paramName": "Object 1 index",
+    "paramTag": "o1i",
+    "paramNodeType": "SPINNER",
+    "editable": false,
+    "paramDefaultValue": 0.0,
+    "paramMaxValue": 9999.0,
+    "paramMinValue": 0,
+    "paramIncrement": 1.0
+  },
+  {
+    "paramName": "Object 2 index",
+    "paramTag": "o2i",
+    "paramNodeType": "SPINNER",
+    "editable": false,
+    "paramDefaultValue": 0.0,
+    "paramMaxValue": 9999.0,
+    "paramMinValue": 0,
+    "paramIncrement": 1.0
+  }
+]

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:id="root"
+      prefHeight="600.0" prefWidth="800.0" style="-fx-font-size: 14;" stylesheets="/css/Main.css"
+      fx:controller="com.neo.caption.ocr.controller.MainController" onDragDropped="#onDragDropped">
+    <VBox spacing="8.0" fx:id="mask">
+        <!-- top ButtonBar -->
+        <HBox spacing="8.0" id="top-button-bar">
+            <Button text="%main.open"
+                    onAction="#onOpenClick">
+                <tooltip>
+                    <Tooltip text="%main.open.description"/>
+                </tooltip>
+            </Button>
+            <Button text="%main.video"
+                    onAction="#onVideoClick">
+                <tooltip>
+                    <Tooltip text="%main.video.description"/>
+                </tooltip>
+            </Button>
+            <Button text="%main.save"
+                    onAction="#onSaveClick">
+                <tooltip>
+                    <Tooltip text="%main.save.description"/>
+                </tooltip>
+            </Button>
+            <Button text="%main.save.as"
+                    onAction="#onSaveAsClick">
+                <tooltip>
+                    <Tooltip text="%main.save.as.description"/>
+                </tooltip>
+            </Button>
+            <Button text="%main.export"
+                    onAction="#onExportClick">
+                <tooltip>
+                    <Tooltip text="%main.export.description"/>
+                </tooltip>
+            </Button>
+            <Button fx:id="btn_filter" text="%main.filter"
+                    onAction="#onClick"/>
+            <Button text="%main.del.merge"
+                    onAction="#onDelMergeClick"/>
+            <Button text="%main.ocr"
+                    onAction="#onOCRClick"/>
+            <Button fx:id="btn_settings" text="%main.settings"
+                    onAction="#onClick"/>
+            <Button fx:id="btn_bat" text="%main.bat"
+                    onAction="#onClick"/>
+            <Button text="%main.about"
+                    onAction="#onAboutClick"/>
+        </HBox>
+        <!-- editor area -->
+        <SplitPane dividerPositions="0.3" prefHeight="9999.0" id="split-pane">
+            <!-- editor -->
+            <TextArea fx:id="text_area" SplitPane.resizableWithParent="false"/>
+            <!-- caption image list -->
+            <ScrollPane fx:id="scroll_pane">
+                <FlowPane fx:id="flow_pane"/>
+            </ScrollPane>
+        </SplitPane>
+        <!-- bottom toolbar -->
+        <VBox spacing="4.0" minHeight="57">
+            <!-- ButtonBar -->
+            <HBox alignment="CENTER_LEFT" spacing="8.0">
+                <Button fx:id="btn_start" defaultButton="true" prefWidth="80.0" text="%main.start"
+                        onAction="#onStartClick"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Slider fx:id="slider_zoom" max="720" min="180" value="360"/>
+                <CheckBox fx:id="check_manager" text="%main.manager.mode"/>
+            </HBox>
+            <!-- StatusBar -->
+            <ProgressBar fx:id="progress_bar" prefWidth="9999.0" progress="0.0"/>
+            <HBox alignment="CENTER_LEFT" style="-fx-font-size: 12;">
+                <Label fx:id="file_name"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="frame_time"/>
+            </HBox>
+        </VBox>
+    </VBox>
+</VBox>

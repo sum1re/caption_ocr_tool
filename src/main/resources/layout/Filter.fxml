@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.util.HashMap?>
+
+<?import javafx.scene.image.ImageView?>
+<SplitPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/11.0.1" fx:id="split_main"
+           prefHeight="600.0" prefWidth="800.0" style="-fx-font-size: 14;" dividerPositions="0.2,0.7"
+           fx:controller="com.neo.caption.ocr.controller.FilterController">
+    <!-- settings and information-->
+    <VBox spacing="8.0" SplitPane.resizableWithParent="false"
+          style="-fx-padding: 8">
+        <!-- zoom -->
+        <Label text="Zoom"/>
+        <Slider fx:id="slider_zoom"
+                min="180" max="3600" value="360" blockIncrement="30"
+                onScroll="#onSliderScroll"/>
+        <!-- some check box -->
+        <CheckBox fx:id="check_filter" text="%filter.eff"/>
+        <!-- module profile -->
+        <Label text="%filter.module.profile"/>
+        <HBox spacing="8.0">
+            <ChoiceBox fx:id="choice_profile">
+                <!-- i18n If IDEA prompts the error, please ignore it. -->
+                <fx:define>
+                    <HashMap fx:id="profile"
+                             fixed="%filter.module.profile.fixed_binary"
+                             adaptive="%filter.module.profile.adaptive_binary"
+                             hsv="%filter.module.profile.hsv_color"
+                             hls="%filter.module.profile.hls_color"
+                             customize="%filter.module.profile.customize"/>
+                </fx:define>
+                <items>
+                    <!-- Must be consistent with the sort of ModuleProfile. -->
+                    <FXCollections fx:factory="observableArrayList">
+                        <fx:reference source="profile.customize"/>
+                        <fx:reference source="profile.fixed"/>
+                        <fx:reference source="profile.adaptive"/>
+                        <fx:reference source="profile.hsv"/>
+                        <fx:reference source="profile.hls"/>
+                    </FXCollections>
+                </items>
+            </ChoiceBox>
+            <Button minWidth="55.0" text="%filter.module.reset"
+                    onAction="#onResetProfile">
+                <tooltip>
+                    <Tooltip text="%filter.module.reset.description"/>
+                </tooltip>
+            </Button>
+        </HBox>
+        <!-- for advanced -->
+        <TitledPane text="%filter.module.type_list">
+            <ScrollPane fitToWidth="true" vbarPolicy="ALWAYS">
+                <VBox fx:id="module_type_list" spacing="8.0"
+                      style="-fx-padding: 8"/>
+            </ScrollPane>
+        </TitledPane>
+        <Region VBox.vgrow="ALWAYS"/>
+        <!-- The information of the axis and pixel -->
+        <GridPane vgap="4.0" hgap="4.0"
+                  style="-fx-font-size: 12">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="12.0" minWidth="12.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="30.0" minWidth="30.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="12.0" minWidth="12.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="25.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="12.0" minWidth="12.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="25.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="12.0" minWidth="12.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="25.0"/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints vgrow="SOMETIMES" maxHeight="18.0" minHeight="18.0"/>
+                <RowConstraints vgrow="SOMETIMES" maxHeight="18.0" minHeight="18.0"/>
+                <RowConstraints vgrow="SOMETIMES" maxHeight="18.0" minHeight="18.0"/>
+            </rowConstraints>
+            <!-- axis -->
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" text="X:"/>
+            <Label GridPane.columnIndex="1" GridPane.rowIndex="0" id="x"/>
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" text="Y:"/>
+            <Label GridPane.columnIndex="1" GridPane.rowIndex="1" id="y"/>
+            <!-- hsv -->
+            <Label GridPane.columnIndex="2" GridPane.rowIndex="0" text="H:"/>
+            <Label GridPane.columnIndex="3" GridPane.rowIndex="0" id="Hsv"/>
+            <Label GridPane.columnIndex="2" GridPane.rowIndex="1" text="S:"/>
+            <Label GridPane.columnIndex="3" GridPane.rowIndex="1" id="hSv"/>
+            <Label GridPane.columnIndex="2" GridPane.rowIndex="2" text="V:"/>
+            <Label GridPane.columnIndex="3" GridPane.rowIndex="2" id="hsV"/>
+            <!-- hls -->
+            <Label GridPane.columnIndex="4" GridPane.rowIndex="0" text="H:"/>
+            <Label GridPane.columnIndex="5" GridPane.rowIndex="0" id="Hls"/>
+            <Label GridPane.columnIndex="4" GridPane.rowIndex="1" text="L:"/>
+            <Label GridPane.columnIndex="5" GridPane.rowIndex="1" id="hLs"/>
+            <Label GridPane.columnIndex="4" GridPane.rowIndex="2" text="S:"/>
+            <Label GridPane.columnIndex="5" GridPane.rowIndex="2" id="hlS"/>
+            <!-- rgb -->
+            <Label GridPane.columnIndex="6" GridPane.rowIndex="0" text="R:"/>
+            <Label GridPane.columnIndex="7" GridPane.rowIndex="0" id="Rgb"/>
+            <Label GridPane.columnIndex="6" GridPane.rowIndex="1" text="G:"/>
+            <Label GridPane.columnIndex="7" GridPane.rowIndex="1" id="rGb"/>
+            <Label GridPane.columnIndex="6" GridPane.rowIndex="2" text="B:"/>
+            <Label GridPane.columnIndex="7" GridPane.rowIndex="2" id="rgB"/>
+        </GridPane>
+    </VBox>
+    <!-- document area -->
+    <VBox spacing="8.0" style="-fx-padding: 8">
+        <!-- video and progress bar -->
+        <ScrollPane prefHeight="9999.0" prefWidth="9999.0">
+            <ImageView fx:id="image_view" preserveRatio="true" fitWidth="720"
+                       onMouseMoved="#onMouseMovedOnImage"/>
+        </ScrollPane>
+        <Slider fx:id="slider_video" blockIncrement="0.1" minorTickCount="5"
+                onScroll="#onSliderScroll"/>
+    </VBox>
+    <!-- ModuleNode List -->
+    <ScrollPane fitToWidth="true" SplitPane.resizableWithParent="false" vbarPolicy="ALWAYS"
+                style="-fx-padding: 8">
+        <VBox fx:id="module_node_list" spacing="8.0"/>
+    </ScrollPane>
+
+</SplitPane>

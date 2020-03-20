@@ -1,0 +1,11 @@
+[
+  {
+    "paramName": "Area",
+    "paramTag": "a",
+    "paramNodeType": "SPINNER",
+    "paramDefaultValue": 10.0,
+    "paramMaxValue": 1000.0,
+    "paramMinValue": 0.0,
+    "paramIncrement": 1.0
+  }
+]

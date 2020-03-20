@@ -1,0 +1,12 @@
+[
+  {
+    "paramName": "Kernel Size",
+    "paramTag": "ks",
+    "paramNodeType": "SPINNER",
+    "editable": false,
+    "paramDefaultValue": 1.0,
+    "paramMaxValue": 99.0,
+    "paramMinValue": 1.0,
+    "paramIncrement": 2.0
+  }
+]

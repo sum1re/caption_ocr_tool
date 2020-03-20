@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="ap" prefWidth="640" prefHeight="400" xmlns="http://javafx.com/javafx/11.0.1">
+    <ProgressBar AnchorPane.bottomAnchor="8" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"/>
+</AnchorPane>

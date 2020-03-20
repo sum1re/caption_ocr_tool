@@ -1,0 +1,66 @@
+[
+  {
+    "paramName": "mask",
+    "paramTag": "m",
+    "paramNodeType": "DEPRECATED",
+    "paramDefaultValue": 1,
+    "paramOptions": [
+      "TRUE",
+      "FALSE"
+    ]
+  },
+  {
+    "paramName": "Min Hue",
+    "paramTag": "hmi",
+    "paramNodeType": "SPINNER",
+    "paramDefaultValue": 0.0,
+    "paramMaxValue": 180.0,
+    "paramMinValue": 0.0,
+    "paramIncrement": 1.0
+  },
+  {
+    "paramName": "Max Hue",
+    "paramTag": "hma",
+    "paramNodeType": "SPINNER",
+    "paramDefaultValue": 180.0,
+    "paramMaxValue": 180.0,
+    "paramMinValue": 0.0,
+    "paramIncrement": 1.0
+  },
+  {
+    "paramName": "Min Saturation",
+    "paramTag": "smi",
+    "paramNodeType": "SPINNER",
+    "paramDefaultValue": 0.0,
+    "paramMaxValue": 255.0,
+    "paramMinValue": 0.0,
+    "paramIncrement": 1.0
+  },
+  {
+    "paramName": "Max Saturation",
+    "paramTag": "sma",
+    "paramNodeType": "SPINNER",
+    "paramDefaultValue": 53.0,
+    "paramMaxValue": 255.0,
+    "paramMinValue": 0.0,
+    "paramIncrement": 1.0
+  },
+  {
+    "paramName": "Min Value",
+    "paramTag": "vmi",
+    "paramNodeType": "SPINNER",
+    "paramDefaultValue": 221.0,
+    "paramMaxValue": 255.0,
+    "paramMinValue": 0.0,
+    "paramIncrement": 1.0
+  },
+  {
+    "paramName": "Max Value",
+    "paramTag": "vma",
+    "paramNodeType": "SPINNER",
+    "paramDefaultValue": 255.0,
+    "paramMaxValue": 255.0,
+    "paramMinValue": 0.0,
+    "paramIncrement": 1.0
+  }
+]

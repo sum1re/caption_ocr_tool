@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<fx:root xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" type="ToggleButton"
+         style="-fx-padding: 1 2;-shrink-animate-on-press: false;" stylesheets="/css/BatNode.css">
+    <graphic>
+        <VBox spacing="8.0" prefWidth="Infinity" id="v_box">
+            <HBox>
+                <Label fx:id="file_name"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="status"/>
+            </HBox>
+            <ProgressBar fx:id="progress_bar" progress="0.0"/>
+        </VBox>
+    </graphic>
+</fx:root>

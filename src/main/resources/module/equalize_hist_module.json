@@ -1,0 +1,12 @@
+[
+  {
+    "paramName": "Channel Index",
+    "paramTag": "ci",
+    "paramNodeType": "SPINNER",
+    "editable": false,
+    "paramDefaultValue": 0.0,
+    "paramMaxValue": 3.0,
+    "paramMinValue": -1.0,
+    "paramIncrement": 1.0
+  }
+]

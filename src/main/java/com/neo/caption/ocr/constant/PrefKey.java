@@ -1,0 +1,41 @@
+package com.neo.caption.ocr.constant;
+
+public enum PrefKey {
+
+    MIN_PIXEL_COUNT,
+    MIN_SSIM_THRESHOLD,
+    MIN_PSNR_THRESHOLD,
+    SIMILARITY_TYPE,
+    STORAGE_POLICY,
+    FILE_CHOOSE_DIR,
+    DEFAULT_STYLE,
+    DIGITAL_CONTAINER_FORMAT,
+    COUNT_PRE_PAGE,
+    FRAME_INTERVAL,
+    EDITOR_FONT_SIZE,
+    TESS_LANG,
+    DARK_THEME,
+    BACKGROUND_IMAGE,
+    BACKGROUND_OPACITY,
+
+    MODULE_PROFILE_INDEX,
+    MODULE_PROFILE_FIXED_BINARY,
+    MODULE_PROFILE_ADAPTIVE_BINARY,
+    MODULE_PROFILE_HLS_COLOR,
+    MODULE_PROFILE_HSV_COLOR,
+    MODULE_PROFILE_CUSTOMIZE,
+
+    COMPRESS_IMAGE,
+
+    /**
+     * Has been replaced with MODULE_PROFILE_CUSTOMIZE.
+     */
+    @Deprecated
+    MODULE_STATUS_LIST,
+
+    ;
+
+    public final String toLowerCase() {
+        return this.name().toLowerCase();
+    }
+}

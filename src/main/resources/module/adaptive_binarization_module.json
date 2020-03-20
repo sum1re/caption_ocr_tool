@@ -1,0 +1,50 @@
+[
+  {
+    "paramName": "Max Val",
+    "paramTag": "mv",
+    "paramNodeType": "SPINNER",
+    "paramDefaultValue": 255.0,
+    "paramMaxValue": 255.0,
+    "paramMinValue": 1.0,
+    "paramIncrement": 1.0
+  },
+  {
+    "paramName": "Adaptive Method",
+    "paramTag": "am",
+    "paramNodeType": "CHOICE_BOX",
+    "paramDefaultValue": 0,
+    "paramOptions": [
+      "ADAPTIVE_THRESH_MEAN_C",
+      "ADAPTIVE_THRESH_GAUSSIAN_C"
+    ]
+  },
+  {
+    "paramName": "Threshold Type",
+    "paramTag": "tt",
+    "paramNodeType": "CHOICE_BOX",
+    "paramDefaultValue": 0,
+    "paramOptions": [
+      "THRESH_BINARY",
+      "THRESH_BINARY_INV"
+    ]
+  },
+  {
+    "paramName": "Block Size",
+    "paramTag": "bs",
+    "paramNodeType": "SPINNER",
+    "editable": false,
+    "paramDefaultValue": 45.0,
+    "paramMaxValue": 9999.0,
+    "paramMinValue": 3.0,
+    "paramIncrement": 2.0
+  },
+  {
+    "paramName": "Constant",
+    "paramTag": "c",
+    "paramNodeType": "SPINNER",
+    "paramDefaultValue": -45.0,
+    "paramMaxValue": 999.0,
+    "paramMinValue": -999.0,
+    "paramIncrement": 1.0
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "paramName": "Model",
+    "paramTag": "cm",
+    "paramNodeType": "CHOICE_BOX",
+    "paramDefaultValue": 0,
+    "paramOptions": [
+      "COLOR_BGR2GRAY",
+      "COLOR_BGR2HLS",
+      "COLOR_BGR2HLS_FULL",
+      "COLOR_BGR2HSV",
+      "COLOR_BGR2HSV_FULL",
+      "COLOR_GRAY2BGR",
+      "COLOR_HLS2BGR",
+      "COLOR_HLS2BGR_FULL",
+      "COLOR_HSV2BGR",
+      "COLOR_HSV2BGR_FULL"
+    ]
+  }
+]

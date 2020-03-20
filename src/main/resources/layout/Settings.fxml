@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.util.HashMap?>
+
+<?import ch.qos.logback.classic.Level?>
+<TabPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:id="root"
+         prefHeight="400.0" prefWidth="600.0" stylesheets="/css/Settings.css"
+         fx:controller="com.neo.caption.ocr.controller.SettingsController">
+    <Tab text="%settings.app" closable="false">
+        <ScrollPane fitToWidth="true" vbarPolicy="ALWAYS">
+            <GridPane hgap="8.0" vgap="16.0" style="-fx-padding: 8;">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="180.0" minWidth="180.0" prefWidth="180.0"/>
+                    <ColumnConstraints hgrow="SOMETIMES"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints valignment="TOP" vgrow="SOMETIMES"/>
+                    <RowConstraints valignment="TOP" vgrow="SOMETIMES"/>
+                    <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
+                    <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
+                    <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
+                    <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
+                    <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
+                </rowConstraints>
+                <Label text="%settings.app.cds"
+                       GridPane.rowIndex="0"/>
+                <Label text="%settings.app.dcf"
+                       GridPane.rowIndex="1"/>
+                <Label text="%settings.app.efs"
+                       GridPane.rowIndex="2"/>
+                <Label text="%settings.app.fi"
+                       GridPane.rowIndex="3"/>
+                <Label text="%settings.app.cpp"
+                       GridPane.rowIndex="4"/>
+                <Label text="%settings.app.ol"
+                       GridPane.rowIndex="5"/>
+                <Label text="%settings.app.cci"
+                       GridPane.rowIndex="6"/>
+                <TextArea fx:id="text_cds" prefRowCount="3" wrapText="true"
+                          GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <TextArea fx:id="text_dcf" prefRowCount="3" wrapText="true"
+                          GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <Spinner fx:id="spinner_efs"
+                         GridPane.columnIndex="1" GridPane.rowIndex="2">
+                    <valueFactory>
+                        <SpinnerValueFactory.IntegerSpinnerValueFactory min="%cnf.efs.min" max="%cnf.efs.max"
+                                                                        amountToStepBy="%cnf.efs.step"/>
+                    </valueFactory>
+                </Spinner>
+                <Spinner fx:id="spinner_fi"
+                         GridPane.columnIndex="1" GridPane.rowIndex="3">
+                    <valueFactory>
+                        <SpinnerValueFactory.IntegerSpinnerValueFactory min="%cnf.fi.min" max="%cnf.fi.max"
+                                                                        amountToStepBy="%cnf.fi.step"/>
+                    </valueFactory>
+                </Spinner>
+                <Spinner fx:id="spinner_cpp"
+                         GridPane.columnIndex="1" GridPane.rowIndex="4">
+                    <valueFactory>
+                        <SpinnerValueFactory.IntegerSpinnerValueFactory min="%cnf.cpp.min" max="%cnf.cpp.max"
+                                                                        amountToStepBy="%cnf.cpp.step"/>
+                    </valueFactory>
+                </Spinner>
+                <HBox alignment="CENTER_LEFT" spacing="16.0"
+                      GridPane.columnIndex="1" GridPane.rowIndex="5">
+                    <CheckBox fx:id="check_sim" text="%settings.app.ol.sim"/>
+                    <CheckBox fx:id="check_tra" text="%settings.app.ol.tra"/>
+                    <CheckBox fx:id="check_jpn" text="%settings.app.ol.jpn"/>
+                    <CheckBox fx:id="check_eng" text="%settings.app.ol.eng"/>
+                </HBox>
+                <CheckBox fx:id="check_compress" text="%settings.app.cci.enable"
+                          GridPane.columnIndex="1" GridPane.rowIndex="6">
+                </CheckBox>
+            </GridPane>
+        </ScrollPane>
+    </Tab>
+    <Tab text="%settings.personalise" closable="false">
+        <ScrollPane fitToWidth="true" vbarPolicy="ALWAYS">
+            <GridPane hgap="8.0" vgap="16.0" style="-fx-padding: 8">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="180.0" minWidth="180.0" prefWidth="180.0"/>
+                    <ColumnConstraints hgrow="SOMETIMES"/>
+                    <ColumnConstraints hgrow="SOMETIMES"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
+                    <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
+                </rowConstraints>
+                <Label text="%settings.personalise.dark.theme"
+                       GridPane.rowIndex="0"/>
+                <Label text="%settings.personalise.background"
+                       GridPane.rowIndex="1"/>
+                <Label text="%settings.personalise.mask"
+                       GridPane.rowIndex="2"/>
+                <CheckBox fx:id="check_dark" text="%settings.personalise.dark.theme.enable"
+                          GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <HBox spacing="8.0"
+                      GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <Button fx:id="background_image" textOverrun="CENTER_ELLIPSIS" text="..."
+                            onAction="#onClick"/>
+                    <Button fx:id="background_del" text="❌" visible="false" managed="false"
+                            style="-fx-background-color: #f00; -fx-text-fill: #fff;"
+                            onAction="#onClick"/>
+                </HBox>
+                <Slider fx:id="slider_opacity" blockIncrement="1" showTickMarks="true"
+                        GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+            </GridPane>
+        </ScrollPane>
+    </Tab>
+    <Tab text="%settings.filter" closable="false">
+        <ScrollPane fitToWidth="true" vbarPolicy="ALWAYS">
+            <GridPane hgap="8.0" vgap="16.0" style="-fx-padding: 8;">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="180.0" minWidth="180.0" prefWidth="180.0"/>
+                    <ColumnConstraints hgrow="SOMETIMES"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
+                    <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
+                    <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
+                    <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
+                    <RowConstraints valignment="TOP" vgrow="SOMETIMES"/>
+                </rowConstraints>
+                <Label text="%settings.filter.mpc"
+                       GridPane.rowIndex="0"/>
+                <Label text="%settings.filter.st.mSsim"
+                       GridPane.rowIndex="1"/>
+                <Label text="%settings.filter.st.mPsnr"
+                       GridPane.rowIndex="2"/>
+                <Label text="%settings.filter.st"
+                       GridPane.rowIndex="3"/>
+                <Label text="%settings.filter.sp"
+                       GridPane.rowIndex="4"/>
+                <Spinner fx:id="spinner_mpc" editable="true"
+                         GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <valueFactory>
+                        <SpinnerValueFactory.IntegerSpinnerValueFactory min="%cnf.mpc.min" max="%cnf.mpc.max"
+                                                                        amountToStepBy="%cnf.mpc.step"/>
+                    </valueFactory>
+                </Spinner>
+                <Spinner fx:id="spinner_ssim" editable="true"
+                         GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <valueFactory>
+                        <SpinnerValueFactory.DoubleSpinnerValueFactory min="%cnf.ssim.min" max="%cnf.ssim.max"
+                                                                       amountToStepBy="%cnf.ssim.step"/>
+                    </valueFactory>
+                </Spinner>
+                <Spinner fx:id="spinner_psnr" editable="true"
+                         GridPane.columnIndex="1" GridPane.rowIndex="2">
+                    <valueFactory>
+                        <SpinnerValueFactory.DoubleSpinnerValueFactory min="%cnf.psnr.min" max="%cnf.psnr.max"
+                                                                       amountToStepBy="%cnf.psnr.step"/>
+                    </valueFactory>
+                </Spinner>
+                <ChoiceBox fx:id="choice_similarity_type"
+                           GridPane.columnIndex="1" GridPane.rowIndex="3">
+                    <!-- i18n If IDEA prompts the error, please ignore it. -->
+                    <fx:define>
+                        <HashMap fx:id="similarityType"
+                                 ssim="%settings.filter.st.ssim"
+                                 psnr="%settings.filter.st.psnr"/>
+                    </fx:define>
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <fx:reference source="similarityType.ssim"/>
+                            <fx:reference source="similarityType.psnr"/>
+                        </FXCollections>
+                    </items>
+                </ChoiceBox>
+                <ChoiceBox fx:id="choice_storage_policy"
+                           GridPane.columnIndex="1" GridPane.rowIndex="4">
+                    <!-- i18n If IDEA prompts the error, please ignore it. -->
+                    <fx:define>
+                        <HashMap fx:id="storagePolicy"
+                                 min="%settings.filter.sp.min"
+                                 max="%settings.filter.sp.max"
+                                 med="%settings.filter.sp.med"
+                                 first="%settings.filter.sp.first"
+                                 last="%settings.filter.sp.last"/>
+                    </fx:define>
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <fx:reference source="storagePolicy.min"/>
+                            <fx:reference source="storagePolicy.max"/>
+                            <fx:reference source="storagePolicy.med"/>
+                            <fx:reference source="storagePolicy.first"/>
+                            <fx:reference source="storagePolicy.last"/>
+                        </FXCollections>
+                    </items>
+                </ChoiceBox>
+            </GridPane>
+        </ScrollPane>
+    </Tab>
+    <Tab text="%settings.advanced" closable="false">
+        <ScrollPane fitToWidth="true" vbarPolicy="ALWAYS">
+            <GridPane hgap="8.0" vgap="16.0" style="-fx-padding: 8">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="180.0" minWidth="180.0" prefWidth="180.0"/>
+                    <ColumnConstraints hgrow="SOMETIMES"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
+                </rowConstraints>
+                <Label text="%settings.advanced.warn" GridPane.columnSpan="2"
+                       GridPane.rowIndex="0"/>
+                <Label text="%settings.advanced.log.level"
+                       GridPane.rowIndex="1"/>
+                <ChoiceBox fx:id="choice_log_level"
+                           GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <Level fx:value="TRACE"/>
+                            <Level fx:value="DEBUG"/>
+                            <Level fx:value="INFO"/>
+                            <Level fx:value="WARN"/>
+                            <Level fx:value="ERROR"/>
+                            <Level fx:value="OFF"/>
+                        </FXCollections>
+                    </items>
+                </ChoiceBox>
+            </GridPane>
+        </ScrollPane>
+    </Tab>
+</TabPane>

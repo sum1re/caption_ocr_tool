@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.ButtonBar?>
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:id="root"
+      prefHeight="400.0" prefWidth="600.0" stylesheets="/css/Bat.css"
+      fx:controller="com.neo.caption.ocr.controller.BatController">
+    <ScrollPane id="scroll_pane" fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS">
+        <VBox fx:id="bat_node_list" style="-fx-padding: 8"/>
+    </ScrollPane>
+    <ButtonBar style="-fx-padding: 8" buttonMinWidth="0">
+        <buttons>
+            <Button fx:id="btn_start" defaultButton="true" text="%bat.start"
+                    onAction="#onClick"/>
+            <Button fx:id="btn_add" text="%bat.add_items"
+                    onAction="#onAdd"/>
+            <Button fx:id="btn_remove" text="%bat.remove_item"
+                    onAction="#onRemove"/>
+        </buttons>
+    </ButtonBar>
+</VBox>

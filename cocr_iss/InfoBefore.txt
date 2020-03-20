@@ -1,0 +1,5 @@
+The COCR (the app) is a JavaFX application that launching through an integrated JRE, and the installer will create one or more shortcuts with parameters (main program: javaw.exe), which can directly launch the app. 
+You can also use CMD or PowerShell to launch the app, you may need some parameters for the JVM, they can find in the script naming CreateShortcut.bat.
+If you delete the app's shortcut, you can recreate it by running the script naming CreateShortcut.bat. Note: The script should execute in the app directory.
+Warning: If you do not know what the parameters for, do not modify any parameters of the shortcut (including but not limited to start menu and desktop shortcut), otherwise the app will not work.
+Warning: Because the parameters are too long, Windows will hide some parameters, so do not modify the parameters within the shortcut! Modify the parameters within the CreateShortcut.bat script, and then recreate the shortcut.
