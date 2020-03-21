@@ -5,7 +5,7 @@
 #define guid "{533A06CF-B5E2-499B-8B3A-43CD54C1625B}"
 #define SetupVersion "0.0.1.1"
 #define MyAppName "Caption OCR Tool"
-#define MyAppVersion "0.0.1-beta"
+#define MyAppVersion "0.0.1-beta.2"
 #define MyAppExeName "runtime\bin\javaw.exe"
 #define MyAppParams "-server -Xmx4G -Dfile.encoding=utf-8 -Dcocr.dir=..\..\app -Djava.library.path=..\..\lib -Dprism.targetvram=2G -Dprism.vsync=false -Dprism.scrollcacheopt=true -Djavafx.preloader=com.neo.caption.ocr.AppPreloader -jar ..\..\app\cocr.jar"
 #define MyAppWorkingDir "{app}\runtime\bin"
