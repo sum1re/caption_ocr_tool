@@ -552,8 +552,8 @@ public class MainController implements BaseController {
                 file_name.setText(cocrFile.getName());
                 if (videoAsyncTask.isCancelled()) {
                     btn_start.setText(resourceBundle.getString("main.start"));
-                    videoService.closeVideo();
                 }
+                videoService.closeVideo();
             }
         });
         service.submit(commonAsyncTask);
