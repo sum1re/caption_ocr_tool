@@ -98,6 +98,9 @@ public class VideoServiceImpl implements VideoService {
         double similarity;
         Mat dst;
         int frameInterval = prefUtil.getFrameInterval();
+        // Since opencv 4.2.0, after setting the CAP_PROP_POS_FRAMES,
+        // it needs to reset to 0, otherwise, it will start reading from where you previewed.
+        vc.set(CAP_PROP_POS_FRAMES, 0);
         while (vc.grab() && !Thread.currentThread().isInterrupted()) {
             fxUtil.onFXThread(progressBar.progressProperty(), (double) count / videoHolder.getTotalFrame());
             if (frameInterval != 1) {
