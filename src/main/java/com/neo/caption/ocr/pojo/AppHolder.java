@@ -28,6 +28,7 @@ public class AppHolder {
     private Set<Stage> stageList;
     private List<MatNode> matNodeList;
     private String ocr;
+    private String usrDir;
     private int matNodeSelectedIndex;
     private ThreadLocal<StringBuilder> stringBuilderThreadLocal;
     //FileChooser
@@ -37,6 +38,7 @@ public class AppHolder {
     private FileChooser.ExtensionFilter pngFilter;
     private FileChooser.ExtensionFilter captionFilter;
     private FileChooser.ExtensionFilter noneFilter;
+    private FileChooser.ExtensionFilter jsonFilter;
 
     @Autowired
     public AppHolder(PrefUtil prefUtil, @Qualifier("comma") Splitter splitter) {
@@ -48,6 +50,7 @@ public class AppHolder {
     public void init() {
         this.matNodeList = new ArrayList<>(64);
         this.ocr = "";
+        this.usrDir = System.getProperty("cocr.dir");
         this.matNodeSelectedIndex = 0;
         this.stringBuilderThreadLocal = ThreadLocal.withInitial(() -> new StringBuilder(1024));
         this.cocrFilter = new FileChooser.ExtensionFilter("COCR File", "*.cocr");
@@ -55,6 +58,7 @@ public class AppHolder {
         this.imageFilter = new FileChooser.ExtensionFilter("Image File", "*.png", "*.jpg", "*.bmp");
         this.captionFilter = new FileChooser.ExtensionFilter("Caption File", "*.ass", "*.srt");
         this.noneFilter = new FileChooser.ExtensionFilter("All File", "*.*");
+        this.jsonFilter = new FileChooser.ExtensionFilter("Json File", "*.json");
         this.stageList = new HashSet<>(8);
         loadVideoFilter();
     }
