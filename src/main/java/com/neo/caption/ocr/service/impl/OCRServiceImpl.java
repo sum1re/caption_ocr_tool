@@ -51,11 +51,10 @@ public class OCRServiceImpl implements OCRService {
     @Override
     @AopException
     public void apiInit() throws TessException {
-        String usrDir = System.getProperty("cocr.dir");
-        if (isNullOrEmpty(usrDir)) {
+        if (isNullOrEmpty(appHolder.getUsrDir())) {
             throw new TessException(resourceBundle.getString("exception.msg.tess.property"));
         }
-        File tessData = new File(usrDir, "tessdata");
+        File tessData = new File(appHolder.getUsrDir(), "tessdata");
         if (!tessData.exists()) {
             throw new TessException(resourceBundle.getString("exception.msg.tess.data.miss"));
         }
