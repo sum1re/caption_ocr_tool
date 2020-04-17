@@ -8,7 +8,7 @@ public enum ModuleProfile {
     CUSTOMIZE,
     FIXED_BINARY,
     ADAPTIVE_BINARY,
-    HLS_COLOR,
-    HSV_COLOR
+    HSV_COLOR,
+    HLS_COLOR
 
 }
