@@ -76,7 +76,7 @@ public class AppConfig {
     }
 
     @Bean
-    public CharMatcher dotCharMatcher(){
+    public CharMatcher dotCharMatcher() {
         return CharMatcher.is('.');
     }
 
