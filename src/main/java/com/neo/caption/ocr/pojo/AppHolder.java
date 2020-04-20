@@ -1,7 +1,6 @@
 package com.neo.caption.ocr.pojo;
 
 import com.google.common.base.Splitter;
-import com.neo.caption.ocr.util.PrefUtil;
 import com.neo.caption.ocr.view.MatNode;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -12,7 +11,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static com.neo.caption.ocr.constant.PrefKey.DIGITAL_CONTAINER_FORMAT;
 
 /**
  * To hold some global objects
@@ -22,13 +26,12 @@ import java.util.*;
 @Slf4j
 public class AppHolder {
 
-    private PrefUtil prefUtil;
     private Splitter splitter;
 
     private Set<Stage> stageList;
     private List<MatNode> matNodeList;
+    private List<String> moduleProfileList;
     private String ocr;
-    private String usrDir;
     private int matNodeSelectedIndex;
     private ThreadLocal<StringBuilder> stringBuilderThreadLocal;
     //FileChooser
@@ -41,16 +44,15 @@ public class AppHolder {
     private FileChooser.ExtensionFilter jsonFilter;
 
     @Autowired
-    public AppHolder(PrefUtil prefUtil, @Qualifier("comma") Splitter splitter) {
-        this.prefUtil = prefUtil;
+    public AppHolder(@Qualifier("comma") Splitter splitter) {
         this.splitter = splitter;
     }
 
     @PostConstruct
     public void init() {
         this.matNodeList = new ArrayList<>(64);
+        this.moduleProfileList = new ArrayList<>(8);
         this.ocr = "";
-        this.usrDir = System.getProperty("cocr.dir");
         this.matNodeSelectedIndex = 0;
         this.stringBuilderThreadLocal = ThreadLocal.withInitial(() -> new StringBuilder(1024));
         this.cocrFilter = new FileChooser.ExtensionFilter("COCR File", "*.cocr");
@@ -60,7 +62,6 @@ public class AppHolder {
         this.noneFilter = new FileChooser.ExtensionFilter("All File", "*.*");
         this.jsonFilter = new FileChooser.ExtensionFilter("Json File", "*.json");
         this.stageList = new HashSet<>(8);
-        loadVideoFilter();
     }
 
     public int getCount() {
@@ -74,7 +75,7 @@ public class AppHolder {
     }
 
     public void loadVideoFilter() {
-        this.videoFilter = new FileChooser.ExtensionFilter("Video File", splitter.splitToList(prefUtil.getDigitalContainerFormat()));
+        this.videoFilter = new FileChooser.ExtensionFilter("Video File", splitter.splitToList(DIGITAL_CONTAINER_FORMAT.stringValue()));
     }
 
 }
