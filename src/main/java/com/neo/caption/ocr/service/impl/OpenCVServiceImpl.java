@@ -8,7 +8,6 @@ import com.neo.caption.ocr.pojo.AppHolder;
 import com.neo.caption.ocr.pojo.ModuleStatus;
 import com.neo.caption.ocr.service.ModuleService;
 import com.neo.caption.ocr.service.OpenCVService;
-import com.neo.caption.ocr.util.PrefUtil;
 import javafx.scene.image.Image;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.*;
@@ -23,6 +22,7 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.neo.caption.ocr.constant.PrefKey.MODULE_PROFILE_STATUS_LIST;
 import static java.lang.StrictMath.log10;
 import static org.opencv.core.Core.*;
 import static org.opencv.core.CvType.CV_32F;
@@ -34,7 +34,6 @@ public class OpenCVServiceImpl implements OpenCVService {
 
     private final ModuleService moduleService;
     private final AppHolder appHolder;
-    private final PrefUtil prefUtil;
     private final ResourceBundle resourceBundle;
     private final Joiner joiner;
 
@@ -51,11 +50,10 @@ public class OpenCVServiceImpl implements OpenCVService {
     private int lowerRightX;
     private int lowerRightY;
 
-    public OpenCVServiceImpl(ModuleService moduleService, AppHolder appHolder, PrefUtil prefUtil,
+    public OpenCVServiceImpl(ModuleService moduleService, AppHolder appHolder,
                              ResourceBundle resourceBundle, @Qualifier("dot") Joiner joiner) {
         this.moduleService = moduleService;
         this.appHolder = appHolder;
-        this.prefUtil = prefUtil;
         this.resourceBundle = resourceBundle;
         this.joiner = joiner;
     }
@@ -150,9 +148,10 @@ public class OpenCVServiceImpl implements OpenCVService {
         return mat;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Mat filter(Mat mat) throws ModuleException, CvException {
-        List<ModuleStatus> moduleStatusList = prefUtil.getModuleStatusList()
+        List<ModuleStatus> moduleStatusList = ((List<ModuleStatus>) MODULE_PROFILE_STATUS_LIST.value())
                 .stream()
                 .filter(ModuleStatus::isEnable)
                 .sorted(Comparator.comparingInt(ModuleStatus::getIndex))
@@ -661,6 +660,7 @@ public class OpenCVServiceImpl implements OpenCVService {
             }
         }
 
+        @SuppressWarnings("SuspiciousNameCombination")
         private void check(int i, int j, List<Point> sp, List<Point> lp, Mat mat) {
             int before = j - 1;
             int after = j + 1;

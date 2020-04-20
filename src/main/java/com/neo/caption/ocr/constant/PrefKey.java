@@ -2,38 +2,77 @@ package com.neo.caption.ocr.constant;
 
 public enum PrefKey {
 
+    // int data
     MIN_PIXEL_COUNT,
-    MIN_SSIM_THRESHOLD,
-    MIN_PSNR_THRESHOLD,
     SIMILARITY_TYPE,
     STORAGE_POLICY,
-    FILE_CHOOSE_DIR,
-    DEFAULT_STYLE,
-    DIGITAL_CONTAINER_FORMAT,
     COUNT_PRE_PAGE,
     FRAME_INTERVAL,
     EDITOR_FONT_SIZE,
-    TESS_LANG,
-    DARK_THEME,
-    BACKGROUND_IMAGE,
     BACKGROUND_OPACITY,
 
-    MODULE_PROFILE_INDEX,
-    MODULE_PROFILE_FIXED_BINARY,
-    MODULE_PROFILE_ADAPTIVE_BINARY,
-    MODULE_PROFILE_HLS_COLOR,
-    MODULE_PROFILE_HSV_COLOR,
-    MODULE_PROFILE_CUSTOMIZE,
+    // double data
+    MIN_SSIM_THRESHOLD,
+    MIN_PSNR_THRESHOLD,
 
+    // string data
+    FILE_CHOOSE_DIR,
+    DEFAULT_STYLE,
+    DIGITAL_CONTAINER_FORMAT,
+    TESS_LANG,
+    BACKGROUND_IMAGE,
+    MODULE_PROFILE_NAME,
+
+    // boolean data
+    DARK_THEME,
     COMPRESS_IMAGE,
+
+    // other data
+    MODULE_PROFILE_STATUS_LIST,
+    MODULE_PROFILE_DEFAULT,
+
+    /**
+     * Read only
+     */
+    @Deprecated MODULE_PROFILE_INDEX,
+    @Deprecated MODULE_PROFILE_FIXED_BINARY,
+    @Deprecated MODULE_PROFILE_ADAPTIVE_BINARY,
+    @Deprecated MODULE_PROFILE_HLS_COLOR,
+    @Deprecated MODULE_PROFILE_HSV_COLOR,
+    @Deprecated MODULE_PROFILE_CUSTOMIZE,
 
     /**
      * Has been replaced with MODULE_PROFILE_CUSTOMIZE.
      */
-    @Deprecated
-    MODULE_STATUS_LIST,
+    @Deprecated MODULE_STATUS_LIST,
 
     ;
+
+    private Object value;
+
+    public Object value() {
+        return value;
+    }
+
+    public void setValue(Object value) {
+        this.value = value;
+    }
+
+    public String stringValue() {
+        return (String) value;
+    }
+
+    public int intValue() {
+        return (int) value;
+    }
+
+    public double doubleValue() {
+        return (double) value;
+    }
+
+    public boolean booleanValue() {
+        return (boolean) value;
+    }
 
     public final String toLowerCase() {
         return this.name().toLowerCase();

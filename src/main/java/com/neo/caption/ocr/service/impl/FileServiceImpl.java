@@ -1,7 +1,6 @@
 package com.neo.caption.ocr.service.impl;
 
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Splitter;
+import com.google.common.base.*;
 import com.google.common.collect.UnmodifiableIterator;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
@@ -10,9 +9,10 @@ import com.neo.caption.ocr.aspect.AopException;
 import com.neo.caption.ocr.exception.InvalidMatNodesException;
 import com.neo.caption.ocr.pojo.AppHolder;
 import com.neo.caption.ocr.pojo.COCRData;
+import com.neo.caption.ocr.pojo.ModuleStatus;
 import com.neo.caption.ocr.service.FileService;
 import com.neo.caption.ocr.service.OpenCVService;
-import com.neo.caption.ocr.util.PrefUtil;
+import com.neo.caption.ocr.service.PreferencesService;
 import com.neo.caption.ocr.view.MatNode;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -23,9 +23,11 @@ import org.opencv.core.Mat;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
@@ -33,7 +35,10 @@ import java.util.zip.GZIPOutputStream;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.neo.caption.ocr.constant.Dir.MODULE_PROFILE_DIR;
+import static com.neo.caption.ocr.constant.PrefKey.*;
 import static com.neo.caption.ocr.util.BaseUtil.convertTime;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Service
 @Slf4j
@@ -42,21 +47,48 @@ public class FileServiceImpl implements FileService {
     private final OpenCVService openCVService;
     private final Gson gson;
     private final AppHolder appHolder;
-    private final PrefUtil prefUtil;
+    private final PreferencesService preferencesService;
     private final Splitter splitter;
     private final CharMatcher charMatcher;
+    private final Joiner joiner;
 
     private String fileChooseInitName;
 
     public FileServiceImpl(OpenCVService openCVService, Gson gson, AppHolder appHolder,
-                           PrefUtil prefUtil, @Qualifier("lineSeparator") Splitter splitter,
-                           CharMatcher charMatcher) {
+                           PreferencesService preferencesService, @Qualifier("lineSeparator") Splitter splitter,
+                           CharMatcher charMatcher, @Qualifier("dot") Joiner joiner) {
         this.openCVService = openCVService;
         this.gson = gson;
         this.appHolder = appHolder;
-        this.prefUtil = prefUtil;
+        this.preferencesService = preferencesService;
         this.splitter = splitter;
         this.charMatcher = charMatcher;
+        this.joiner = joiner;
+    }
+
+    @PostConstruct
+    public void init() throws IOException {
+        if (!MODULE_PROFILE_DIR.exists()) {
+            Files.createDirectory(MODULE_PROFILE_DIR.toPath());
+        }
+        listProfile();
+        List<String> tempList = appHolder.getModuleProfileList();
+        String tempName = MODULE_PROFILE_NAME.stringValue();
+        if (Strings.isNullOrEmpty(tempName) || tempList.isEmpty() || !tempList.contains(tempName)) {
+            if (!tempList.contains("Default")) {
+                tempList.add("Default");
+                saveModuleProfile("Default", MODULE_PROFILE_DEFAULT.value());
+            }
+            preferencesService.put(MODULE_PROFILE_NAME, "Default");
+        }
+        loadModuleProfileStatusList();
+    }
+
+    @Override
+    @AopException
+    public void loadModuleProfileStatusList() throws IOException {
+        ModuleStatus[] moduleStatusList = readModuleProfile(MODULE_PROFILE_NAME.stringValue());
+        MODULE_PROFILE_STATUS_LIST.setValue(new ArrayList<>(Arrays.asList((moduleStatusList))));
     }
 
     @Override
@@ -88,7 +120,7 @@ public class FileServiceImpl implements FileService {
                 .append("BackColour,Bold,Italic,Underline,StrikeOut,ScaleX, ScaleY,Spacing,Angle,")
                 .append("BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding")
                 .append(System.lineSeparator())
-                .append(prefUtil.getDefaultStyle())
+                .append(DEFAULT_STYLE.stringValue())
                 .append(System.lineSeparator())
                 .append("[Events]")
                 .append(System.lineSeparator())
@@ -106,7 +138,7 @@ public class FileServiceImpl implements FileService {
                     .append(System.lineSeparator());
         }
         try (FileOutputStream fos = new FileOutputStream(assFile);
-             OutputStreamWriter writer = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
+             OutputStreamWriter writer = new OutputStreamWriter(fos, UTF_8)) {
             writer.append(stringBuilder);
         }
         return 1;
@@ -130,9 +162,9 @@ public class FileServiceImpl implements FileService {
             MatNode matNode = nodeIterator.next();
             stringBuilder.append(index + 1)
                     .append(System.lineSeparator())
-                    .append(charMatcher.replaceFrom(convertTime(matNode.getStartTime()),','))
+                    .append(charMatcher.replaceFrom(convertTime(matNode.getStartTime()), ','))
                     .append(" --> ")
-                    .append(charMatcher.replaceFrom(convertTime(matNode.getEndTime()),','))
+                    .append(charMatcher.replaceFrom(convertTime(matNode.getEndTime()), ','))
                     .append(System.lineSeparator())
                     .append(ocrIterator.hasNext() ? ocrIterator.next() : "")
                     .append(System.lineSeparator())
@@ -140,7 +172,7 @@ public class FileServiceImpl implements FileService {
             index++;
         }
         try (FileOutputStream fos = new FileOutputStream(srtFile);
-             OutputStreamWriter writer = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
+             OutputStreamWriter writer = new OutputStreamWriter(fos, UTF_8)) {
             writer.append(stringBuilder);
         }
         return 1;
@@ -191,12 +223,47 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
+    @AopException
+    @SuppressWarnings("UnstableApiUsage")
+    public void saveModuleProfile(String profileName, Object object) throws IOException {
+        File profile = new File(MODULE_PROFILE_DIR, joiner.join(profileName, "json"));
+        try (BufferedWriter bufferedWriter = com.google.common.io.Files.newWriter(profile, UTF_8)) {
+            saveJsonToFile(bufferedWriter, object);
+        }
+    }
+
+    @Override
+    @AopException
+    @SuppressWarnings("UnstableApiUsage")
+    public ModuleStatus[] readModuleProfile(String profileName) throws IOException {
+        File profile = new File(MODULE_PROFILE_DIR, joiner.join(profileName, "json"));
+        if (!profile.exists()) {
+            log.info("ProfileNotFound: {}", profile);
+            throw new FileNotFoundException();
+        }
+        try (BufferedReader bufferedReader = com.google.common.io.Files.newReader(profile, UTF_8)) {
+            return readJsonFromFile(bufferedReader, ModuleStatus[].class);
+        }
+    }
+
+    @Override
+    @AopException
+    public void deleteModuleProfile(String profileName) throws IOException {
+        File profile = new File(MODULE_PROFILE_DIR, joiner.join(profileName, "json"));
+        if (!profile.exists()) {
+            log.info("ProfileNotFound: {}", profile);
+            throw new FileNotFoundException();
+        }
+        Files.delete(profile.toPath());
+    }
+
+    @Override
     public File openFileDialog(Stage stage, String title, FileChooser.ExtensionFilter... extensionFilters) {
         FileChooser fileChooser = initFileChooser(title);
         fileChooser.getExtensionFilters().addAll(extensionFilters);
         File file = fileChooser.showOpenDialog(stage);
         if (file != null) {
-            prefUtil.setFileChooseDir(file.getParent());
+            preferencesService.put(FILE_CHOOSE_DIR, file.getParent());
             initFileName(file);
         }
         return file;
@@ -207,7 +274,7 @@ public class FileServiceImpl implements FileService {
         FileChooser fileChooser = initFileChooser(title);
         List<File> list = fileChooser.showOpenMultipleDialog(stage);
         if (list != null && !list.isEmpty()) {
-            prefUtil.setFileChooseDir(list.get(0).getParent());
+            preferencesService.put(FILE_CHOOSE_DIR, list.get(0).getParent());
         }
         return list;
     }
@@ -221,7 +288,7 @@ public class FileServiceImpl implements FileService {
         }
         File file = fileChooser.showSaveDialog(stage);
         if (file != null) {
-            prefUtil.setFileChooseDir(file.getParent());
+            preferencesService.put(FILE_CHOOSE_DIR, file.getParent());
             initFileName(file);
         }
         return file;
@@ -237,7 +304,21 @@ public class FileServiceImpl implements FileService {
             return false;
         }
         String str = fileName.substring(fileName.lastIndexOf("."));
-        return prefUtil.getDigitalContainerFormat().contains(str) || ".cocr".contains(str);
+        return DIGITAL_CONTAINER_FORMAT.stringValue().contains(str) || ".cocr".contains(str);
+    }
+
+    @Override
+    public void saveJsonToFile(Writer writer, Object object) throws IOException {
+        try (JsonWriter jsonWriter = new JsonWriter(writer)) {
+            gson.toJson(object, object.getClass(), jsonWriter);
+        }
+    }
+
+    @Override
+    public <T> T readJsonFromFile(Reader reader, Class<T> tClass) throws IOException {
+        try (JsonReader jsonReader = new JsonReader(reader)) {
+            return gson.fromJson(jsonReader, tClass);
+        }
     }
 
     private void initFileName(File file) {
@@ -250,18 +331,16 @@ public class FileServiceImpl implements FileService {
     private void compress(File file, List<COCRData> list, String ocr) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(file);
              GZIPOutputStream gzip = new GZIPOutputStream(fos);
-             OutputStreamWriter osw = new OutputStreamWriter(gzip, StandardCharsets.UTF_8);
-             JsonWriter writer = new JsonWriter(osw)) {
-            gson.toJson(new COCR(list, ocr), COCR.class, writer);
+             OutputStreamWriter osw = new OutputStreamWriter(gzip, UTF_8)) {
+            saveJsonToFile(osw, new COCR(list, ocr));
         }
     }
 
     private COCR extract(File file) throws IOException {
         try (FileInputStream fis = new FileInputStream(file);
              GZIPInputStream gzip = new GZIPInputStream(fis);
-             InputStreamReader isr = new InputStreamReader(gzip, StandardCharsets.UTF_8);
-             JsonReader jsonReader = new JsonReader(isr)) {
-            return gson.fromJson(jsonReader, COCR.class);
+             InputStreamReader isr = new InputStreamReader(gzip, UTF_8)) {
+            return readJsonFromFile(isr, COCR.class);
         }
     }
 
@@ -274,13 +353,25 @@ public class FileServiceImpl implements FileService {
     private FileChooser initFileChooser(String title) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(title);
-        if (!isNullOrEmpty(prefUtil.getFileChooseDir())) {
-            File dir = new File(prefUtil.getFileChooseDir());
+        if (!isNullOrEmpty(FILE_CHOOSE_DIR.stringValue())) {
+            File dir = new File(FILE_CHOOSE_DIR.stringValue());
             if (dir.exists()) {
                 fileChooser.setInitialDirectory(dir);
             }
         }
         return fileChooser;
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    private void listProfile() {
+        File[] files = MODULE_PROFILE_DIR.listFiles();
+        if (files == null) {
+            return;
+        }
+        appHolder.setModuleProfileList(Arrays.stream(files)
+                .filter((Predicate<File>) file -> file != null && file.getName().endsWith(".json"))
+                .map(file -> com.google.common.io.Files.getNameWithoutExtension(file.getName()))
+                .collect(Collectors.toList()));
     }
 
     /**
@@ -292,7 +383,7 @@ public class FileServiceImpl implements FileService {
 
         private static final long serialVersionUID = 7943334895304386183L;
 
-        private List<COCRData> list;
-        private String ocr;
+        private final List<COCRData> list;
+        private final String ocr;
     }
 }

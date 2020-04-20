@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static com.neo.caption.ocr.constant.Dir.SPLASH_DIR;
 import static com.neo.caption.ocr.constant.LayoutName.LAYOUT_SPLASH;
 import static com.neo.caption.ocr.util.BaseUtil.fxmlURL;
 import static javafx.scene.layout.BackgroundPosition.CENTER;
@@ -64,8 +65,7 @@ public class AppPreloader extends Preloader {
     }
 
     private InputStream getSplashInputStream() throws IOException {
-        File[] files = new File(System.getProperty("cocr.dir"), "../splash")
-                .listFiles((dir, name) -> name.endsWith(".png") || name.endsWith(".jpg"));
+        File[] files = SPLASH_DIR.listFiles((dir, name) -> name.endsWith(".png") || name.endsWith(".jpg"));
         if (files == null || files.length == 0) {
             return getClass().getResourceAsStream("/image/splash.png");
         } else {

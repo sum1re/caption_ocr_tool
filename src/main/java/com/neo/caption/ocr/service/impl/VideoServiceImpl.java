@@ -8,7 +8,6 @@ import com.neo.caption.ocr.service.OpenCVService;
 import com.neo.caption.ocr.service.VideoService;
 import com.neo.caption.ocr.util.DecimalUtil;
 import com.neo.caption.ocr.util.FxUtil;
-import com.neo.caption.ocr.util.PrefUtil;
 import com.neo.caption.ocr.view.MatNode;
 import javafx.scene.control.ProgressBar;
 import lombok.Getter;
@@ -25,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.neo.caption.ocr.constant.PrefKey.*;
 import static com.neo.caption.ocr.util.BaseUtil.convertTime;
 import static org.opencv.videoio.Videoio.*;
 
@@ -34,7 +34,6 @@ public class VideoServiceImpl implements VideoService {
 
     private final OpenCVService openCVService;
     private final VideoHolder videoHolder;
-    private final PrefUtil prefUtil;
     private final FxUtil fxUtil;
     private final AppHolder appHolder;
 
@@ -45,11 +44,10 @@ public class VideoServiceImpl implements VideoService {
     private Mat sampleMat;
     private List<ArchiveMatNode> archiveMatNodeList;
 
-    public VideoServiceImpl(OpenCVService openCVService, VideoHolder videoHolder, PrefUtil prefUtil,
+    public VideoServiceImpl(OpenCVService openCVService, VideoHolder videoHolder,
                             FxUtil fxUtil, AppHolder appHolder) {
         this.openCVService = openCVService;
         this.videoHolder = videoHolder;
-        this.prefUtil = prefUtil;
         this.fxUtil = fxUtil;
         this.appHolder = appHolder;
     }
@@ -91,13 +89,13 @@ public class VideoServiceImpl implements VideoService {
         if (!vc.isOpened()) {
             return;
         }
-        boolean isSSIM = prefUtil.getSimilarityType() == 0;
+        boolean isSSIM = SIMILARITY_TYPE.intValue() == 0;
         double threshold = isSSIM
-                ? prefUtil.getMinSSIMThreshold()
-                : prefUtil.getMinPSNRThreshold();
+                ? MIN_SSIM_THRESHOLD.doubleValue()
+                : MIN_PSNR_THRESHOLD.doubleValue();
         double similarity;
         Mat dst;
-        int frameInterval = prefUtil.getFrameInterval();
+        int frameInterval = FRAME_INTERVAL.intValue();
         // Since opencv 4.2.0, after setting the CAP_PROP_POS_FRAMES,
         // it needs to reset to 0, otherwise, it will start reading from where you previewed.
         vc.set(CAP_PROP_POS_FRAMES, 0);
@@ -113,7 +111,7 @@ public class VideoServiceImpl implements VideoService {
             dst = openCVService.filter(mat);
             double time = vc.get(CAP_PROP_POS_MSEC);
             int blackPixel = openCVService.countBlackPixel(dst);
-            if (blackPixel > prefUtil.getMinPixelCount()) {
+            if (blackPixel > MIN_PIXEL_COUNT.intValue()) {
                 if (sampleMat.empty()) {
                     addToMergeGroup(time, dst, blackPixel);
                 } else {
@@ -172,7 +170,7 @@ public class VideoServiceImpl implements VideoService {
             return;
         }
         if (size > 1) {
-            switch (prefUtil.getStoragePolicy()) {
+            switch (STORAGE_POLICY.intValue()) {
                 //STORAGE_FIRST
                 case 3:
                     archiveMatNode = archiveMatNodeList.get(0);
@@ -187,7 +185,7 @@ public class VideoServiceImpl implements VideoService {
                             .stream()
                             .sorted(Comparator.comparingInt(ArchiveMatNode::getPixelCount))
                             .collect(Collectors.toList());
-                    switch (prefUtil.getStoragePolicy()) {
+                    switch (STORAGE_POLICY.intValue()) {
                         //STORAGE_MIN
                         case 0:
                             archiveMatNode = tp.get(0);

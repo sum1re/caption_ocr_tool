@@ -22,7 +22,6 @@ public class StageListener implements ApplicationListener<MainApplication.StageE
 
     @Override
     public void onApplicationEvent(@Nonnull MainApplication.StageEvent stageEvent) {
-        log.debug("Start applicationEvent");
         try {
             Stage stage = stageEvent.getStage();
             fxUtil.loadStage(stage, LAYOUT_MAIN, "stage.title.main");
