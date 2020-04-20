@@ -33,6 +33,8 @@ public class ModuleProfileWatcher {
     private final PreferencesService preferencesService;
     private final StageBroadcast stageBroadcast;
 
+    private WatchService watchService;
+
     public ModuleProfileWatcher(AppHolder appHolder, ExecutorService executorService, FileService fileService,
                                 PreferencesService preferencesService, StageBroadcast stageBroadcast) {
         this.appHolder = appHolder;
@@ -47,15 +49,27 @@ public class ModuleProfileWatcher {
         executorService.execute(() -> {
             try {
                 task();
+            } catch (ClosedWatchServiceException ignored) {
+                // ignore ClosedWatchServiceException
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
     }
 
+    public void close() {
+        if (watchService != null) {
+            try {
+                watchService.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void task() throws IOException, InterruptedException {
         verifyListAndFile();
-        WatchService watchService = FileSystems.getDefault().newWatchService();
+        watchService = FileSystems.getDefault().newWatchService();
         MODULE_PROFILE_DIR.toPath().register(watchService, ENTRY_CREATE, ENTRY_DELETE);
         WatchKey watchKey;
         do {

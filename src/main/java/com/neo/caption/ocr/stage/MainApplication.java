@@ -2,6 +2,7 @@ package com.neo.caption.ocr.stage;
 
 import com.neo.caption.ocr.CaptionOCR;
 import com.neo.caption.ocr.util.DataUtil;
+import com.neo.caption.ocr.util.ModuleProfileWatcher;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.application.Preloader;
@@ -37,6 +38,9 @@ public class MainApplication extends Application {
 
     @Override
     public void stop() {
+        // close file watcher service
+        context.getBean(ModuleProfileWatcher.class)
+                .close();
         context.close();
         Platform.exit();
     }
