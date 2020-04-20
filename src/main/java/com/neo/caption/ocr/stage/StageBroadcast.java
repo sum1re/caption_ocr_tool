@@ -16,6 +16,7 @@ public class StageBroadcast {
     private LongProperty dataEmptyBroadcast;
     private IntegerProperty editorBroadcast;
     private LongProperty backgroundImageBroadcast;
+    private LongProperty profileListBroadcast;
 
     @PostConstruct
     public void init() {
@@ -25,6 +26,7 @@ public class StageBroadcast {
         this.dataEmptyBroadcast = new SimpleLongProperty();
         this.editorBroadcast = new SimpleIntegerProperty();
         this.backgroundImageBroadcast = new SimpleLongProperty();
+        this.profileListBroadcast = new SimpleLongProperty();
     }
 
     public void sendModuleBroadcast() {
@@ -51,6 +53,10 @@ public class StageBroadcast {
         this.backgroundImageBroadcast.set(getTimeGen());
     }
 
+    public void sendProfileListBroadcast() {
+        this.profileListBroadcast.set(getTimeGen());
+    }
+
     public LongProperty digitalBroadcast() {
         return digitalBroadcast;
     }
@@ -73,5 +79,9 @@ public class StageBroadcast {
 
     public LongProperty backgroundImageBroadcast() {
         return backgroundImageBroadcast;
+    }
+
+    public LongProperty profileListBroadcast() {
+        return profileListBroadcast;
     }
 }
