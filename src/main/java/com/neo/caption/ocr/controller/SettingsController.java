@@ -7,9 +7,9 @@ import com.neo.caption.ocr.constant.PrefKey;
 import com.neo.caption.ocr.pojo.AppHolder;
 import com.neo.caption.ocr.service.FileService;
 import com.neo.caption.ocr.service.LogService;
+import com.neo.caption.ocr.service.PreferencesService;
 import com.neo.caption.ocr.service.StageService;
 import com.neo.caption.ocr.stage.StageBroadcast;
-import com.neo.caption.ocr.util.PrefUtil;
 import com.neo.caption.ocr.view.Toast;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.neo.caption.ocr.constant.PrefKey.*;
 
 @Controller
 @Slf4j
@@ -83,7 +84,7 @@ public class SettingsController implements BaseController {
     private final FileService fileService;
     private final LogService logService;
     private final StageBroadcast stageBroadcast;
-    private final PrefUtil prefUtil;
+    private final PreferencesService preferencesService;
     private final Joiner joiner;
     private final Splitter splitter;
     private final AppHolder appHolder;
@@ -93,13 +94,14 @@ public class SettingsController implements BaseController {
     private List<String> languageList;
 
     public SettingsController(StageService stageService, FileService fileService, LogService logService,
-                              StageBroadcast stageBroadcast, PrefUtil prefUtil, @Qualifier("plus") Joiner joiner,
-                              @Qualifier("plusSplitter") Splitter splitter, AppHolder appHolder, ResourceBundle resourceBundle) {
+                              StageBroadcast stageBroadcast, PreferencesService preferencesService,
+                              @Qualifier("plus") Joiner joiner, @Qualifier("plusSplitter") Splitter splitter,
+                              AppHolder appHolder, ResourceBundle resourceBundle) {
         this.stageService = stageService;
         this.fileService = fileService;
         this.logService = logService;
         this.stageBroadcast = stageBroadcast;
-        this.prefUtil = prefUtil;
+        this.preferencesService = preferencesService;
         this.joiner = joiner;
         this.splitter = splitter;
         this.appHolder = appHolder;
@@ -108,13 +110,13 @@ public class SettingsController implements BaseController {
 
     @Override
     public void init() {
-        text_cds.setText(prefUtil.getDefaultStyle());
-        text_dcf.setText(prefUtil.getDigitalContainerFormat());
-        spinner_efs.getValueFactory().setValue(prefUtil.getEditorFontSize());
-        spinner_fi.getValueFactory().setValue(prefUtil.getFrameInterval());
-        spinner_cpp.getValueFactory().setValue(prefUtil.getCountPerPage());
-        check_compress.setSelected(prefUtil.isCompressImage());
-        this.languageList = new ArrayList<>(splitter.splitToList(prefUtil.getTessLang()));
+        text_cds.setText(DEFAULT_STYLE.stringValue());
+        text_dcf.setText(DIGITAL_CONTAINER_FORMAT.stringValue());
+        spinner_efs.getValueFactory().setValue(EDITOR_FONT_SIZE.intValue());
+        spinner_fi.getValueFactory().setValue(FRAME_INTERVAL.intValue());
+        spinner_cpp.getValueFactory().setValue(COUNT_PRE_PAGE.intValue());
+        check_compress.setSelected(COMPRESS_IMAGE.booleanValue());
+        this.languageList = new ArrayList<>(splitter.splitToList(TESS_LANG.stringValue()));
         for (String s : languageList) {
             switch (s) {
                 case "chi_sim":
@@ -135,14 +137,14 @@ public class SettingsController implements BaseController {
     @Override
     public void destroy() {
         stage.setOnHiding(windowEvent -> {
-            saveTextArea(text_cds, prefUtil.getDefaultStyle(), PrefKey.DEFAULT_STYLE);
-            saveTextArea(text_dcf, prefUtil.getDigitalContainerFormat(), PrefKey.DIGITAL_CONTAINER_FORMAT);
+            saveTextArea(text_cds, DEFAULT_STYLE.stringValue(), PrefKey.DEFAULT_STYLE);
+            saveTextArea(text_dcf, DIGITAL_CONTAINER_FORMAT.stringValue(), PrefKey.DIGITAL_CONTAINER_FORMAT);
             if (!languageList.isEmpty()) {
                 String lang = joiner.join(languageList);
-                if (lang.equals(prefUtil.getTessLang())) {
+                if (lang.equals(TESS_LANG.stringValue())) {
                     return;
                 }
-                prefUtil.setTessLang(lang);
+                preferencesService.put(TESS_LANG, lang);
                 stageBroadcast.sendTessLangBroadcast();
             }
             stageService.remove(stage);
@@ -152,33 +154,33 @@ public class SettingsController implements BaseController {
     @Override
     public void delay() {
         this.stage = stageService.add(root);
-        if (!isNullOrEmpty(prefUtil.getBackgroundImage())) {
-            background_image.setText(prefUtil.getBackgroundImage());
+        if (!isNullOrEmpty(BACKGROUND_IMAGE.stringValue())) {
+            background_image.setText(BACKGROUND_IMAGE.stringValue());
             background_del.setVisible(true);
             background_del.setManaged(true);
         }
-        slider_opacity.setValue(prefUtil.getBackgroundOpacity());
-        check_dark.setSelected(prefUtil.isDarkTheme());
-        spinner_mpc.getValueFactory().setValue(prefUtil.getMinPixelCount());
-        spinner_ssim.getValueFactory().setValue(prefUtil.getMinSSIMThreshold());
-        spinner_psnr.getValueFactory().setValue(prefUtil.getMinPSNRThreshold());
-        choice_similarity_type.getSelectionModel().select(prefUtil.getSimilarityType());
-        choice_storage_policy.getSelectionModel().select(prefUtil.getStoragePolicy());
+        slider_opacity.setValue(BACKGROUND_OPACITY.intValue());
+        check_dark.setSelected(DARK_THEME.booleanValue());
+        spinner_mpc.getValueFactory().setValue(MIN_PIXEL_COUNT.intValue());
+        spinner_ssim.getValueFactory().setValue(MIN_SSIM_THRESHOLD.doubleValue());
+        spinner_psnr.getValueFactory().setValue(MIN_PSNR_THRESHOLD.doubleValue());
+        choice_similarity_type.getSelectionModel().select(SIMILARITY_TYPE.intValue());
+        choice_storage_policy.getSelectionModel().select(STORAGE_POLICY.intValue());
     }
 
     @Override
     public void bindListener() {
         spinner_efs.valueProperty().addListener(this::onEditorSizeModify);
-        spinner_fi.valueProperty().addListener((ov, a, b) -> prefUtil.setFrameInterval(b));
-        spinner_cpp.valueProperty().addListener((ov, a, b) -> prefUtil.setCountPerPage(b));
+        spinner_fi.valueProperty().addListener((ov, a, b) -> preferencesService.put(FRAME_INTERVAL, b));
+        spinner_cpp.valueProperty().addListener((ov, a, b) -> preferencesService.put(COUNT_PRE_PAGE, b));
         check_compress.selectedProperty().addListener(this::onCompressModify);
-        spinner_mpc.valueProperty().addListener((ov, a, b) -> prefUtil.setMinPixelCount(b));
-        spinner_ssim.valueProperty().addListener((ov, a, b) -> prefUtil.setMinSSIMThreshold(b));
-        spinner_psnr.valueProperty().addListener((ov, a, b) -> prefUtil.setMinPSNRThreshold(b));
+        spinner_mpc.valueProperty().addListener((ov, a, b) -> preferencesService.put(MIN_PIXEL_COUNT, b));
+        spinner_ssim.valueProperty().addListener((ov, a, b) -> preferencesService.put(MIN_SSIM_THRESHOLD, b));
+        spinner_psnr.valueProperty().addListener((ov, a, b) -> preferencesService.put(MIN_PSNR_THRESHOLD, b));
         choice_similarity_type.getSelectionModel().selectedItemProperty()
-                .addListener((ov, a, b) -> prefUtil.setSimilarityType(getChoiceSelected(choice_similarity_type)));
+                .addListener((ov, a, b) -> preferencesService.put(SIMILARITY_TYPE, getChoiceSelected(choice_similarity_type)));
         choice_storage_policy.getSelectionModel().selectedItemProperty()
-                .addListener((ov, a, b) -> prefUtil.setStoragePolicy(getChoiceSelected(choice_storage_policy)));
+                .addListener((ov, a, b) -> preferencesService.put(STORAGE_POLICY, getChoiceSelected(choice_storage_policy)));
         check_sim.selectedProperty().addListener((ov, a, b) -> onCheckBoxClick(b, "chi_sim"));
         check_tra.selectedProperty().addListener((ov, a, b) -> onCheckBoxClick(b, "chi_tra"));
         check_jpn.selectedProperty().addListener((ov, a, b) -> onCheckBoxClick(b, "jpn"));
@@ -193,7 +195,7 @@ public class SettingsController implements BaseController {
     public void onClick(ActionEvent actionEvent) {
         switch (((Button) actionEvent.getSource()).getId()) {
             case "background_del":
-                prefUtil.removePref(PrefKey.BACKGROUND_IMAGE);
+                preferencesService.remove(BACKGROUND_IMAGE);
                 background_image.setText("...");
                 slider_opacity.setValue(100);
                 background_del.setVisible(false);
@@ -204,7 +206,7 @@ public class SettingsController implements BaseController {
                 if (file == null) {
                     break;
                 }
-                prefUtil.setBackgroundImage(file.getAbsolutePath());
+                preferencesService.put(BACKGROUND_IMAGE, file.getAbsolutePath());
                 background_image.setText(file.getAbsolutePath());
                 stageBroadcast.sendBackgroundImageBroadcast();
                 if (!background_del.isVisible()) {
@@ -217,33 +219,31 @@ public class SettingsController implements BaseController {
 
     private void onCheckBoxClick(boolean isSelected, String value) {
         if (isSelected) {
-            if (languageList.indexOf(value) == -1) {
+            if (!languageList.contains(value)) {
                 languageList.add(value);
             }
             return;
         }
-        if (languageList.indexOf(value) != -1) {
-            languageList.remove(value);
-        }
+        languageList.remove(value);
     }
 
     private void onEditorSizeModify(ObservableValue<?> ov, Integer a, Integer b) {
-        prefUtil.setEditorFontSize(b);
+        preferencesService.put(EDITOR_FONT_SIZE, b);
         stageBroadcast.sendEditorBroadcast(b);
     }
 
     private void onOpacityModify(ObservableValue<?> ov, Number a, Number b) {
-        prefUtil.setBackgroundOpacity(b.intValue());
+        preferencesService.put(BACKGROUND_OPACITY, b.intValue());
         stageBroadcast.sendBackgroundImageBroadcast();
     }
 
     private void onCompressModify(ObservableValue<?> ov, Boolean a, Boolean b) {
-        prefUtil.setCompressImage(b);
+        preferencesService.put(COMPRESS_IMAGE, b);
         Toast.makeToast(stage, resourceBundle.getString("snackbar.modify.compress"));
     }
 
     private void onThemeModify(ObservableValue<?> ov, Boolean a, Boolean b) {
-        prefUtil.setDarkTheme(b);
+        preferencesService.put(DARK_THEME, b);
         Toast.makeToast(stage, resourceBundle.getString("snackbar.modify.theme"));
     }
 
@@ -255,11 +255,11 @@ public class SettingsController implements BaseController {
         String result = textArea.getText();
         if (!ori.equals(result)) {
             if (isNullOrEmpty(result)) {
-                prefUtil.removePref(prefKey);
+                preferencesService.remove(prefKey);
             } else if (prefKey == PrefKey.DEFAULT_STYLE) {
-                prefUtil.setDefaultStyle(result);
+                preferencesService.put(DEFAULT_STYLE, result);
             } else if (prefKey == PrefKey.DIGITAL_CONTAINER_FORMAT) {
-                prefUtil.setDigitalContainerFormat(result);
+                preferencesService.put(DIGITAL_CONTAINER_FORMAT, result);
                 stageBroadcast.sendDigitalBroadcast();
             }
         }

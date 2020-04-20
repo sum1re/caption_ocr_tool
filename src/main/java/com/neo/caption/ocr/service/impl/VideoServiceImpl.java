@@ -89,13 +89,13 @@ public class VideoServiceImpl implements VideoService {
         if (!vc.isOpened()) {
             return;
         }
-        boolean isSSIM = SIMILARITY_TYPE.getIntValue() == 0;
+        boolean isSSIM = SIMILARITY_TYPE.intValue() == 0;
         double threshold = isSSIM
-                ? MIN_SSIM_THRESHOLD.getDoubleValue()
-                : MIN_PSNR_THRESHOLD.getDoubleValue();
+                ? MIN_SSIM_THRESHOLD.doubleValue()
+                : MIN_PSNR_THRESHOLD.doubleValue();
         double similarity;
         Mat dst;
-        int frameInterval = FRAME_INTERVAL.getIntValue();
+        int frameInterval = FRAME_INTERVAL.intValue();
         // Since opencv 4.2.0, after setting the CAP_PROP_POS_FRAMES,
         // it needs to reset to 0, otherwise, it will start reading from where you previewed.
         vc.set(CAP_PROP_POS_FRAMES, 0);
@@ -111,7 +111,7 @@ public class VideoServiceImpl implements VideoService {
             dst = openCVService.filter(mat);
             double time = vc.get(CAP_PROP_POS_MSEC);
             int blackPixel = openCVService.countBlackPixel(dst);
-            if (blackPixel > MIN_PIXEL_COUNT.getIntValue()) {
+            if (blackPixel > MIN_PIXEL_COUNT.intValue()) {
                 if (sampleMat.empty()) {
                     addToMergeGroup(time, dst, blackPixel);
                 } else {
@@ -170,7 +170,7 @@ public class VideoServiceImpl implements VideoService {
             return;
         }
         if (size > 1) {
-            switch (STORAGE_POLICY.getIntValue()) {
+            switch (STORAGE_POLICY.intValue()) {
                 //STORAGE_FIRST
                 case 3:
                     archiveMatNode = archiveMatNodeList.get(0);
@@ -185,7 +185,7 @@ public class VideoServiceImpl implements VideoService {
                             .stream()
                             .sorted(Comparator.comparingInt(ArchiveMatNode::getPixelCount))
                             .collect(Collectors.toList());
-                    switch (STORAGE_POLICY.getIntValue()) {
+                    switch (STORAGE_POLICY.intValue()) {
                         //STORAGE_MIN
                         case 0:
                             archiveMatNode = tp.get(0);

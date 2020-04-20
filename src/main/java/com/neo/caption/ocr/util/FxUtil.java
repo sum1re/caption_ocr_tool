@@ -12,6 +12,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextInputDialog;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
@@ -21,9 +22,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
 import static com.neo.caption.ocr.AppPreloader.logoImage;
+import static com.neo.caption.ocr.constant.PrefKey.DARK_THEME;
 import static com.neo.caption.ocr.util.BaseUtil.fxmlURL;
 
 @Slf4j
@@ -33,13 +37,11 @@ public class FxUtil {
     private final ApplicationContext context;
     private final ResourceBundle resourceBundle;
     private final AppHolder appHolder;
-    private final PrefUtil prefUtil;
 
-    public FxUtil(ApplicationContext context, ResourceBundle resourceBundle, AppHolder appHolder, PrefUtil prefUtil) {
+    public FxUtil(ApplicationContext context, ResourceBundle resourceBundle, AppHolder appHolder) {
         this.context = context;
         this.resourceBundle = resourceBundle;
         this.appHolder = appHolder;
-        this.prefUtil = prefUtil;
     }
 
     public void loadStage(Stage stage, LayoutName layoutName, String titleKey) throws IOException {
@@ -52,7 +54,7 @@ public class FxUtil {
         if (stage.getIcons().isEmpty()) {
             stage.getIcons().add(logoImage);
         }
-        new JMetro(scene, prefUtil.isDarkTheme() ? Style.DARK : Style.LIGHT);
+        new JMetro(scene, DARK_THEME.booleanValue() ? Style.DARK : Style.LIGHT);
     }
 
     public <T> void onFXThread(final ObjectProperty<T> property, final T value) {
@@ -69,6 +71,15 @@ public class FxUtil {
 
     public void setFontSize(TextArea textArea, int value) {
         textArea.setStyle("-fx-font-size: " + value);
+    }
+
+    public Optional<String> textInputAlert(Stage stage, String headerText) {
+        TextInputDialog dialog = new TextInputDialog("");
+        dialog.initOwner(stage);
+        dialog.setHeaderText(headerText);
+        dialog.getDialogPane().setStyle("-fx-padding: 8");
+        new JMetro(dialog.getDialogPane().getScene(), DARK_THEME.booleanValue() ? Style.DARK : Style.LIGHT);
+        return dialog.showAndWait();
     }
 
     public Optional<ButtonType> showAlert(
@@ -95,9 +106,10 @@ public class FxUtil {
             }
         }
         alert.getDialogPane().setStyle("-fx-padding: 8");
-        new JMetro(alert.getDialogPane().getScene(), prefUtil.isDarkTheme() ? Style.DARK : Style.LIGHT);
+        new JMetro(alert.getDialogPane().getScene(), DARK_THEME.booleanValue() ? Style.DARK : Style.LIGHT);
         return alert.showAndWait();
     }
+
 
     public Optional<ButtonType> alertWithCancel(
             Stage stage, String title, String headerText, String contentText, List<String> expandList) {

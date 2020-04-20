@@ -29,6 +29,7 @@ public enum PrefKey {
 
     // other data
     MODULE_PROFILE_STATUS_LIST,
+    MODULE_PROFILE_DEFAULT,
 
     /**
      * Read only
@@ -49,7 +50,7 @@ public enum PrefKey {
 
     private Object value;
 
-    public Object getValue() {
+    public Object value() {
         return value;
     }
 
@@ -57,19 +58,19 @@ public enum PrefKey {
         this.value = value;
     }
 
-    public String getStringValue() {
+    public String stringValue() {
         return (String) value;
     }
 
-    public int getIntValue() {
+    public int intValue() {
         return (int) value;
     }
 
-    public double getDoubleValue() {
+    public double doubleValue() {
         return (double) value;
     }
 
-    public boolean getBooleanValue() {
+    public boolean booleanValue() {
         return (boolean) value;
     }
 

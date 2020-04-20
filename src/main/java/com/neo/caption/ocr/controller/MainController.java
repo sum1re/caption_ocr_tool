@@ -4,11 +4,11 @@ import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.neo.caption.ocr.constant.LayoutName;
 import com.neo.caption.ocr.pojo.AppHolder;
+import com.neo.caption.ocr.pojo.Build;
 import com.neo.caption.ocr.service.*;
 import com.neo.caption.ocr.stage.StageBroadcast;
 import com.neo.caption.ocr.util.AsyncTask;
 import com.neo.caption.ocr.util.FxUtil;
-import com.neo.caption.ocr.util.PrefUtil;
 import com.neo.caption.ocr.view.MatNode;
 import com.neo.caption.ocr.view.Toast;
 import javafx.application.Platform;
@@ -23,7 +23,6 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 
@@ -36,6 +35,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.neo.caption.ocr.constant.PrefKey.*;
 import static com.neo.caption.ocr.util.DecimalUtil.divide;
 import static javafx.scene.layout.BackgroundPosition.CENTER;
 import static javafx.scene.layout.BackgroundRepeat.NO_REPEAT;
@@ -68,7 +68,6 @@ public class MainController implements BaseController {
     @FXML
     public Label frame_time;
 
-    private final BuildProperties buildProperties;
     private final MatNodeService matNodeService;
     private final FileService fileService;
     private final OpenCVService openCVService;
@@ -79,7 +78,7 @@ public class MainController implements BaseController {
     private final FxUtil fxUtil;
     private final ResourceBundle resourceBundle;
     private final AppHolder appHolder;
-    private final PrefUtil prefUtil;
+    private final PreferencesService preferencesService;
     private final ExecutorService service;
 
     private final static String MASK_LIGHT_STYLE = "-fx-background-color: rgba(255,255,255,%1$f)";
@@ -97,13 +96,12 @@ public class MainController implements BaseController {
     private double matNodeHeight;
     private int oldLine;
 
-    public MainController(OCRService ocrService, BuildProperties buildProperties, MatNodeService matNodeService,
+    public MainController(OCRService ocrService, MatNodeService matNodeService, PreferencesService preferencesService,
                           FileService fileService, OpenCVService openCVService, VideoService videoService,
                           StageService stageService, StageBroadcast stageBroadcast, FxUtil fxUtil,
                           ExecutorService service, ResourceBundle resourceBundle,
-                          AppHolder appHolder, PrefUtil prefUtil) {
+                          AppHolder appHolder) {
         this.ocrService = ocrService;
-        this.buildProperties = buildProperties;
         this.matNodeService = matNodeService;
         this.fileService = fileService;
         this.openCVService = openCVService;
@@ -114,7 +112,7 @@ public class MainController implements BaseController {
         this.service = service;
         this.resourceBundle = resourceBundle;
         this.appHolder = appHolder;
-        this.prefUtil = prefUtil;
+        this.preferencesService = preferencesService;
     }
 
     @Override
@@ -138,7 +136,7 @@ public class MainController implements BaseController {
     @Override
     public void delay() {
         this.stage = stageService.add(root);
-        fxUtil.setFontSize(text_area, prefUtil.getEditorFontSize());
+        fxUtil.setFontSize(text_area, EDITOR_FONT_SIZE.intValue());
         this.scrollPaneWidth = scroll_pane.getWidth();
         onBackgroundModify();
     }
@@ -372,9 +370,9 @@ public class MainController implements BaseController {
         try (InputStream ips = getClass().getResourceAsStream("/ThirdLicense");
              InputStreamReader reader = new InputStreamReader(ips, Charsets.UTF_8)) {
             fxUtil.alert(stage,
-                    buildProperties.getName(),
-                    buildProperties.getVersion(),
-                    buildProperties.get("description"),
+                    Build.Info.NAME.value(),
+                    Build.Info.VERSION.value(),
+                    Build.Info.DESCRIPTION.value(),
                     Collections.singletonList(CharStreams.toString(reader)));
         }
     }
@@ -462,7 +460,7 @@ public class MainController implements BaseController {
             } else {
                 openVideo(file);
             }
-            prefUtil.setFileChooseDir(file.getParent());
+            preferencesService.put(FILE_CHOOSE_DIR, file.getParent());
         }
     }
 
@@ -592,13 +590,13 @@ public class MainController implements BaseController {
     }
 
     private void onBackgroundModify() {
-        mask.setStyle(String.format(prefUtil.isDarkTheme() ? MASK_DARK_STYLE : MASK_LIGHT_STYLE,
-                divide(prefUtil.getBackgroundOpacity(), 100)));
-        if (isNullOrEmpty(prefUtil.getBackgroundImage())) {
+        mask.setStyle(String.format(DARK_THEME.booleanValue() ? MASK_DARK_STYLE : MASK_LIGHT_STYLE,
+                divide(BACKGROUND_OPACITY.intValue(), 100)));
+        if (isNullOrEmpty(BACKGROUND_IMAGE.stringValue())) {
             root.setBackground(Background.EMPTY);
             return;
         }
-        File file = new File(prefUtil.getBackgroundImage());
+        File file = new File(BACKGROUND_IMAGE.stringValue());
         try (FileInputStream fis = new FileInputStream(file)) {
             Image image = new Image(fis, 1920, 0, true, true);
             BackgroundImage backgroundImage = new BackgroundImage(image, NO_REPEAT, NO_REPEAT, CENTER,
@@ -725,11 +723,11 @@ public class MainController implements BaseController {
         List<MatNode> matNodeList = appHolder.getMatNodeList()
                 .stream()
                 .skip(flow_pane.getChildren().size())
-                .limit(prefUtil.getCountPerPage())
+                .limit(COUNT_PRE_PAGE.intValue())
                 .collect(Collectors.toList());
         for (MatNode matNode : matNodeList) {
             matNode.setOnMouseClicked(mouseEvent -> onMatNodeClick(mouseEvent, matNode));
-            matNode.loadImage(openCVService.mat2Image(matNode.getMat(), prefUtil.isCompressImage()), scrollPaneWidth);
+            matNode.loadImage(openCVService.mat2Image(matNode.getMat(), COMPRESS_IMAGE.booleanValue()), scrollPaneWidth);
             matNode.setToggleGroup(group);
         }
         flow_pane.getChildren().addAll(matNodeList);
