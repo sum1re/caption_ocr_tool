@@ -1,6 +1,7 @@
 package com.neo.caption.ocr.stage;
 
 import com.neo.caption.ocr.CaptionOCR;
+import com.neo.caption.ocr.util.DataUtil;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.application.Preloader;
@@ -10,6 +11,8 @@ import org.opencv.core.Core;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ConfigurableApplicationContext;
+
+import java.io.IOException;
 
 import static javafx.application.Preloader.StateChangeNotification.Type.BEFORE_START;
 
@@ -25,8 +28,10 @@ public class MainApplication extends Application {
     }
 
     @Override
-    public void start(Stage stage) {
+    public void start(Stage stage) throws IOException {
         context.publishEvent(new StageEvent(stage));
+        DataUtil dataUtil = context.getBean(DataUtil.class);
+        dataUtil.dealOldData();
         notifyPreloader(new Preloader.StateChangeNotification(BEFORE_START));
     }
 
@@ -40,12 +45,12 @@ public class MainApplication extends Application {
 
         private static final long serialVersionUID = -2677123198031625706L;
 
-        Stage getStage() {
-            return (Stage) getSource();
-        }
-
         StageEvent(Object source) {
             super(source);
+        }
+
+        Stage getStage() {
+            return (Stage) getSource();
         }
     }
 }
