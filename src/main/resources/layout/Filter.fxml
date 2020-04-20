@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.collections.FXCollections?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import java.util.HashMap?>
-
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
 <SplitPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/11.0.1" fx:id="split_main"
            prefHeight="600.0" prefWidth="800.0" style="-fx-font-size: 14;" dividerPositions="0.2,0.7"
            fx:controller="com.neo.caption.ocr.controller.FilterController">
@@ -21,34 +18,15 @@
         <CheckBox fx:id="check_filter" text="%filter.eff"/>
         <!-- module profile -->
         <Label text="%filter.module.profile"/>
-        <HBox spacing="8.0">
-            <ChoiceBox fx:id="choice_profile">
-                <!-- i18n If IDEA prompts the error, please ignore it. -->
-                <fx:define>
-                    <HashMap fx:id="profile"
-                             fixed="%filter.module.profile.fixed_binary"
-                             adaptive="%filter.module.profile.adaptive_binary"
-                             hsv="%filter.module.profile.hsv_color"
-                             hls="%filter.module.profile.hls_color"
-                             customize="%filter.module.profile.customize"/>
-                </fx:define>
-                <items>
-                    <!-- Must be consistent with the sort of ModuleProfile. -->
-                    <FXCollections fx:factory="observableArrayList">
-                        <fx:reference source="profile.customize"/>
-                        <fx:reference source="profile.fixed"/>
-                        <fx:reference source="profile.adaptive"/>
-                        <fx:reference source="profile.hsv"/>
-                        <fx:reference source="profile.hls"/>
-                    </FXCollections>
-                </items>
-            </ChoiceBox>
-            <Button minWidth="55.0" text="%filter.module.reset"
-                    onAction="#onResetProfile">
-                <tooltip>
-                    <Tooltip text="%filter.module.reset.description"/>
-                </tooltip>
-            </Button>
+        <HBox>
+            <ChoiceBox fx:id="choice_profile" prefWidth="999.0"/>
+            <MenuBar minWidth="55.0" prefWidth="55.0">
+                <Menu mnemonicParsing="false" text="...">
+                    <MenuItem mnemonicParsing="false" onAction="#onCreate" text="%filter.module.profile.create"/>
+                    <MenuItem mnemonicParsing="false" onAction="#onCopy" text="%filter.module.profile.copy"/>
+                    <MenuItem mnemonicParsing="false" onAction="#onDelete" text="%filter.module.profile.delete"/>
+                </Menu>
+            </MenuBar>
         </HBox>
         <!-- for advanced -->
         <TitledPane text="%filter.module.type_list">
