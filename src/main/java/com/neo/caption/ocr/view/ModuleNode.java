@@ -38,8 +38,8 @@ public class ModuleNode extends TitledPane implements Initializable {
     @FXML
     public Button btn_del;
 
-    private String nodeTypeHeadName;
-    private ModuleStatus moduleStatus;
+    private final String nodeTypeHeadName;
+    private final ModuleStatus moduleStatus;
     private int index;
 
     public ModuleNode(ModuleStatus moduleStatus, String nodeTypeHeadName, ResourceBundle resourceBundle) {
