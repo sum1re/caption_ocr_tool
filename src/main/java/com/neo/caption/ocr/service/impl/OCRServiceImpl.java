@@ -6,7 +6,6 @@ import com.neo.caption.ocr.pojo.AppHolder;
 import com.neo.caption.ocr.service.OCRService;
 import com.neo.caption.ocr.service.OpenCVService;
 import com.neo.caption.ocr.util.FxUtil;
-import com.neo.caption.ocr.util.PrefUtil;
 import javafx.scene.control.ProgressBar;
 import lombok.extern.slf4j.Slf4j;
 import org.bytedeco.javacpp.BytePointer;
@@ -19,6 +18,7 @@ import java.io.File;
 import java.util.ResourceBundle;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.neo.caption.ocr.constant.PrefKey.TESS_LANG;
 
 @Service
 @Slf4j
@@ -29,35 +29,38 @@ public class OCRServiceImpl implements OCRService {
     private final TessBaseAPI api;
     private final FxUtil fxUtil;
     private final AppHolder appHolder;
-    private final PrefUtil prefUtil;
 
     private boolean ready;
 
     public OCRServiceImpl(ResourceBundle resourceBundle, OpenCVService openCVService, TessBaseAPI api,
-                          FxUtil fxUtil, AppHolder appHolder, PrefUtil prefUtil) {
+                          FxUtil fxUtil, AppHolder appHolder) {
         this.resourceBundle = resourceBundle;
         this.openCVService = openCVService;
         this.api = api;
         this.fxUtil = fxUtil;
         this.appHolder = appHolder;
-        this.prefUtil = prefUtil;
     }
 
     @PostConstruct
-    public void init(){
+    public void init() {
         this.ready = false;
     }
 
     @Override
     @AopException
     public void apiInit() throws TessException {
-        if (!TESS_DATA_DIR.exists()) {
+        String usrDir = System.getProperty("cocr.dir");
+        if (isNullOrEmpty(usrDir)) {
+            throw new TessException(resourceBundle.getString("exception.msg.tess.property"));
+        }
+        File tessData = new File(usrDir, "tessdata");
+        if (!tessData.exists()) {
             throw new TessException(resourceBundle.getString("exception.msg.tess.data.miss"));
         }
-        if (api.Init(TESS_DATA_DIR.getAbsolutePath(), TESS_LANG.stringValue()) != 0) {
+        if (api.Init(tessData.getAbsolutePath(), TESS_LANG.stringValue()) != 0) {
             throw new TessException(resourceBundle.getString("exception.msg.tess.init"));
         }
-        api.ReadConfigFile(new File(TESS_DATA_DIR, "config").getAbsolutePath());
+        api.ReadConfigFile(new File(tessData, "config").getAbsolutePath());
         ready = true;
     }
 
