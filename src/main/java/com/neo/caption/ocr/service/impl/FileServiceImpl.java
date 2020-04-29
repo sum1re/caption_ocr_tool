@@ -224,6 +224,16 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @AopException
+    public Integer saveOCRText(File txtFile) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(txtFile);
+             OutputStreamWriter writer = new OutputStreamWriter(fos, UTF_8)) {
+            writer.append(appHolder.getOcr());
+        }
+        return 1;
+    }
+
+    @Override
+    @AopException
     @SuppressWarnings("UnstableApiUsage")
     public void saveModuleProfile(String profileName, Object object) throws IOException {
         File profile = new File(MODULE_PROFILE_DIR, joiner.join(profileName, "json"));

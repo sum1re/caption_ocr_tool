@@ -1,6 +1,7 @@
 package com.neo.caption.ocr.controller;
 
 import com.google.common.base.Joiner;
+import com.google.common.io.Files;
 import com.neo.caption.ocr.pojo.AppHolder;
 import com.neo.caption.ocr.service.FileService;
 import com.neo.caption.ocr.service.OCRService;
@@ -13,6 +14,7 @@ import com.neo.caption.ocr.view.Toast;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -47,6 +49,8 @@ public class BatController implements BaseController {
     public Button btn_add;
     @FXML
     public Button btn_remove;
+    @FXML
+    public CheckBox save_to_txt;
 
     private final StageService stageService;
     private final VideoService videoService;
@@ -224,6 +228,7 @@ public class BatController implements BaseController {
         }
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     private void doOCRTask(BatNode batNode) {
         if (skipOCR) {
             fxUtil.onFXThread(batNode.statusProperty(), getBatBundle(BatStatus.ERROR.toLowerCase()));
@@ -238,6 +243,11 @@ public class BatController implements BaseController {
             ocrService.doOCR(batNode.getProgress_bar());
             fxUtil.onFXThread(batNode.statusProperty(), getBatBundle(BatStatus.SAVING.toLowerCase()));
             fileService.saveCOCR(toCOCRFile(batNode.getFile()));
+            if (save_to_txt.isSelected()) {
+                String fileName = Files.getNameWithoutExtension(batNode.getFile().getName());
+                File txtFile = new File(batNode.getFile().getParentFile(), joiner.join(fileName, "txt"));
+                fileService.saveOCRText(txtFile);
+            }
             batNode.setFinish(true);
         } catch (Throwable throwable) {
             batNode.setError(true);
