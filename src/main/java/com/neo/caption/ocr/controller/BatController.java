@@ -48,8 +48,6 @@ public class BatController implements BaseController {
     @FXML
     public Button btn_add;
     @FXML
-    public Button btn_remove;
-    @FXML
     public CheckBox save_to_txt;
 
     private final StageService stageService;
@@ -141,13 +139,17 @@ public class BatController implements BaseController {
             service.shutdownNow();
             btn_start.setText(getBatBundle("start"));
         } else {
-            work = true;
-            btn_start.setText(getBatBundle("stop"));
             Iterator<BatNode> iterator = bat_node_list.getChildren()
                     .stream()
                     .map(node -> (BatNode) node)
                     .filter(node -> node.isValid() && !node.isFinish() && !node.isError())
                     .iterator();
+            if (!iterator.hasNext()) {
+                Toast.makeToast(stage, resourceBundle.getString("snackbar.empty.bat"));
+                return;
+            }
+            work = true;
+            btn_start.setText(getBatBundle("stop"));
             while (iterator.hasNext()) {
                 addBatTask(iterator.next(), iterator.hasNext());
             }
@@ -170,6 +172,7 @@ public class BatController implements BaseController {
                     BatNode batNode = new BatNode();
                     batNode.setValid(fileService.verifyBatFile(file))
                             .setFile(file)
+                            .setDeleteAction(actionEvent -> onBatNodeDelete(batNode))
                             .setToggleGroup(group);
                     fxUtil.onFXThread(batNode.statusProperty(), getBatBundle(
                             (batNode.isValid() ? BatStatus.READY : BatStatus.INVALID).toLowerCase()));
@@ -178,12 +181,11 @@ public class BatController implements BaseController {
                 .collect(Collectors.toList()));
     }
 
-    @FXML
-    public void onRemove() {
+    private void onBatNodeDelete(BatNode batNode) {
         if (work) {
+            Toast.makeToast(stage, resourceBundle.getString("snackbar.wait"));
             return;
         }
-        BatNode batNode = (BatNode) group.getSelectedToggle();
         if (batNode == null) {
             return;
         }

@@ -14,8 +14,6 @@
                     onAction="#onClick"/>
             <Button fx:id="btn_add" text="%bat.add_items"
                     onAction="#onAdd"/>
-            <Button fx:id="btn_remove" text="%bat.remove_item"
-                    onAction="#onRemove"/>
             <CheckBox fx:id="save_to_txt" text="%bat.save_to_txt">
                 <tooltip>
                     <Tooltip text="%bat.save_to_txt.description"/>
