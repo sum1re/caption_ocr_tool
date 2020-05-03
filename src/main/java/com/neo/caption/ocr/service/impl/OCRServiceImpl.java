@@ -1,11 +1,13 @@
 package com.neo.caption.ocr.service.impl;
 
+import com.google.common.collect.UnmodifiableIterator;
 import com.neo.caption.ocr.aspect.AopException;
 import com.neo.caption.ocr.exception.TessException;
 import com.neo.caption.ocr.pojo.AppHolder;
 import com.neo.caption.ocr.service.OCRService;
 import com.neo.caption.ocr.service.OpenCVService;
 import com.neo.caption.ocr.util.FxUtil;
+import com.neo.caption.ocr.view.MatNode;
 import javafx.scene.control.ProgressBar;
 import lombok.extern.slf4j.Slf4j;
 import org.bytedeco.javacpp.BytePointer;
@@ -17,6 +19,7 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.ResourceBundle;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.neo.caption.ocr.constant.Dir.TESS_DATA_DIR;
 import static com.neo.caption.ocr.constant.PrefKey.TESS_LANG;
 
@@ -70,12 +73,19 @@ public class OCRServiceImpl implements OCRService {
     @Override
     public Integer doOCR(ProgressBar jfxProgressBar) {
         StringBuilder stringBuilder = appHolder.getStringBuilder();
-        for (int i = 0, len = appHolder.getMatNodeList().size(), n = len - 1; i < len; i++) {
-            fxUtil.onFXThread(jfxProgressBar.progressProperty(), (double) i / n);
-            stringBuilder.append(doOCR(appHolder.getMatNodeList().get(i).getMat()));
+        UnmodifiableIterator<MatNode> unmodifiableIterator = appHolder.getMatNodeList()
+                .stream()
+                .collect(toImmutableList())
+                .iterator();
+        int count = 0;
+        int len = appHolder.getMatNodeList().size() - 1;
+        while (unmodifiableIterator.hasNext() && !Thread.currentThread().isInterrupted()) {
+            fxUtil.onFXThread(jfxProgressBar.progressProperty(), (double) count / len);
+            stringBuilder.append(doOCR(unmodifiableIterator.next().getMat()));
+            count++;
         }
         appHolder.setOcr(stringBuilder.toString());
-        return 1;
+        return unmodifiableIterator.hasNext() ? 0 : 1;
     }
 
     @Override
