@@ -8,7 +8,6 @@ import com.neo.caption.ocr.service.FileService;
 import com.neo.caption.ocr.service.PreferencesService;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 
 import static com.neo.caption.ocr.constant.PrefKey.*;
