@@ -128,7 +128,6 @@ public class FileServiceImpl implements FileService {
                 .append(System.lineSeparator());
         while (nodeIterator.hasNext()) {
             MatNode matNode = nodeIterator.next();
-            log.info("to ass: {}", matNode);
             stringBuilder.append("Dialogue: 0,")
                     .append(convertTime(matNode.getStartTime()))
                     .append(",")
