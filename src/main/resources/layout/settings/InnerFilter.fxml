@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.util.HashMap?>
+<Tab xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+     fx:controller="com.neo.caption.ocr.controller.settings.InnerFilterController"
+     text="%settings.filter" closable="false">
+    <ScrollPane fitToWidth="true" vbarPolicy="ALWAYS">
+        <GridPane hgap="8.0" vgap="16.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="180.0" minWidth="180.0" prefWidth="180.0"/>
+                <ColumnConstraints hgrow="SOMETIMES"/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
+                <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
+                <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
+                <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
+                <RowConstraints valignment="TOP" vgrow="SOMETIMES"/>
+            </rowConstraints>
+            <Label text="%settings.filter.mpc"
+                   GridPane.rowIndex="0"/>
+            <Label text="%settings.filter.st.mSsim"
+                   GridPane.rowIndex="1"/>
+            <Label text="%settings.filter.st.mPsnr"
+                   GridPane.rowIndex="2"/>
+            <Label text="%settings.filter.st"
+                   GridPane.rowIndex="3"/>
+            <Label text="%settings.filter.sp"
+                   GridPane.rowIndex="4"/>
+            <Spinner fx:id="spinner_mpc" editable="true"
+                     GridPane.columnIndex="1" GridPane.rowIndex="0">
+                <valueFactory>
+                    <SpinnerValueFactory.IntegerSpinnerValueFactory min="%cnf.mpc.min" max="%cnf.mpc.max"
+                                                                    amountToStepBy="%cnf.mpc.step"/>
+                </valueFactory>
+            </Spinner>
+            <Spinner fx:id="spinner_ssim" editable="true"
+                     GridPane.columnIndex="1" GridPane.rowIndex="1">
+                <valueFactory>
+                    <SpinnerValueFactory.DoubleSpinnerValueFactory min="%cnf.ssim.min" max="%cnf.ssim.max"
+                                                                   amountToStepBy="%cnf.ssim.step"/>
+                </valueFactory>
+            </Spinner>
+            <Spinner fx:id="spinner_psnr" editable="true"
+                     GridPane.columnIndex="1" GridPane.rowIndex="2">
+                <valueFactory>
+                    <SpinnerValueFactory.DoubleSpinnerValueFactory min="%cnf.psnr.min" max="%cnf.psnr.max"
+                                                                   amountToStepBy="%cnf.psnr.step"/>
+                </valueFactory>
+            </Spinner>
+            <ChoiceBox fx:id="choice_similarity_type"
+                       GridPane.columnIndex="1" GridPane.rowIndex="3">
+                <!-- i18n If IDEA prompts the error, please ignore it. -->
+                <fx:define>
+                    <HashMap fx:id="similarityType"
+                             ssim="%settings.filter.st.ssim"
+                             psnr="%settings.filter.st.psnr"/>
+                </fx:define>
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <fx:reference source="similarityType.ssim"/>
+                        <fx:reference source="similarityType.psnr"/>
+                    </FXCollections>
+                </items>
+            </ChoiceBox>
+            <ChoiceBox fx:id="choice_storage_policy"
+                       GridPane.columnIndex="1" GridPane.rowIndex="4">
+                <!-- i18n If IDEA prompts the error, please ignore it. -->
+                <fx:define>
+                    <HashMap fx:id="storagePolicy"
+                             min="%settings.filter.sp.min"
+                             max="%settings.filter.sp.max"
+                             med="%settings.filter.sp.med"
+                             first="%settings.filter.sp.first"
+                             last="%settings.filter.sp.last"/>
+                </fx:define>
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <fx:reference source="storagePolicy.min"/>
+                        <fx:reference source="storagePolicy.max"/>
+                        <fx:reference source="storagePolicy.med"/>
+                        <fx:reference source="storagePolicy.first"/>
+                        <fx:reference source="storagePolicy.last"/>
+                    </FXCollections>
+                </items>
+            </ChoiceBox>
+        </GridPane>
+    </ScrollPane>
+</Tab>
+

@@ -2,3 +2,12 @@
     -fx-font-size: 14;
     -fx-background-color: background_color;
 }
+
+#background_del{
+    -fx-background-color: #f00;
+    -fx-text-fill: #fff;
+}
+
+GridPane{
+    -fx-padding: 8;
+}
