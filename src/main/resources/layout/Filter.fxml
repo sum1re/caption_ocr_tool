@@ -10,7 +10,7 @@
     <VBox spacing="8.0" SplitPane.resizableWithParent="false"
           style="-fx-padding: 8">
         <!-- zoom -->
-        <Label text="Zoom"/>
+        <Label text="%filter.zoom"/>
         <Slider fx:id="slider_zoom"
                 min="180" max="3600" value="360" blockIncrement="30"
                 onScroll="#onSliderScroll"/>
