@@ -1,40 +1,43 @@
 package com.neo.caption.ocr.controller;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.UnmodifiableIterator;
+import com.google.common.io.Files;
 import com.neo.caption.ocr.pojo.AppHolder;
 import com.neo.caption.ocr.service.FileService;
 import com.neo.caption.ocr.service.OCRService;
 import com.neo.caption.ocr.service.StageService;
 import com.neo.caption.ocr.service.VideoService;
 import com.neo.caption.ocr.stage.StageBroadcast;
+import com.neo.caption.ocr.util.AsyncTask;
 import com.neo.caption.ocr.util.FxUtil;
 import com.neo.caption.ocr.view.BatNode;
 import com.neo.caption.ocr.view.Toast;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 
 import java.io.File;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 @Controller
 @Lazy
+@Slf4j
 public class BatController implements BaseController {
 
     @FXML
@@ -46,7 +49,7 @@ public class BatController implements BaseController {
     @FXML
     public Button btn_add;
     @FXML
-    public Button btn_remove;
+    public CheckBox save_to_txt;
 
     private final StageService stageService;
     private final VideoService videoService;
@@ -57,18 +60,19 @@ public class BatController implements BaseController {
     private final Joiner joiner;
     private final AppHolder appHolder;
     private final FxUtil fxUtil;
+    private final ExecutorService service;
 
     private Stage stage;
     private ToggleGroup group;
-    private ExecutorService service;
+    private AsyncTask asyncTask;
 
-    private boolean work;
     private boolean warning;
     private boolean skipOCR;
 
-    public BatController(StageService stageService, VideoService videoService, FileService fileService,
-                         OCRService ocrService, ResourceBundle resourceBundle, StageBroadcast stageBroadcast,
-                         @Qualifier("dot") Joiner joiner, AppHolder appHolder, FxUtil fxUtil) {
+    public BatController(
+            StageService stageService, VideoService videoService, FileService fileService, OCRService ocrService,
+            ResourceBundle resourceBundle, StageBroadcast stageBroadcast, @Qualifier("dot") Joiner joiner,
+            AppHolder appHolder, FxUtil fxUtil, ExecutorService service) {
         this.stageService = stageService;
         this.videoService = videoService;
         this.fileService = fileService;
@@ -78,21 +82,19 @@ public class BatController implements BaseController {
         this.joiner = joiner;
         this.appHolder = appHolder;
         this.fxUtil = fxUtil;
+        this.service = service;
     }
 
     @Override
     public void init() {
         this.group = new ToggleGroup();
-        this.work = false;
         this.skipOCR = false;
+        this.asyncTask = new AsyncTask();
     }
 
     @Override
     public void destroy() {
         stage.setOnHiding(windowEvent -> {
-            if (service != null && !service.isShutdown()) {
-                service.shutdownNow();
-            }
             appHolder.getMatNodeList().clear();
             appHolder.setOcr("");
             stageService.remove(stage);
@@ -128,31 +130,65 @@ public class BatController implements BaseController {
             stageBroadcast.sendDataEmptyBroadcast();
             warning = false;
         }
-        if (service == null || service.isShutdown()) {
-            service = new ThreadPoolExecutor(1, 1, 0L,
-                    TimeUnit.MICROSECONDS, new LinkedBlockingQueue<>(1024));
+        if (asyncTask.isRunning()) {
+            asyncTask.cancel(true);
+            return;
         }
-        if (work) {
-            work = false;
-            service.shutdownNow();
-            btn_start.setText(getBatBundle("start"));
-        } else {
-            work = true;
-            btn_start.setText(getBatBundle("stop"));
-            Iterator<BatNode> iterator = bat_node_list.getChildren()
-                    .stream()
-                    .map(node -> (BatNode) node)
-                    .filter(node -> node.isValid() && !node.isFinish() && !node.isError())
-                    .iterator();
-            while (iterator.hasNext()) {
-                addBatTask(iterator.next(), iterator.hasNext());
-            }
+        UnmodifiableIterator<BatNode> unmodifiableIterator = bat_node_list.getChildren()
+                .stream()
+                .map(node -> (BatNode) node)
+                .filter(node -> node.isValid() && !node.isFinish() && !node.isError())
+                .collect(toImmutableList())
+                .iterator();
+        if (!unmodifiableIterator.hasNext()) {
+            Toast.makeToast(stage, resourceBundle.getString("snackbar.empty.bat"));
+            return;
         }
+        asyncTask = new AsyncTask()
+                .setTaskListen(new AsyncTask.TaskListen() {
+
+                    @Override
+                    public void onPreExecute() {
+                        fxUtil.onFXThread(btn_start.textProperty(), getBatBundle("stop"));
+                    }
+
+                    @Override
+                    public void onPostExecute() {
+
+                    }
+
+                    @Override
+                    public Integer call() {
+                        while (unmodifiableIterator.hasNext() && !Thread.currentThread().isInterrupted()) {
+                            BatNode batNode = unmodifiableIterator.next();
+                            fxUtil.onFXThread(batNode.statusProperty(), getBatBundle(BatStatus.WORKING.toLowerCase()));
+                            if (batNode.getFile().getName().endsWith(".cocr")) {
+                                doOCRTask(batNode);
+                            } else {
+                                doVideoTask(batNode);
+                            }
+                        }
+                        return 1;
+                    }
+
+                    @Override
+                    public void cancelled() {
+                        fxUtil.onFXThread(btn_start.textProperty(), getBatBundle("start"));
+                    }
+
+                    @Override
+                    public void onResult(Integer result) {
+                        if (result == 1) {
+                            fxUtil.onFXThread(btn_start.textProperty(), getBatBundle("start"));
+                        }
+                    }
+                });
+        service.submit(asyncTask);
     }
 
     @FXML
     public void onAdd() {
-        if (work) {
+        if (asyncTask.isRunning()) {
             Toast.makeToast(stage, resourceBundle.getString("snackbar.wait"));
             return;
         }
@@ -162,10 +198,10 @@ public class BatController implements BaseController {
             return;
         }
         bat_node_list.getChildren().addAll(fileList.stream()
-                .map(file -> {
-                    BatNode batNode = new BatNode();
+                .map(file -> { BatNode batNode = new BatNode();
                     batNode.setValid(fileService.verifyBatFile(file))
                             .setFile(file)
+                            .setDeleteAction(actionEvent -> onBatNodeDelete(batNode))
                             .setToggleGroup(group);
                     fxUtil.onFXThread(batNode.statusProperty(), getBatBundle(
                             (batNode.isValid() ? BatStatus.READY : BatStatus.INVALID).toLowerCase()));
@@ -174,32 +210,15 @@ public class BatController implements BaseController {
                 .collect(Collectors.toList()));
     }
 
-    @FXML
-    public void onRemove() {
-        if (work) {
+    private void onBatNodeDelete(BatNode batNode) {
+        if (asyncTask.isRunning()) {
+            Toast.makeToast(stage, resourceBundle.getString("snackbar.wait"));
             return;
         }
-        BatNode batNode = (BatNode) group.getSelectedToggle();
         if (batNode == null) {
             return;
         }
         bat_node_list.getChildren().remove(batNode);
-    }
-
-    private void addBatTask(BatNode batNode, boolean hasNext) {
-        Runnable runnable = () -> {
-            fxUtil.onFXThread(batNode.statusProperty(), getBatBundle(BatStatus.WORKING.toLowerCase()));
-            if (batNode.getFile().getName().endsWith(".cocr")) {
-                doOCRTask(batNode);
-            } else {
-                doVideoTask(batNode);
-            }
-            work = false;
-            if (!hasNext) {
-                fxUtil.onFXThread(btn_start.textProperty(), getBatBundle("start"));
-            }
-        };
-        service.execute(runnable);
     }
 
     private void doVideoTask(BatNode batNode) {
@@ -209,18 +228,14 @@ public class BatController implements BaseController {
             if (videoService.isVideoFinish()) {
                 fxUtil.onFXThread(batNode.statusProperty(), getBatBundle(BatStatus.SAVING.toLowerCase()));
                 appHolder.setOcr("");
-                fileService.saveCOCR(toCOCRFile(batNode.getFile()));
+                fileService.saveCOCR(toDstFile(batNode.getFile(), "cocr"));
                 batNode.setFinish(true);
             }
         } catch (Throwable throwable) {
-            batNode.setError(true);
-            fxUtil.onFXThread(batNode.statusProperty(), getBatBundle(BatStatus.ERROR.toLowerCase()));
+            setErrorStatus(batNode);
         } finally {
             videoService.closeVideo();
-            if (!batNode.isError()) {
-                fxUtil.onFXThread(batNode.statusProperty(), getBatBundle(
-                        (batNode.isFinish() ? BatStatus.DONE : BatStatus.READY).toLowerCase()));
-            }
+            resetStatus(batNode);
         }
     }
 
@@ -235,29 +250,43 @@ public class BatController implements BaseController {
                 skipOCR = !ocrService.isReady();
             }
             fileService.readCOCR(batNode.getFile());
-            ocrService.doOCR(batNode.getProgress_bar());
+            if (ocrService.doOCR(batNode.getProgress_bar()) == 0) {
+                return;
+            }
             fxUtil.onFXThread(batNode.statusProperty(), getBatBundle(BatStatus.SAVING.toLowerCase()));
-            fileService.saveCOCR(toCOCRFile(batNode.getFile()));
+            fileService.saveCOCR(toDstFile(batNode.getFile(), "cocr"));
+            if (save_to_txt.isSelected()) {
+                fileService.saveOCRText(toDstFile(batNode.getFile(), "txt"));
+            }
             batNode.setFinish(true);
         } catch (Throwable throwable) {
-            batNode.setError(true);
-            fxUtil.onFXThread(batNode.statusProperty(), getBatBundle(BatStatus.ERROR.toLowerCase()));
+            setErrorStatus(batNode);
         } finally {
-            if (!batNode.isError()) {
-                fxUtil.onFXThread(batNode.statusProperty(), getBatBundle(
-                        (batNode.isFinish() ? BatStatus.DONE : BatStatus.READY).toLowerCase()));
-            }
+            resetStatus(batNode);
         }
     }
 
-    private File toCOCRFile(File ori) {
-        String path = ori.getAbsolutePath();
-        path = path.substring(0, path.lastIndexOf(".")) + ".cocr";
-        return new File(path);
+    @SuppressWarnings("UnstableApiUsage")
+    private File toDstFile(File ori, String extension) {
+        String oriName = Files.getNameWithoutExtension(ori.getName());
+        return new File(ori.getParentFile(), joiner.join(oriName, extension));
     }
 
     private String getBatBundle(String key) {
         return resourceBundle.getString(joiner.join("bat", key));
+    }
+
+    private void resetStatus(BatNode batNode) {
+        if (batNode.isError()) {
+            return;
+        }
+        fxUtil.onFXThread(batNode.statusProperty(), getBatBundle(
+                (batNode.isFinish() ? BatStatus.DONE : BatStatus.READY).toLowerCase()));
+    }
+
+    private void setErrorStatus(BatNode batNode) {
+        batNode.setError(true);
+        fxUtil.onFXThread(batNode.statusProperty(), getBatBundle(BatStatus.ERROR.toLowerCase()));
     }
 
     private enum BatStatus {

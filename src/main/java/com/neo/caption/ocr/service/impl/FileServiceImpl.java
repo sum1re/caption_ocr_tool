@@ -128,7 +128,6 @@ public class FileServiceImpl implements FileService {
                 .append(System.lineSeparator());
         while (nodeIterator.hasNext()) {
             MatNode matNode = nodeIterator.next();
-            log.info("to ass: {}", matNode);
             stringBuilder.append("Dialogue: 0,")
                     .append(convertTime(matNode.getStartTime()))
                     .append(",")
@@ -219,6 +218,16 @@ public class FileServiceImpl implements FileService {
         Mat mat = openCVService.spliceMatList();
         Files.write(imageFile.toPath(), openCVService.mat2ByteArrayByMatOfByte(mat));
         mat.release();
+        return 1;
+    }
+
+    @Override
+    @AopException
+    public Integer saveOCRText(File txtFile) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(txtFile);
+             OutputStreamWriter writer = new OutputStreamWriter(fos, UTF_8)) {
+            writer.append(appHolder.getOcr());
+        }
         return 1;
     }
 

@@ -10,7 +10,7 @@ public enum LayoutName {
     LAYOUT_FILTER("Filter"),
     LAYOUT_MAIN("Main"),
     LAYOUT_MAT_NODE("MatNode"),
-    LAYOUT_SETTINGS("Settings"),
+    LAYOUT_SETTINGS("settings/Settings"),
     LAYOUT_MODULE_NODE("ModuleNode"),
     LAYOUT_SPLASH("Splash")
     ;

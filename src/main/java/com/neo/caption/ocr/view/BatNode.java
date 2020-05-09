@@ -1,9 +1,12 @@
 package com.neo.caption.ocr.view;
 
 import javafx.beans.property.StringProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ToggleButton;
@@ -30,6 +33,8 @@ public final class BatNode extends ToggleButton implements Initializable {
     public Label status;
     @FXML
     public ProgressBar progress_bar;
+    @FXML
+    public Button delete;
 
     private File file;
 
@@ -63,6 +68,11 @@ public final class BatNode extends ToggleButton implements Initializable {
     public BatNode setFile(File file) {
         this.file = file;
         file_name.setText(file.getName());
+        return this;
+    }
+
+    public BatNode setDeleteAction(EventHandler<ActionEvent> eventHandler) {
+        delete.setOnAction(eventHandler);
         return this;
     }
 }

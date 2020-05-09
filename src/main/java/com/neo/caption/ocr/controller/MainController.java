@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -48,6 +49,8 @@ public class MainController implements BaseController {
     @FXML
     public VBox root;
     @FXML
+    public MenuBar menu_bar;
+    @FXML
     public VBox mask;
     @FXML
     public TextArea text_area;
@@ -62,7 +65,7 @@ public class MainController implements BaseController {
     @FXML
     public Slider slider_zoom;
     @FXML
-    public CheckBox check_manager;
+    public CheckMenuItem check_manager;
     @FXML
     public Label file_name;
     @FXML
@@ -155,6 +158,26 @@ public class MainController implements BaseController {
         stageBroadcast.editorBroadcast().addListener((ov, a, b) -> fxUtil.setFontSize(text_area, b.intValue()));
         stageBroadcast.backgroundImageBroadcast().addListener((ov, a, b) -> onBackgroundModify());
         root.setOnDragOver(e -> e.acceptTransferModes(TransferMode.ANY));
+    }
+
+    @Override
+    public void bindHotKey() {
+        Scene scene = stage.getScene();
+        scene.getAccelerators().put(
+                new KeyCodeCombination(KeyCode.D),
+                this::onDelMergeClick);
+        scene.getAccelerators().put(
+                new KeyCodeCombination(KeyCode.C),
+                this::removeBeginTag);
+        scene.getAccelerators().put(
+                new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN),
+                this::onSaveClick);
+        scene.getAccelerators().put(
+                new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN),
+                this::onSaveAsClick);
+        scene.getAccelerators().put(
+                new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN),
+                this::onOpenClick);
     }
 
     @FXML
@@ -464,40 +487,20 @@ public class MainController implements BaseController {
         }
     }
 
-    @Override
-    public void bindHotKey() {
-        Scene scene = stage.getScene();
-        scene.getAccelerators().put(
-                new KeyCodeCombination(KeyCode.D),
-                this::onDelMergeClick);
-        scene.getAccelerators().put(
-                new KeyCodeCombination(KeyCode.C),
-                this::removeBeginTag);
-        scene.getAccelerators().put(
-                new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN),
-                this::onSaveClick);
-        scene.getAccelerators().put(
-                new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN),
-                this::onSaveAsClick);
-        scene.getAccelerators().put(
-                new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN),
-                this::onOpenClick);
-    }
-
     @FXML
     public void onClick(ActionEvent event) {
         if (isOtherTaskRunning()) {
             return;
         }
-        switch (((Node) event.getSource()).getId()) {
-            case "btn_filter":
+        switch (((MenuItem) event.getSource()).getId()) {
+            case "menu_filter":
                 if (!videoService.isVideoLoaded()) {
                     Toast.makeToast(stage, resourceBundle.getString("snackbar.empty.video"));
                     return;
                 }
-                fxUtil.openBlockStage(LayoutName.LAYOUT_FILTER, "main.filter");
+                fxUtil.openBlockStage(LayoutName.LAYOUT_FILTER, "main.caption.filter");
                 break;
-            case "btn_bat":
+            case "menu_bat":
                 if (appHolder.getCount() != 0 || !isNullOrEmpty(text_area.getText())) {
                     Optional<ButtonType> result = fxUtil.alertWithCancel(stage,
                             resourceBundle.getString("alert.title.user.warning"),
@@ -507,10 +510,10 @@ public class MainController implements BaseController {
                         return;
                     }
                 }
-                fxUtil.openBlockStage(LayoutName.LAYOUT_BAT, "main.bat");
+                fxUtil.openBlockStage(LayoutName.LAYOUT_BAT, "main.file.bat");
                 break;
-            case "btn_settings":
-                fxUtil.openBlockStage(LayoutName.LAYOUT_SETTINGS, "main.settings");
+            case "menu_settings":
+                fxUtil.openBlockStage(LayoutName.LAYOUT_SETTINGS, "main.file.settings");
                 break;
         }
     }
@@ -590,8 +593,9 @@ public class MainController implements BaseController {
     }
 
     private void onBackgroundModify() {
-        mask.setStyle(String.format(DARK_THEME.booleanValue() ? MASK_DARK_STYLE : MASK_LIGHT_STYLE,
-                divide(BACKGROUND_OPACITY.intValue(), 100)));
+        BigDecimal opacity = divide(BACKGROUND_OPACITY.intValue(), 100);
+        mask.setStyle(String.format(DARK_THEME.booleanValue() ? MASK_DARK_STYLE : MASK_LIGHT_STYLE, opacity));
+        menu_bar.setStyle(String.format(DARK_THEME.booleanValue() ? MASK_DARK_STYLE : MASK_LIGHT_STYLE, opacity));
         if (isNullOrEmpty(BACKGROUND_IMAGE.stringValue())) {
             root.setBackground(Background.EMPTY);
             return;

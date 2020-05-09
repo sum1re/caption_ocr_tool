@@ -3,20 +3,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <repositories>
-        <repository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <id>central</id>
-            <name>bintray</name>
-            <url>https://jcenter.bintray.com</url>
-        </repository>
-    </repositories>
-
     <!-- lookup parent from repository -->
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -35,7 +21,7 @@
         -->
         <app.majorVersion>0</app.majorVersion>
         <app.minorVersion>0</app.minorVersion>
-        <app.patchVersion>1-beta.2</app.patchVersion>
+        <app.patchVersion>2-beta</app.patchVersion>
         <app.versionCode>${maven.build.timestamp}</app.versionCode>
         <maven.build.timestamp.format>yyMMddHHmm.ssSSS</maven.build.timestamp.format>
     </properties>
@@ -74,7 +60,7 @@
         <dependency>
             <groupId>org.jfxtras</groupId>
             <artifactId>jmetro</artifactId>
-            <version>11.6</version>
+            <version>11.6.10</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.openjfx</groupId>
