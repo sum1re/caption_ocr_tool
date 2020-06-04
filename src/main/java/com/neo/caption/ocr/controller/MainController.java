@@ -169,15 +169,6 @@ public class MainController implements BaseController {
         scene.getAccelerators().put(
                 new KeyCodeCombination(KeyCode.C),
                 this::removeBeginTag);
-        scene.getAccelerators().put(
-                new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN),
-                this::onSaveClick);
-        scene.getAccelerators().put(
-                new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN),
-                this::onSaveAsClick);
-        scene.getAccelerators().put(
-                new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN),
-                this::onOpenClick);
     }
 
     @FXML
