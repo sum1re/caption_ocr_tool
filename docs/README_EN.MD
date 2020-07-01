@@ -34,7 +34,7 @@ COCR supports the HSV, HLS, binary morphology to filter the text. For dark scene
 
 1. Select a module profile. **Important: Adjust the caption area in the *CROP* module, do not make the mistake with the position of the Upper-Left and Lower-Right!**
 
-  PS: The last image of the filter should be black on white!!
+    PS: The last image of the filter should be black on white!!
 
     - If it is not black and white, adjust your modules or parameters
 
@@ -52,11 +52,9 @@ COCR supports the HSV, HLS, binary morphology to filter the text. For dark scene
 
 - An error dialog? Read the [Module](MODULE_EN.MD) file or [Google](https://google.com) to ensure that the parameters are valid. When submitting an issue, do not forget to give the full information which can be found in the log file.
 
-- Other exception? If it has a detailed message, refer to the previous suggestion, else you may need to submit a new issue.
-
 - How to change the splash? Copy a jpg/png picture to the *splash* folder under the installation directory.
 
-The flowchart for *Del & Merge*
+- The flowchart for *Del & Merge*
 
 ![flow](flow_en.png)
 
@@ -71,8 +69,6 @@ The flowchart for *Del & Merge*
 - Lombok
 
 - JavaFX jmods 11+ (To build JRE Runtime)
-
-- Inno Setup (Windows)
 
 ### Compile
 
@@ -100,19 +96,7 @@ Some JVM options are necessary to run this project.
 -server -Xmx4g -Dfile.encoding=utf-8 -Dcocr.dir=$ProjectFileDir$/cocr_setup_win/app -Djava.library.path=$ProjectFileDir$/lib -Dprism.targetvram=2G -Dprism.vsync=false -Dprism.scrollcacheopt=true -Djavafx.preloader=com.neo.caption.ocr.AppPreloader
 ```
 
-Use *Inno Setup* to compile the installer for ***Windows***.
-
-1. Package the jar file.
-
-  ```
-  mvn -Djavacpp.platform=windows-x86_64 package
-  ```
-
-1. Create the installer file.
-
-  ```
-  iscc cocr_iss/cocr.iss
-  ```
+This project has used *Github Actions* to build the installer for ***Windows***
 
 ### Other
 
