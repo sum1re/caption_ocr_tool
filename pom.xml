@@ -21,7 +21,7 @@
         -->
         <app.majorVersion>0</app.majorVersion>
         <app.minorVersion>0</app.minorVersion>
-        <app.patchVersion>3-beta</app.patchVersion>
+        <app.patchVersion>4-beta</app.patchVersion>
         <app.versionCode>${maven.build.timestamp}</app.versionCode>
         <maven.build.timestamp.format>yyMMddHHmm.ssSSS</maven.build.timestamp.format>
     </properties>
