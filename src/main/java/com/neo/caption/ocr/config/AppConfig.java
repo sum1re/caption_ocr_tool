@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.neo.caption.ocr.CaptionOCR;
 import lombok.extern.slf4j.Slf4j;
 import org.bytedeco.tesseract.TessBaseAPI;
+import org.opencv.videoio.VideoCapture;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -84,5 +85,10 @@ public class AppConfig {
     public ExecutorService executorService() {
         return new ThreadPoolExecutor(5, 10, 0L,
                 TimeUnit.MICROSECONDS, new LinkedBlockingQueue<>(1024));
+    }
+
+    @Bean
+    public VideoCapture videoCapture() {
+        return new VideoCapture();
     }
 }

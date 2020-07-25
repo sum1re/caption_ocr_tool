@@ -292,6 +292,13 @@ public class OpenCVServiceImpl implements OpenCVService {
                                 moduleService.cvtInt(map.get("o1i")),
                                 moduleService.cvtInt(map.get("o2i")));
                         break;
+                    case COPY:
+                        int copyIndex = moduleService.cvtInt(map.get("oi"));
+                        if (!cacheMap.containsKey(copyIndex)) {
+                            break;
+                        }
+                        mat = cacheMap.get(copyIndex).clone();
+                        break;
                 }
             } catch (CvException | ModuleException e) {
                 throw new ModuleException(String.format(moduleMsg,

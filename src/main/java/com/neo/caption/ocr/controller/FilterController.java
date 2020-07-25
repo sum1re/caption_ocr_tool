@@ -35,6 +35,8 @@ import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.neo.caption.ocr.constant.ModuleType.CROP;
@@ -226,7 +228,10 @@ public class FilterController implements BaseController {
         if (reorder) {
             int i = 0;
             for (Node node : module_node_list.getChildren()) {
-                ((ModuleNode) node).setIndex(i);
+                ModuleNode moduleNode = (ModuleNode) node;
+                if (moduleNode.getIndex() != i){
+                    moduleNode.setIndex(i);
+                }
                 i++;
             }
             reorder = false;
@@ -303,7 +308,10 @@ public class FilterController implements BaseController {
     }
 
     private void setModuleNodeListener(ModuleNode moduleNode) {
-        moduleNode.setDelAction(actionEvent -> module_node_list.getChildren().remove(moduleNode))
+        moduleNode.setDelAction(actionEvent -> {
+            reorder = true;
+            module_node_list.getChildren().remove(moduleNode);
+        })
                 .setCacheListener((ov, a, b) -> {
                     moduleNode.getModuleStatus().setCache(b);
                     updateFilter();
@@ -339,8 +347,8 @@ public class FilterController implements BaseController {
                         ModuleNode node = (ModuleNode) dragEvent.getGestureSource();
                         module_node_list.getChildren().remove(node);
                         int index = module_node_list.getChildren().indexOf(moduleNode);
-                        module_node_list.getChildren().add(index + 1, node);
                         reorder = true;
+                        module_node_list.getChildren().add(index + 1, node);
                         success = true;
                     }
                     dragEvent.setDropCompleted(success);

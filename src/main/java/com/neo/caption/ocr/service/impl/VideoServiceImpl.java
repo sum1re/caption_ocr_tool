@@ -36,8 +36,8 @@ public class VideoServiceImpl implements VideoService {
     private final VideoHolder videoHolder;
     private final FxUtil fxUtil;
     private final AppHolder appHolder;
+    private final VideoCapture videoCapture;
 
-    private VideoCapture vc;
     private int count;
     private boolean finish;
     private Mat mat;
@@ -45,16 +45,16 @@ public class VideoServiceImpl implements VideoService {
     private List<ArchiveMatNode> archiveMatNodeList;
 
     public VideoServiceImpl(OpenCVService openCVService, VideoHolder videoHolder,
-                            FxUtil fxUtil, AppHolder appHolder) {
+                            FxUtil fxUtil, AppHolder appHolder,VideoCapture videoCapture) {
         this.openCVService = openCVService;
         this.videoHolder = videoHolder;
         this.fxUtil = fxUtil;
         this.appHolder = appHolder;
+        this.videoCapture = videoCapture;
     }
 
     @PostConstruct
     public void init() {
-        this.vc = null;
         this.mat = new Mat();
         this.sampleMat = new Mat();
         this.archiveMatNodeList = new ArrayList<>(512);
@@ -62,11 +62,12 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public Integer loadVideo(File videoFile) {
-        this.vc = new VideoCapture(videoFile.getAbsolutePath());
-        videoHolder.setWidth((int) vc.get(CAP_PROP_FRAME_WIDTH))
-                .setHeight((int) vc.get(CAP_PROP_FRAME_HEIGHT))
-                .setFps(vc.get(CAP_PROP_FPS))
-                .setTotalFrame((int) vc.get(CAP_PROP_FRAME_COUNT) - 1)
+        // open() will call release() to close the already opened file.
+        videoCapture.open(videoFile.getAbsolutePath());
+        videoHolder.setWidth((int) videoCapture.get(CAP_PROP_FRAME_WIDTH))
+                .setHeight((int) videoCapture.get(CAP_PROP_FRAME_HEIGHT))
+                .setFps(videoCapture.get(CAP_PROP_FPS))
+                .setTotalFrame((int) videoCapture.get(CAP_PROP_FRAME_COUNT) - 1)
                 .setRatio(DecimalUtil.divide(videoHolder.getHeight(), videoHolder.getWidth()).doubleValue());
         this.count = 0;
         this.finish = false;
@@ -77,16 +78,16 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public boolean readFrame(Mat mat, double count) {
-        if (!vc.isOpened()) {
+        if (!videoCapture.isOpened()) {
             return false;
         }
-        return vc.set(CAP_PROP_POS_FRAMES, count) && vc.read(mat);
+        return videoCapture.set(CAP_PROP_POS_FRAMES, count) && videoCapture.read(mat);
     }
 
     @Override
     @AopException
     public void videoToCOCR(ProgressBar progressBar) throws ModuleException {
-        if (!vc.isOpened()) {
+        if (!videoCapture.isOpened()) {
             return;
         }
         boolean isSSIM = SIMILARITY_TYPE.intValue() == 0;
@@ -98,8 +99,8 @@ public class VideoServiceImpl implements VideoService {
         int frameInterval = FRAME_INTERVAL.intValue();
         // Since opencv 4.2.0, after setting the CAP_PROP_POS_FRAMES,
         // it needs to reset to 0, otherwise, it will start reading from where you previewed.
-        vc.set(CAP_PROP_POS_FRAMES, 0);
-        while (vc.grab() && !Thread.currentThread().isInterrupted()) {
+        videoCapture.set(CAP_PROP_POS_FRAMES, 0);
+        while (videoCapture.grab() && !Thread.currentThread().isInterrupted()) {
             fxUtil.onFXThread(progressBar.progressProperty(), (double) count / videoHolder.getTotalFrame());
             if (frameInterval != 1) {
                 if (count % frameInterval != 0) {
@@ -107,9 +108,9 @@ public class VideoServiceImpl implements VideoService {
                     continue;
                 }
             }
-            vc.retrieve(mat);
+            videoCapture.retrieve(mat);
             dst = openCVService.filter(mat);
-            double time = vc.get(CAP_PROP_POS_MSEC);
+            double time = videoCapture.get(CAP_PROP_POS_MSEC);
             int blackPixel = openCVService.countBlackPixel(dst);
             if (blackPixel > MIN_PIXEL_COUNT.intValue()) {
                 if (sampleMat.empty()) {
@@ -130,7 +131,7 @@ public class VideoServiceImpl implements VideoService {
             count++;
         }
         mergeArchiveMatNode();
-        if (!vc.grab()) {
+        if (!videoCapture.grab()) {
             finish = true;
         }
         appHolder.setMatNodeList(appHolder.getMatNodeList()
@@ -141,7 +142,7 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public boolean isVideoLoaded() {
-        return vc != null && vc.isOpened();
+        return videoCapture != null && videoCapture.isOpened();
     }
 
     @Override
@@ -151,9 +152,8 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public void closeVideo() {
-        if (vc != null && vc.isOpened()) {
-            vc.release();
-            vc = null;
+        if (videoCapture != null && videoCapture.isOpened()) {
+            videoCapture.release();
             System.gc();
         }
     }

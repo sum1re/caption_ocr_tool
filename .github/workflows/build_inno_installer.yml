@@ -1,0 +1,79 @@
+# This workflow will build a installer with InnoSetup
+
+name: Build a installer for windows
+
+# Should not push to the master branch, create a pull request then merge into the master branch.
+on:
+  pull_request:
+    branches: [ master ]
+    types: [ closed ]
+
+env:
+  MAJOR_VERSION: 0
+  MINOR_VERSION: 0
+  PATCH_VERSION: 4-beta
+  JDK_VERSION: 11
+  OPENCV_VERSION: 4.2.0
+  OPENCV_JAR: opencv-420.jar
+  JAVACPP_PLATFORM: windows-x86_64
+  PRE_RELEASE: true
+  INNO_LANGUAGE: ChineseSimplified,ChineseTraditional
+
+jobs:
+  build:
+    # Trigger this workflow only on merged.
+    if: github.event.pull_request.merged == true
+    runs-on: windows-latest
+
+    steps:
+
+      - uses: actions/checkout@v2
+
+      - name: Set up InnoSetup
+        id: set_env
+        run: |
+          $env:path=$env:path+";C:\Program Files (x86)\Inno Setup 6"
+          $dl=new-object System.Net.WebClient
+          foreach($i in ("${{ env.INNO_LANGUAGE }}" -Split ",")){$dl.DownloadFile("https://raw.githubusercontent.com/jrsoftware/issrc/main/Files/Languages/Unofficial/$i.isl","C:\Program Files (x86)\Inno Setup 6\Languages\$i.isl")}
+
+      - name: Set up JDK
+        id: set_jdk
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ env.JDK_VERSION }}
+
+      - name: Install OpenCv.jar
+        id: maven_install
+        run: mvn install:install-file "-Dfile=lib/${{ env.OPENCV_JAR }}" "-DgroupId=org.opencv" -DartifactId=opencv "-Dversion=${{ env.OPENCV_VERSION }}" -Dpackaging=jar -DgeneratePom=true
+
+      - name: Build with Maven
+        id: maven_package
+        run: mvn "-Djavacpp.platform=${{ env.JAVACPP_PLATFORM }}" "-Dapp.majorVersion=${{ env.MAJOR_VERSION }}" "-Dapp.minorVersion=${{ env.MINOR_VERSION }}" "-Dapp.patchVersion=${{ env.PATCH_VERSION }}" package
+
+      - name: Build installer
+        id: inno_build
+        run: iscc /DVERSION_NAME=${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ env.PATCH_VERSION }} cocr_iss/cocr.iss
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ env.PATCH_VERSION }}
+          release_name: ${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ env.PATCH_VERSION }}
+          prerelease: ${{ env.PRE_RELEASE }}
+          draft: false
+          body: |
+            ### [Release Notes](https://github.com/sum1re/cocr/blob/master/RELEASE_NOTES.md#${{ env.MAJOR_VERSION }}${{ env.MINOR_VERSION }}${{ env.PATCH_VERSION }})
+
+      - name: Upload Release Asset
+        id: upload_release_asset
+        uses: actions/upload-release-asset@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./cocr_iss/cocr_installer.exe
+          asset_name: cocr_${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ env.PATCH_VERSION }}_windows_installer_x86_64.exe
+          asset_content_type: application/vnd.microsoft.portable-executable,application/zip,*/*

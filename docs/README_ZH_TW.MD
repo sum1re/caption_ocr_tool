@@ -34,7 +34,7 @@ COCR 提供 HSV, HLS, 二值形態學的過濾方法, 對於顏色偏暗的場�
 
 1. 選擇一個模組配置, **重點: 調整 "裁剪" 模組中的字幕區域, 不要搞錯左上角和右下角的位置!**.
 
-  註: 濾鏡最後得到的圖像應該是白底黑字的!!
+    註: 濾鏡最後得到的圖像應該是白底黑字的!!
 
     - 如果不是黑白的二值圖像, 調整你的濾鏡模組和參數;
 
@@ -54,7 +54,7 @@ COCR 提供 HSV, HLS, 二值形態學的過濾方法, 對於顏色偏暗的場�
 
 - 啟動閃屏可更換圖片, 把 jpg/png 格式的圖片放到安裝目錄下的 *splash* 文件夾中.
 
-刪除&合併操作邏輯
+- 刪除&合併操作邏輯
 
 ![flow](flow_zh_tw.png)
 
@@ -69,8 +69,6 @@ COCR 提供 HSV, HLS, 二值形態學的過濾方法, 對於顏色偏暗的場�
 - Lombok
 
 - JavaFX jmods 11+ (生成 JRE Runtime 需要)
-
-- Inno Setup (Windows)
 
 ### 編譯
 
@@ -98,19 +96,7 @@ mvn compile
 -server -Xmx4g -Dfile.encoding=utf-8 -Dcocr.dir=$ProjectFileDir$/cocr_setup_win/app -Djava.library.path=$ProjectFileDir$/lib -Dprism.targetvram=2G -Dprism.vsync=false -Dprism.scrollcacheopt=true -Djavafx.preloader=com.neo.caption.ocr.AppPreloader
 ```
 
-使用 *Inno Setup* 打包 ***Windows*** 安裝程式
-
-1. 打包 JAR 文件
-
-  ```
-  mvn -Djavacpp.platform=windows-x86_64 package
-  ```
-
-1. 打包 Setup 文件
-
-  ```
-  iscc cocr_iss/cocr.iss
-  ```
+項目使用 *Github Actions* 打包並發布 ***Windows*** 安裝程式
 
 ### 其他
 
