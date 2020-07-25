@@ -4,6 +4,12 @@
 <?import javafx.scene.layout.*?>
 <fx:root xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" type="TitledPane"
          alignment="CENTER_RIGHT">
+    <graphic>
+        <HBox spacing="8.0">
+            <Label fx:id="nameLabel"/>
+            <Label fx:id="indexLabel"/>
+        </HBox>
+    </graphic>
     <VBox fx:id="vb_param" spacing="8.0">
         <HBox alignment="CENTER">
             <!-- Enable button -->
