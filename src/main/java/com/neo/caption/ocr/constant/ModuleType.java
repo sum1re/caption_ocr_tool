@@ -27,6 +27,8 @@ public enum ModuleType {
     MAX_CCL,
     MIN_CCL,
 
+    COPY,
+
     ;
 
     public final String toLowerCase() {
