@@ -52,7 +52,7 @@ jobs:
 
       - name: Build installer
         id: inno_build
-        run: iscc /DVERSION_NAME=${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ env.PATCH_VERSION }} cocr_iss/cocr.iss
+        run: iscc /DMyAppVersion=${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ env.PATCH_VERSION }} cocr_iss/cocr.iss
 
       - name: Create Release
         id: create_release
