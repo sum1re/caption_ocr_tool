@@ -1,5 +1,6 @@
 package com.neo.caption.ocr.util;
 
+import com.google.common.collect.Iterables;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
@@ -18,8 +19,8 @@ public class DecimalUtil {
         if (values == null || values.isEmpty()) {
             return BigDecimal.ZERO;
         }
-        BigDecimal bigDecimal = BigDecimal.ZERO;
-        for (String value : values) {
+        BigDecimal bigDecimal = new BigDecimal(values.get(0));
+        for (String value : Iterables.skip(values, 1)) {
             bigDecimal = bigDecimal.add(new BigDecimal(value));
         }
         return bigDecimal;
@@ -37,8 +38,8 @@ public class DecimalUtil {
         if (values == null || values.isEmpty()) {
             return BigDecimal.ZERO;
         }
-        BigDecimal bigDecimal = BigDecimal.ZERO;
-        for (String value : values) {
+        BigDecimal bigDecimal = new BigDecimal(values.get(0));
+        for (String value : Iterables.skip(values, 1)) {
             bigDecimal = bigDecimal.subtract(new BigDecimal(value));
         }
         return bigDecimal;
@@ -56,8 +57,8 @@ public class DecimalUtil {
         if (values == null || values.isEmpty()) {
             return BigDecimal.ZERO;
         }
-        BigDecimal bigDecimal = BigDecimal.ZERO;
-        for (String value : values) {
+        BigDecimal bigDecimal = new BigDecimal(values.get(0));
+        for (String value : Iterables.skip(values, 1)) {
             bigDecimal = bigDecimal.multiply(new BigDecimal(value));
         }
         return bigDecimal;
@@ -79,8 +80,7 @@ public class DecimalUtil {
             scale = 10;
         }
         BigDecimal bigDecimal = new BigDecimal(values.get(0));
-        values.remove(0);
-        for (String value : values) {
+        for (String value : Iterables.skip(values, 1)) {
             BigDecimal bd = new BigDecimal(value);
             if (bd.compareTo(BigDecimal.ZERO) == 0) {
                 return bigDecimal;
