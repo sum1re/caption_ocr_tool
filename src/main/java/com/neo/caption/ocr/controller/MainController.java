@@ -153,7 +153,6 @@ public class MainController implements BaseController {
         group.selectedToggleProperty().addListener(this::onGroupItemSelected);
         slider_zoom.valueProperty().addListener(this::onSliderModify);
         check_manager.selectedProperty().addListener(this::onManagerModify);
-        stageBroadcast.digitalBroadcast().addListener((ov, a, b) -> appHolder.loadVideoFilter());
         stageBroadcast.tessLangBroadcast().addListener(this::onTessLanguageModify);
         stageBroadcast.dataEmptyBroadcast().addListener((ov, a, b) -> clearMatNodeAndOCR());
         stageBroadcast.editorBroadcast().addListener((ov, a, b) -> fxUtil.setFontSize(text_area, b.intValue()));

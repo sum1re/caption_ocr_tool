@@ -1,7 +1,6 @@
 package com.neo.caption.ocr.service.impl;
 
 import com.google.common.base.*;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.UnmodifiableIterator;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
@@ -31,6 +30,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -38,6 +38,7 @@ import java.util.zip.GZIPOutputStream;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.neo.caption.ocr.constant.Dir.MODULE_PROFILE_DIR;
+import static com.neo.caption.ocr.constant.FileType.VIDEO;
 import static com.neo.caption.ocr.constant.PrefKey.*;
 import static com.neo.caption.ocr.util.BaseUtil.convertTime;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -315,7 +316,7 @@ public class FileServiceImpl implements FileService {
             return false;
         }
         String str = fileName.substring(fileName.lastIndexOf("."));
-        return DIGITAL_CONTAINER_FORMAT.stringValue().contains(str) || ".cocr".contains(str);
+        return Set.of(VIDEO.getExtensions()).contains(str) || ".cocr".contains(str);
     }
 
     @Override

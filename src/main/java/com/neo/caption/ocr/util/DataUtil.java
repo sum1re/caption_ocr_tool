@@ -33,6 +33,9 @@ public class DataUtil {
         if (preferencesService.exists(MODULE_STATUS_LIST)) {
             preferencesService.remove(MODULE_STATUS_LIST);
         }
+        if (preferencesService.exists(DIGITAL_CONTAINER_FORMAT)) {
+            preferencesService.remove(DIGITAL_CONTAINER_FORMAT);
+        }
         saveProfileToFile(MODULE_PROFILE_FIXED_BINARY, "FixedBinary");
         saveProfileToFile(MODULE_PROFILE_ADAPTIVE_BINARY, "AdaptiveBinary");
         saveProfileToFile(MODULE_PROFILE_HLS_COLOR, "HLS");

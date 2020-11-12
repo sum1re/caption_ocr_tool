@@ -3,7 +3,6 @@ package com.neo.caption.ocr.service.impl;
 import com.google.common.base.Joiner;
 import com.google.gson.Gson;
 import com.neo.caption.ocr.constant.PrefKey;
-import com.neo.caption.ocr.pojo.AppHolder;
 import com.neo.caption.ocr.pojo.ModuleStatus;
 import com.neo.caption.ocr.service.PreferencesService;
 import lombok.extern.slf4j.Slf4j;
@@ -21,16 +20,13 @@ import static com.neo.caption.ocr.util.BaseUtil.*;
 @Slf4j
 public class PreferencesServiceImpl implements PreferencesService {
 
-    private final AppHolder appHolder;
     private final Gson gson;
     private final Joiner joiner;
     private final Preferences preferences;
 
     private ResourceBundle configBundle;
 
-    public PreferencesServiceImpl(
-            AppHolder appHolder, Gson gson, @Qualifier("dot") Joiner joiner, Preferences preferences) {
-        this.appHolder = appHolder;
+    public PreferencesServiceImpl(Gson gson, @Qualifier("dot") Joiner joiner, Preferences preferences) {
         this.gson = gson;
         this.joiner = joiner;
         this.preferences = preferences;
@@ -42,11 +38,9 @@ public class PreferencesServiceImpl implements PreferencesService {
         loadIntData(MIN_PIXEL_COUNT, SIMILARITY_TYPE, STORAGE_POLICY, COUNT_PRE_PAGE,
                 FRAME_INTERVAL, EDITOR_FONT_SIZE, BACKGROUND_OPACITY);
         loadDoubleData(MIN_SSIM_THRESHOLD, MIN_PSNR_THRESHOLD);
-        loadStringData(MODULE_PROFILE_NAME, FILE_CHOOSE_DIR, DEFAULT_STYLE,
-                DIGITAL_CONTAINER_FORMAT, TESS_LANG, BACKGROUND_IMAGE);
+        loadStringData(MODULE_PROFILE_NAME, FILE_CHOOSE_DIR, DEFAULT_STYLE, TESS_LANG, BACKGROUND_IMAGE);
         loadBooleanData(DARK_THEME, COMPRESS_IMAGE);
         MODULE_PROFILE_DEFAULT.setValue(gson.fromJson(getDefValue(MODULE_PROFILE_DEFAULT), ModuleStatus[].class));
-        appHolder.loadVideoFilter();
     }
 
     /**
