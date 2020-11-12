@@ -1,22 +1,15 @@
 package com.neo.caption.ocr.pojo;
 
-import com.google.common.base.Splitter;
+import com.neo.caption.ocr.constant.FileType;
 import com.neo.caption.ocr.view.MatNode;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static com.neo.caption.ocr.constant.PrefKey.DIGITAL_CONTAINER_FORMAT;
+import java.util.*;
 
 /**
  * To hold some global objects
@@ -26,8 +19,6 @@ import static com.neo.caption.ocr.constant.PrefKey.DIGITAL_CONTAINER_FORMAT;
 @Slf4j
 public class AppHolder {
 
-    private Splitter splitter;
-
     private Set<Stage> stageList;
     private List<MatNode> matNodeList;
     private List<String> moduleProfileList;
@@ -35,18 +26,7 @@ public class AppHolder {
     private int matNodeSelectedIndex;
     private ThreadLocal<StringBuilder> stringBuilderThreadLocal;
     //FileChooser
-    private FileChooser.ExtensionFilter cocrFilter;
-    private FileChooser.ExtensionFilter videoFilter;
-    private FileChooser.ExtensionFilter imageFilter;
-    private FileChooser.ExtensionFilter pngFilter;
-    private FileChooser.ExtensionFilter captionFilter;
-    private FileChooser.ExtensionFilter noneFilter;
-    private FileChooser.ExtensionFilter jsonFilter;
-
-    @Autowired
-    public AppHolder(@Qualifier("comma") Splitter splitter) {
-        this.splitter = splitter;
-    }
+    private Map<FileType, FileChooser.ExtensionFilter> filterMap;
 
     @PostConstruct
     public void init() {
@@ -55,13 +35,8 @@ public class AppHolder {
         this.ocr = "";
         this.matNodeSelectedIndex = 0;
         this.stringBuilderThreadLocal = ThreadLocal.withInitial(() -> new StringBuilder(1024));
-        this.cocrFilter = new FileChooser.ExtensionFilter("COCR File", "*.cocr");
-        this.pngFilter = new FileChooser.ExtensionFilter("Image File", "*.png");
-        this.imageFilter = new FileChooser.ExtensionFilter("Image File", "*.png", "*.jpg", "*.bmp");
-        this.captionFilter = new FileChooser.ExtensionFilter("Caption File", "*.ass", "*.srt");
-        this.noneFilter = new FileChooser.ExtensionFilter("All File", "*.*");
-        this.jsonFilter = new FileChooser.ExtensionFilter("Json File", "*.json");
         this.stageList = new HashSet<>(8);
+        loadFilter();
     }
 
     public int getCount() {
@@ -74,8 +49,21 @@ public class AppHolder {
         return stringBuilder;
     }
 
-    public void loadVideoFilter() {
-        this.videoFilter = new FileChooser.ExtensionFilter("Video File", splitter.splitToList(DIGITAL_CONTAINER_FORMAT.stringValue()));
+    private void loadFilter() {
+        this.filterMap = new HashMap<>(16);
+        for (FileType fileType : FileType.values()) {
+            FileChooser.ExtensionFilter filter =
+                    new FileChooser.ExtensionFilter(fileType.getDescription(), fileType.getExtensions());
+            filterMap.put(fileType, filter);
+        }
+    }
+
+    public FileChooser.ExtensionFilter[] getExtFilter(FileType... fileTypes) {
+        Set<FileChooser.ExtensionFilter> filterSet = new LinkedHashSet<>(fileTypes.length);
+        for (FileType fileType : fileTypes) {
+            filterSet.add(filterMap.get(fileType));
+        }
+        return filterSet.toArray(new FileChooser.ExtensionFilter[0]);
     }
 
 }
