@@ -2,10 +2,10 @@
 
 name: Build a installer for windows
 
-# Should not push to the master branch, create a pull request then merge into the master branch.
+# Should not push to the main branch, create a pull request then merge into the main branch.
 on:
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
     types: [ closed ]
 
 env:
@@ -56,7 +56,7 @@ jobs:
 
       - name: Create Release
         id: create_release
-        uses: actions/create-release@master
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -65,11 +65,11 @@ jobs:
           prerelease: ${{ env.PRE_RELEASE }}
           draft: false
           body: |
-            ### [Release Notes](https://github.com/sum1re/cocr/blob/master/RELEASE_NOTES.md#${{ env.MAJOR_VERSION }}${{ env.MINOR_VERSION }}${{ env.PATCH_VERSION }})
+            ### [Release Notes](https://github.com/sum1re/cocr/blob/main/RELEASE_NOTES.md#${{ env.MAJOR_VERSION }}${{ env.MINOR_VERSION }}${{ env.PATCH_VERSION }})
 
       - name: Upload Release Asset
         id: upload_release_asset
-        uses: actions/upload-release-asset@master
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
