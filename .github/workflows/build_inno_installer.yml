@@ -65,7 +65,7 @@ jobs:
           prerelease: ${{ env.PRE_RELEASE }}
           draft: false
           body: |
-            ### [Release Notes](https://github.com/sum1re/cocr/blob/main/RELEASE_NOTES.md#${{ env.MAJOR_VERSION }}${{ env.MINOR_VERSION }}${{ env.PATCH_VERSION }})
+            ### [Release Notes](https://github.com/sum1re/caption_ocr_tool/blob/main/RELEASE_NOTES.md#${{ env.MAJOR_VERSION }}${{ env.MINOR_VERSION }}${{ env.PATCH_VERSION }})
 
       - name: Upload Release Asset
         id: upload_release_asset
