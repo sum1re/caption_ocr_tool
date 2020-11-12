@@ -1,6 +1,7 @@
 package com.neo.caption.ocr.service.impl;
 
 import com.google.common.base.*;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.UnmodifiableIterator;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
@@ -20,6 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -213,12 +215,12 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @AopException
-    public Integer saveOCRImage(File imageFile) throws InvalidMatNodesException, IOException {
+    public Integer saveOCRImage(File imageFile) throws InvalidMatNodesException {
         verify();
         Mat mat = openCVService.spliceMatList();
-        Files.write(imageFile.toPath(), openCVService.mat2ByteArrayByMatOfByte(mat));
+        boolean result = Imgcodecs.imwrite(imageFile.getAbsolutePath(), mat);
         mat.release();
-        return 1;
+        return result ? 1 : 0;
     }
 
     @Override
