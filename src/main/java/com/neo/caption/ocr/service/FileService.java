@@ -1,6 +1,5 @@
 package com.neo.caption.ocr.service;
 
-import com.neo.caption.ocr.aspect.AopException;
 import com.neo.caption.ocr.exception.InvalidMatNodesException;
 import com.neo.caption.ocr.pojo.ModuleStatus;
 import javafx.stage.FileChooser;
@@ -24,9 +23,8 @@ public interface FileService {
 
     Integer saveCOCR(File cocrFile) throws InvalidMatNodesException, IOException;
 
-    Integer saveOCRImage(File imageFile) throws InvalidMatNodesException, IOException;
+    Integer saveOCRImage(File imageFile) throws InvalidMatNodesException;
 
-    @AopException
     Integer saveOCRText(File txtFile) throws IOException;
 
     void saveModuleProfile(String profileName, Object object) throws IOException;
@@ -46,4 +44,6 @@ public interface FileService {
     void saveJsonToFile(Writer writer, Object object) throws IOException;
 
     <T> T readJsonFromFile(Reader reader, Class<T> tClass) throws IOException;
+
+    String getFileHeader(File file) throws IOException;
 }

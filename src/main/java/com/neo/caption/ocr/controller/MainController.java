@@ -36,6 +36,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.neo.caption.ocr.constant.FileType.*;
 import static com.neo.caption.ocr.constant.PrefKey.*;
 import static com.neo.caption.ocr.util.DecimalUtil.divide;
 import static javafx.scene.layout.BackgroundPosition.CENTER;
@@ -152,7 +153,6 @@ public class MainController implements BaseController {
         group.selectedToggleProperty().addListener(this::onGroupItemSelected);
         slider_zoom.valueProperty().addListener(this::onSliderModify);
         check_manager.selectedProperty().addListener(this::onManagerModify);
-        stageBroadcast.digitalBroadcast().addListener((ov, a, b) -> appHolder.loadVideoFilter());
         stageBroadcast.tessLangBroadcast().addListener(this::onTessLanguageModify);
         stageBroadcast.dataEmptyBroadcast().addListener((ov, a, b) -> clearMatNodeAndOCR());
         stageBroadcast.editorBroadcast().addListener((ov, a, b) -> fxUtil.setFontSize(text_area, b.intValue()));
@@ -178,7 +178,7 @@ public class MainController implements BaseController {
         }
         cocrFile = fileService.openFileDialog(stage,
                 resourceBundle.getString("file.choose.cocr"),
-                appHolder.getCocrFilter());
+                appHolder.getExtFilter(COCR));
         if (cocrFile == null) {
             return;
         }
@@ -192,7 +192,7 @@ public class MainController implements BaseController {
         }
         File videoFile = fileService.openFileDialog(stage,
                 resourceBundle.getString("file.choose.video"),
-                appHolder.getVideoFilter(), appHolder.getNoneFilter());
+                appHolder.getExtFilter(VIDEO, ALL));
         if (videoFile == null || !videoFile.exists()) {
             return;
         }
@@ -207,7 +207,7 @@ public class MainController implements BaseController {
         if (cocrFile == null) {
             cocrFile = fileService.saveFileDialog(stage,
                     resourceBundle.getString("file.choose.save"),
-                    appHolder.getCocrFilter());
+                    appHolder.getExtFilter(COCR));
             if (cocrFile == null) {
                 return;
             }
@@ -249,7 +249,7 @@ public class MainController implements BaseController {
         if (assFile == null) {
             assFile = fileService.saveFileDialog(stage,
                     resourceBundle.getString("file.choose.save"),
-                    appHolder.getCaptionFilter());
+                    appHolder.getExtFilter(ASS, SRT));
             if (assFile == null) {
                 return;
             }
@@ -292,7 +292,7 @@ public class MainController implements BaseController {
         }
         File export = fileService.saveFileDialog(stage,
                 resourceBundle.getString("file.choose.export"),
-                appHolder.getPngFilter());
+                appHolder.getExtFilter(BMP, JPEG, PNG, ALL));
         if (export == null) {
             return;
         }

@@ -20,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -36,6 +38,7 @@ import java.util.zip.GZIPOutputStream;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.neo.caption.ocr.constant.Dir.MODULE_PROFILE_DIR;
+import static com.neo.caption.ocr.constant.FileType.VIDEO;
 import static com.neo.caption.ocr.constant.PrefKey.*;
 import static com.neo.caption.ocr.util.BaseUtil.convertTime;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -213,12 +216,12 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @AopException
-    public Integer saveOCRImage(File imageFile) throws InvalidMatNodesException, IOException {
+    public Integer saveOCRImage(File imageFile) throws InvalidMatNodesException {
         verify();
         Mat mat = openCVService.spliceMatList();
-        Files.write(imageFile.toPath(), openCVService.mat2ByteArrayByMatOfByte(mat));
+        boolean result = Imgcodecs.imwrite(imageFile.getAbsolutePath(), mat);
         mat.release();
-        return 1;
+        return result ? 1 : 0;
     }
 
     @Override
@@ -313,7 +316,7 @@ public class FileServiceImpl implements FileService {
             return false;
         }
         String str = fileName.substring(fileName.lastIndexOf("."));
-        return DIGITAL_CONTAINER_FORMAT.stringValue().contains(str) || ".cocr".contains(str);
+        return Set.of(VIDEO.getExtensions()).contains(str) || ".cocr".contains(str);
     }
 
     @Override
@@ -327,6 +330,17 @@ public class FileServiceImpl implements FileService {
     public <T> T readJsonFromFile(Reader reader, Class<T> tClass) throws IOException {
         try (JsonReader jsonReader = new JsonReader(reader)) {
             return gson.fromJson(jsonReader, tClass);
+        }
+    }
+
+    @Override
+    @AopException
+    public String getFileHeader(File file) throws IOException {
+        try (FileInputStream fis = new FileInputStream(file)) {
+            byte[] bytes = new byte[4];
+            //noinspection ResultOfMethodCallIgnored
+            fis.read(bytes, 0, bytes.length);
+            return bytesToHex(bytes);
         }
     }
 
@@ -381,6 +395,22 @@ public class FileServiceImpl implements FileService {
                 .filter((Predicate<File>) file -> file != null && file.getName().endsWith(".json"))
                 .map(file -> com.google.common.io.Files.getNameWithoutExtension(file.getName()))
                 .collect(Collectors.toList()));
+    }
+
+    private String bytesToHex(byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return "";
+        }
+        StringBuilder builder = appHolder.getStringBuilder();
+        builder.setLength(0);
+        String hex;
+        for (byte b : bytes) {
+            hex = Integer.toHexString(b & 0xFF).toUpperCase();
+            if (hex.length() < 2)
+                builder.append(0);
+            builder.append(hex);
+        }
+        return builder.toString();
     }
 
     /**

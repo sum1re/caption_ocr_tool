@@ -18,7 +18,6 @@ public enum PrefKey {
     // string data
     FILE_CHOOSE_DIR,
     DEFAULT_STYLE,
-    DIGITAL_CONTAINER_FORMAT,
     TESS_LANG,
     BACKGROUND_IMAGE,
     MODULE_PROFILE_NAME,
@@ -40,6 +39,7 @@ public enum PrefKey {
     @Deprecated MODULE_PROFILE_HLS_COLOR,
     @Deprecated MODULE_PROFILE_HSV_COLOR,
     @Deprecated MODULE_PROFILE_CUSTOMIZE,
+    @Deprecated DIGITAL_CONTAINER_FORMAT,
 
     /**
      * Has been replaced with MODULE_PROFILE_CUSTOMIZE.

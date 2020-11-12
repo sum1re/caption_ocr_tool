@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.ResourceBundle;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.neo.caption.ocr.constant.FileType.*;
 import static com.neo.caption.ocr.constant.PrefKey.*;
 
 @Controller
@@ -79,8 +80,9 @@ public class InnerPersonaliseController {
                 background_del.setManaged(false);
                 break;
             case "background_image":
-                File file = fileService.openFileDialog(
-                        settingsController.getStage(), "Background Image", appHolder.getPngFilter());
+                File file = fileService.openFileDialog(settingsController.getStage(),
+                        "Background Image",
+                        appHolder.getExtFilter(BMP, JPEG, PNG, ALL));
                 if (file == null) {
                     break;
                 }

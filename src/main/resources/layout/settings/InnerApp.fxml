@@ -13,7 +13,6 @@
             </columnConstraints>
             <rowConstraints>
                 <RowConstraints valignment="TOP" vgrow="SOMETIMES"/>
-                <RowConstraints valignment="TOP" vgrow="SOMETIMES"/>
                 <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
                 <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
                 <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
@@ -22,8 +21,6 @@
             </rowConstraints>
             <Label text="%settings.app.cds"
                    GridPane.rowIndex="0"/>
-            <Label text="%settings.app.dcf"
-                   GridPane.rowIndex="1"/>
             <Label text="%settings.app.efs"
                    GridPane.rowIndex="2"/>
             <Label text="%settings.app.fi"
@@ -36,8 +33,6 @@
                    GridPane.rowIndex="6"/>
             <TextArea fx:id="text_cds" prefRowCount="3" wrapText="true"
                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-            <TextArea fx:id="text_dcf" prefRowCount="3" wrapText="true"
-                      GridPane.columnIndex="1" GridPane.rowIndex="1"/>
             <Spinner fx:id="spinner_efs"
                      GridPane.columnIndex="1" GridPane.rowIndex="2">
                 <valueFactory>

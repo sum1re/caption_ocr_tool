@@ -1,6 +1,7 @@
 package com.neo.caption.ocr.service.impl;
 
 import com.neo.caption.ocr.aspect.AopException;
+import com.neo.caption.ocr.exception.InvalidMatException;
 import com.neo.caption.ocr.exception.ModuleException;
 import com.neo.caption.ocr.pojo.AppHolder;
 import com.neo.caption.ocr.pojo.VideoHolder;
@@ -45,7 +46,7 @@ public class VideoServiceImpl implements VideoService {
     private List<ArchiveMatNode> archiveMatNodeList;
 
     public VideoServiceImpl(OpenCVService openCVService, VideoHolder videoHolder,
-                            FxUtil fxUtil, AppHolder appHolder,VideoCapture videoCapture) {
+                            FxUtil fxUtil, AppHolder appHolder, VideoCapture videoCapture) {
         this.openCVService = openCVService;
         this.videoHolder = videoHolder;
         this.fxUtil = fxUtil;
@@ -86,7 +87,7 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     @AopException
-    public void videoToCOCR(ProgressBar progressBar) throws ModuleException {
+    public void videoToCOCR(ProgressBar progressBar) throws ModuleException, InvalidMatException {
         if (!videoCapture.isOpened()) {
             return;
         }
@@ -110,6 +111,9 @@ public class VideoServiceImpl implements VideoService {
             }
             videoCapture.retrieve(mat);
             dst = openCVService.filter(mat);
+            if (dst.channels() != 1) {
+                throw new InvalidMatException("alert.content.module.invalid_mat");
+            }
             double time = videoCapture.get(CAP_PROP_POS_MSEC);
             int blackPixel = openCVService.countBlackPixel(dst);
             if (blackPixel > MIN_PIXEL_COUNT.intValue()) {

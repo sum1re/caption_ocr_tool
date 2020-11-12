@@ -2,6 +2,7 @@ package com.neo.caption.ocr.aspect;
 
 import com.google.common.base.Stopwatch;
 import com.google.gson.JsonSyntaxException;
+import com.neo.caption.ocr.exception.InvalidMatException;
 import com.neo.caption.ocr.exception.InvalidMatNodesException;
 import com.neo.caption.ocr.exception.ModuleException;
 import com.neo.caption.ocr.exception.TessException;
@@ -167,6 +168,13 @@ public class AopExceptionAspect {
                     resourceBundle.getString("alert.title.user.error"),
                     null,
                     resourceBundle.getString("alert.content.json.syntax"));
+            return;
+        }
+        if (throwable instanceof InvalidMatException) {
+            fxUtil.alert(stage,
+                    resourceBundle.getString("alert.title.user.error"),
+                    null,
+                    resourceBundle.getString(throwable.getMessage()));
             return;
         }
         if (throwable instanceof ModuleException || throwable instanceof CvException) {

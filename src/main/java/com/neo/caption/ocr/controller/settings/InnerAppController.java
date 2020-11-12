@@ -30,8 +30,6 @@ public class InnerAppController {
     @FXML
     public TextArea text_cds;
     @FXML
-    public TextArea text_dcf;
-    @FXML
     public Spinner<Integer> spinner_efs;
     @FXML
     public Spinner<Integer> spinner_fi;
@@ -68,7 +66,6 @@ public class InnerAppController {
 
     protected void init() {
         text_cds.setText(DEFAULT_STYLE.stringValue());
-        text_dcf.setText(DIGITAL_CONTAINER_FORMAT.stringValue());
         spinner_efs.getValueFactory().setValue(EDITOR_FONT_SIZE.intValue());
         spinner_fi.getValueFactory().setValue(FRAME_INTERVAL.intValue());
         spinner_cpp.getValueFactory().setValue(COUNT_PRE_PAGE.intValue());
@@ -93,7 +90,6 @@ public class InnerAppController {
 
     protected void destroy() {
         saveTextArea(text_cds, DEFAULT_STYLE.stringValue(), PrefKey.DEFAULT_STYLE);
-        saveTextArea(text_dcf, DIGITAL_CONTAINER_FORMAT.stringValue(), PrefKey.DIGITAL_CONTAINER_FORMAT);
         if (!settingsController.getLanguageList().isEmpty()) {
             String lang = joiner.join(settingsController.getLanguageList());
             if (lang.equals(TESS_LANG.stringValue())) {
@@ -142,9 +138,6 @@ public class InnerAppController {
                 preferencesService.remove(prefKey);
             } else if (prefKey == PrefKey.DEFAULT_STYLE) {
                 preferencesService.put(DEFAULT_STYLE, result);
-            } else if (prefKey == PrefKey.DIGITAL_CONTAINER_FORMAT) {
-                preferencesService.put(DIGITAL_CONTAINER_FORMAT, result);
-                stageBroadcast.sendDigitalBroadcast();
             }
         }
     }
