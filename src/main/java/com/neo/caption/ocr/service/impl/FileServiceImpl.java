@@ -330,6 +330,17 @@ public class FileServiceImpl implements FileService {
         }
     }
 
+    @Override
+    @AopException
+    public String getFileHeader(File file) throws IOException {
+        try (FileInputStream fis = new FileInputStream(file)) {
+            byte[] bytes = new byte[4];
+            //noinspection ResultOfMethodCallIgnored
+            fis.read(bytes, 0, bytes.length);
+            return bytesToHex(bytes);
+        }
+    }
+
     private void initFileName(File file) {
         fileChooseInitName = file.getName();
         if (fileChooseInitName.contains(".")) {
@@ -381,6 +392,22 @@ public class FileServiceImpl implements FileService {
                 .filter((Predicate<File>) file -> file != null && file.getName().endsWith(".json"))
                 .map(file -> com.google.common.io.Files.getNameWithoutExtension(file.getName()))
                 .collect(Collectors.toList()));
+    }
+
+    private String bytesToHex(byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return "";
+        }
+        StringBuilder builder = appHolder.getStringBuilder();
+        builder.setLength(0);
+        String hex;
+        for (byte b : bytes) {
+            hex = Integer.toHexString(b & 0xFF).toUpperCase();
+            if (hex.length() < 2)
+                builder.append(0);
+            builder.append(hex);
+        }
+        return builder.toString();
     }
 
     /**
