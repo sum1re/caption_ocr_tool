@@ -1,5 +1,6 @@
 package com.neo.caption.ocr.service;
 
+import com.neo.caption.ocr.exception.InvalidMatException;
 import com.neo.caption.ocr.exception.ModuleException;
 import javafx.scene.control.ProgressBar;
 import org.opencv.core.Mat;
@@ -12,7 +13,7 @@ public interface VideoService {
 
     Integer loadVideo(File videoFile);
 
-    void videoToCOCR(ProgressBar progressBar) throws ModuleException;
+    void videoToCOCR(ProgressBar progressBar) throws ModuleException, InvalidMatException;
 
     boolean isVideoLoaded();
 
