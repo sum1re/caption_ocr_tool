@@ -1,6 +1,7 @@
 package com.neo.caption.ocr.service.impl;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.neo.caption.ocr.aspect.AopException;
 import com.neo.caption.ocr.constant.ModuleType;
 import com.neo.caption.ocr.exception.ModuleException;
@@ -8,6 +9,7 @@ import com.neo.caption.ocr.pojo.AppHolder;
 import com.neo.caption.ocr.pojo.ModuleStatus;
 import com.neo.caption.ocr.service.ModuleService;
 import com.neo.caption.ocr.service.OpenCVService;
+import com.neo.caption.ocr.view.MatNode;
 import javafx.scene.image.Image;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.*;
@@ -68,19 +70,22 @@ public class OpenCVServiceImpl implements OpenCVService {
     }
 
     @Override
-    public Mat spliceMatList() {
-        Mat mat = appHolder.getMatNodeList().get(0).getMat();
-        int width = mat.cols();
-        int height = mat.rows();
-        int len = appHolder.getMatNodeList().size();
-        Mat result = new Mat(height * len, width, mat.depth());
-        for (int i = 0; i < len; i++) {
-            mat = appHolder.getMatNodeList().get(i).getMat();
-            byte[] bytes = mat2ByteArrayByGet(mat);
-            //byte[] bytes = mat2ByteArray(mat);
-            result.put(i * height, 0, bytes);
+    public List<Mat> spliceMatList(int size) {
+        final Mat mat = appHolder.getMatNodeList().get(0).getMat();
+        final int width = mat.cols();
+        final int height = mat.rows();
+        final List<List<MatNode>> partition = Lists.partition(appHolder.getMatNodeList(), size);
+        List<Mat> matList = new ArrayList<>(partition.size());
+        for (List<MatNode> matNodeList : partition) {
+            final Mat result = new Mat(height * matNodeList.size(), width, mat.depth());
+            for (int i = 0, len = matNodeList.size(); i < len; i++) {
+                final Mat mat1 = matNodeList.get(i).getMat();
+                byte[] bytes = mat2ByteArrayByGet(mat1);
+                result.put(i * height, 0, bytes);
+            }
+            matList.add(result);
         }
-        return result;
+        return matList;
     }
 
     @Override

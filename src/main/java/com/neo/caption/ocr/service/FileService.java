@@ -23,7 +23,7 @@ public interface FileService {
 
     Integer saveCOCR(File cocrFile) throws InvalidMatNodesException, IOException;
 
-    Integer saveOCRImage(File imageFile) throws InvalidMatNodesException;
+    Integer saveOCRImage(File imageFile, int size) throws InvalidMatNodesException, IOException;
 
     Integer saveOCRText(File txtFile) throws IOException;
 

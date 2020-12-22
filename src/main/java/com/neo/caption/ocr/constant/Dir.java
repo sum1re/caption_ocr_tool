@@ -8,5 +8,6 @@ public class Dir {
     public static final File SPLASH_DIR = new File(USR_DIR, "../splash");
     public static final File TESS_DATA_DIR = new File(USR_DIR, "tessdata");
     public static final File MODULE_PROFILE_DIR = new File(USR_DIR, "moduleProfiles");
+    public static final File TEMP_DIR = new File(USR_DIR, "temp");
 
 }

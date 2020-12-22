@@ -2,6 +2,7 @@ package com.neo.caption.ocr.util;
 
 import com.neo.caption.ocr.constant.LayoutName;
 import com.neo.caption.ocr.pojo.AppHolder;
+import com.neo.caption.ocr.view.OCRExportDialog;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -9,10 +10,7 @@ import javafx.beans.property.StringProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
@@ -80,6 +78,15 @@ public class FxUtil {
         dialog.getDialogPane().setStyle("-fx-padding: 8");
         new JMetro(dialog.getDialogPane().getScene(), DARK_THEME.booleanValue() ? Style.DARK : Style.LIGHT);
         return dialog.showAndWait();
+    }
+
+    public Optional<Integer> ocrExportAlert(Stage stage) {
+        OCRExportDialog ocrExportDialog = new OCRExportDialog(resourceBundle, appHolder.getMatNodeList().size());
+        ocrExportDialog.initOwner(stage);
+        ocrExportDialog.setTitle(resourceBundle.getString("file.choose.export"));
+        ocrExportDialog.getDialogPane().setStyle("-fx-padding: 8");
+        new JMetro(ocrExportDialog.getDialogPane().getScene(), DARK_THEME.booleanValue() ? Style.DARK : Style.LIGHT);
+        return ocrExportDialog.showAndWait();
     }
 
     public Optional<ButtonType> showAlert(

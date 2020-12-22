@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.neo.caption.ocr.aspect.AopException;
+import com.neo.caption.ocr.constant.FileType;
 import com.neo.caption.ocr.exception.InvalidMatNodesException;
 import com.neo.caption.ocr.pojo.AppHolder;
 import com.neo.caption.ocr.pojo.COCRData;
@@ -38,10 +39,13 @@ import java.util.zip.GZIPOutputStream;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.neo.caption.ocr.constant.Dir.MODULE_PROFILE_DIR;
+import static com.neo.caption.ocr.constant.Dir.TEMP_DIR;
 import static com.neo.caption.ocr.constant.FileType.VIDEO;
 import static com.neo.caption.ocr.constant.PrefKey.*;
 import static com.neo.caption.ocr.util.BaseUtil.convertTime;
+import static com.neo.caption.ocr.util.BaseUtil.v2s;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @Service
 @Slf4j
@@ -73,6 +77,9 @@ public class FileServiceImpl implements FileService {
     public void init() throws IOException {
         if (!MODULE_PROFILE_DIR.exists()) {
             Files.createDirectory(MODULE_PROFILE_DIR.toPath());
+        }
+        if (!TEMP_DIR.exists()) {
+            Files.createDirectory(TEMP_DIR.toPath());
         }
         listProfile();
         List<String> tempList = appHolder.getModuleProfileList();
@@ -216,12 +223,28 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @AopException
-    public Integer saveOCRImage(File imageFile) throws InvalidMatNodesException {
+    @SuppressWarnings("UnstableApiUsage")
+    public Integer saveOCRImage(File imageFile, int size) throws InvalidMatNodesException, IOException {
         verify();
-        Mat mat = openCVService.spliceMatList();
-        boolean result = Imgcodecs.imwrite(imageFile.getAbsolutePath(), mat);
-        mat.release();
-        return result ? 1 : 0;
+        final String fileFullName = imageFile.getName();
+        final String fileName = com.google.common.io.Files.getNameWithoutExtension(fileFullName);
+        final String fileExt = com.google.common.io.Files.getFileExtension(fileFullName);
+        final File tempFile = new File(TEMP_DIR, joiner.join("cache", fileExt));
+        File outFile;
+        final List<Mat> matList = openCVService.spliceMatList(size);
+        final int digital = v2s(matList.size()).length();
+        for (int i = 0, len = matList.size(); i < len; i++) {
+            final String outName = joiner.join(fileName, Strings.padStart(v2s(i + 1), digital, '0'));
+            outFile = new File(imageFile.getParent(), joiner.join(outName, fileExt));
+            final boolean result = Imgcodecs.imwrite(tempFile.getAbsolutePath(), matList.get(i));
+            if (!result) {
+                return 0;
+            }
+            Files.copy(tempFile.toPath(), outFile.toPath(), REPLACE_EXISTING);
+            matList.get(i).release();
+        }
+        Files.delete(tempFile.toPath());
+        return 1;
     }
 
     @Override

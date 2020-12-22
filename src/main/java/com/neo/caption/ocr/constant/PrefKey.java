@@ -10,6 +10,7 @@ public enum PrefKey {
     FRAME_INTERVAL,
     EDITOR_FONT_SIZE,
     BACKGROUND_OPACITY,
+    EXPORT_PER_PAGE,
 
     // double data
     MIN_SSIM_THRESHOLD,
@@ -25,6 +26,7 @@ public enum PrefKey {
     // boolean data
     DARK_THEME,
     COMPRESS_IMAGE,
+    EXPORT_ON_ONE_PAGE,
 
     // other data
     MODULE_PROFILE_STATUS_LIST,

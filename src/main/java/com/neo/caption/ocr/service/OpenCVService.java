@@ -5,11 +5,12 @@ import javafx.scene.image.Image;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 
+import java.util.List;
 import java.util.Map;
 
 public interface OpenCVService {
 
-    Mat spliceMatList();
+    List<Mat> spliceMatList(int size);
 
     byte[] mat2ByteArrayByGet(Mat mat);
 
