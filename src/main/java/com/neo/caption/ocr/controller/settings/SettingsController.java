@@ -2,9 +2,12 @@ package com.neo.caption.ocr.controller.settings;
 
 import com.neo.caption.ocr.controller.BaseController;
 import com.neo.caption.ocr.service.StageService;
+import com.neo.caption.ocr.util.FxUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
@@ -28,12 +31,18 @@ public class SettingsController implements BaseController {
     public InnerAdvancedController innerAdvancedController;
 
     private final StageService stageService;
+    @Getter
+    private final FxUtil fxUtil;
 
+    @Getter
     private Stage stage;
+    @Getter
+    @Setter
     private List<String> languageList;
 
-    public SettingsController(StageService stageService) {
+    public SettingsController(StageService stageService, FxUtil fxUtil) {
         this.stageService = stageService;
+        this.fxUtil = fxUtil;
     }
 
     @Override
@@ -64,15 +73,4 @@ public class SettingsController implements BaseController {
         innerAdvancedController.bindListener();
     }
 
-    protected Stage getStage() {
-        return stage;
-    }
-
-    protected List<String> getLanguageList() {
-        return languageList;
-    }
-
-    protected void setLanguageList(List<String> languageList) {
-        this.languageList = languageList;
-    }
 }

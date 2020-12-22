@@ -157,4 +157,10 @@ public class FxUtil {
     public void openNoBlockStage(LayoutName layoutName, String titleKey) {
         openStage(Modality.NONE, layoutName, titleKey);
     }
+
+    public void modifyToggleText(CheckBox checkBox) {
+        checkBox.setText(checkBox.isSelected()
+                ? resourceBundle.getString("settings.toggle.enable")
+                : resourceBundle.getString("settings.toggle.disable"));
+    }
 }

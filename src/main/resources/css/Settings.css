@@ -11,3 +11,16 @@
 GridPane{
     -fx-padding: 8;
 }
+
+.parent_vbox {
+    -fx-padding: 8;
+}
+
+.setting_title {
+    -fx-font-size: 20;
+    -fx-padding: 0 0 8 0;
+}
+
+.setting_description{
+    -fx-font-size: 12;
+}
