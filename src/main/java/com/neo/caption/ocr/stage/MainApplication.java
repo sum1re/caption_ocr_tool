@@ -1,6 +1,7 @@
 package com.neo.caption.ocr.stage;
 
 import com.neo.caption.ocr.CaptionOCR;
+import com.neo.caption.ocr.pojo.AppHolder;
 import com.neo.caption.ocr.util.DataUtil;
 import com.neo.caption.ocr.util.ModuleProfileWatcher;
 import javafx.application.Application;
@@ -33,6 +34,8 @@ public class MainApplication extends Application {
         context.publishEvent(new StageEvent(stage));
         DataUtil dataUtil = context.getBean(DataUtil.class);
         dataUtil.dealOldData();
+        AppHolder appHolder = context.getBean(AppHolder.class);
+        appHolder.setHostServices(getHostServices());
         notifyPreloader(new Preloader.StateChangeNotification(BEFORE_START));
     }
 
