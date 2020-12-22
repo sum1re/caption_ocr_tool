@@ -334,12 +334,13 @@ public class FileServiceImpl implements FileService {
         if (file == null) {
             return false;
         }
-        String fileName = file.getName();
-        if (!fileName.contains(".")) {
+        @SuppressWarnings("UnstableApiUsage")
+        String ext = com.google.common.io.Files.getFileExtension(file.getName());
+        if (Strings.isNullOrEmpty(ext)) {
             return false;
         }
-        String str = fileName.substring(fileName.lastIndexOf("."));
-        return Set.of(VIDEO.getExtensions()).contains(str) || ".cocr".contains(str);
+        ext = "*." + ext;
+        return Set.of(VIDEO.getExtensions()).contains(ext) || Set.of(FileType.COCR.getExtensions()).contains(ext);
     }
 
     @Override
