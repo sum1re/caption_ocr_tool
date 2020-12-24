@@ -4,7 +4,7 @@
 
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 #define guid "{533A06CF-B5E2-499B-8B3A-43CD54C1625B}"
-#define SetupVersion "0.0.1.2"
+#define SetupVersion "0.0.1.3"
 #define MyAppName "Caption OCR Tool"
 #define MyAppExeName "runtime\bin\javaw.exe"
 #define MyAppParams "-server -Xmx4G -Dfile.encoding=utf-8 -Dcocr.dir=..\..\app -Djava.library.path=..\..\lib -Dprism.targetvram=2G -Dprism.vsync=false -Dprism.scrollcacheopt=true -Djavafx.preloader=com.neo.caption.ocr.AppPreloader -jar ..\..\app\cocr.jar"
@@ -37,10 +37,14 @@ Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.i
 Name: "chinesetraditional"; MessagesFile: "compiler:Languages\ChineseTraditional.isl"; InfoBeforeFile: "InfoBefore-cht.txt"
 
 [CustomMessages]
-UnicodeDir=The installing directory cannot use non-ASCII encoded characters.
-english.UnicodeDir=The installing directory cannot use non-ASCII encoded characters.
-chinesesimplified.UnicodeDir=安装目录不能使用非 ASCII 编码的字符.
-chinesetraditional.UnicodeDir=安裝目錄不能使用非 ASCII 編碼的字元.
+UnicodeDir=The installation path cannot contain the exclamation mark or any non-ASCII characters.
+english.UnicodeDir=The installation path cannot contain the exclamation mark or any non-ASCII characters.
+chinesesimplified.UnicodeDir=安装路径不能包含 感叹号或任何非 ASCII 字符.
+chinesetraditional.UnicodeDir=安裝路徑不能包含 驚嘆號或任何非 ASCII 字元.
+WarnBeforeUpdate=The application's installation path (%1) contains the exclamation mark or non-ASCII character(s), which will cause you to be unable to use some features or even start it. %n%nIt will recommend that you uninstall this application first and then install it again. %nP.S. Don't forget to copy the app/moduleProfiles folder in the old installation path to the new installation path. %n%nDo you want to continue anyway?
+english.WarnBeforeUpdate=The application's installation path (%1) contains the exclamation mark or non-ASCII character(s), which can cause you to be unable to use some features or even start it. %n%nIt will recommend that you uninstall this application first and then install it again. %nP.S. Don't forget to copy the app/moduleProfiles folder in the old installation path to the new installation path. %n%nDo you want to continue anyway?
+chinesesimplified.WarnBeforeUpdate=应用程序的安装路径 (%1) 中包含 感叹号或非 ASCII 字符, 这会造成你无法使用部分功能甚至无法启动应用程序. %n%n推荐你先卸载程序然后再次安装. %nP.S. 不要忘记把旧目录中的 app/moduleProfiles 文件夹复制到新的安装路径中. %n%n你一定要继续吗?
+chinesetraditional.WarnBeforeUpdate=軟體程序的安裝路徑 (%1) 中包含 驚嘆號或非 ASCII 字元, 這會造成你無法使用部分功能甚至無法啟動軟體程序. %n%n推薦你先移除程式然後再次安裝. %nP.S. 不要忘記把舊目錄中的 app/moduleProfiles 文件夾複製到新的安裝路徑中. %n%n你一定要繼續嗎?
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
@@ -57,30 +61,31 @@ Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Paramete
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; Parameters: "{#MyAppParams}"; WorkingDir: "{#MyAppWorkingDir}"; IconFilename: "{#MyAppIco}"
 
 [Code]
-function verifyPath(file: String): boolean;
+function VerifyPath(file: String): Boolean;
 var
   value: Integer;
   len: Integer;
   i: Integer;
 begin
-  Result := true;
+  Result := True;
   len := length(file);
 for i := 1 to len do
   begin
   value := ord(file[i]);
-  if (value < 32) or (value > 127) then
+  // Exclude the exclamation mark. It'll cause ClassNotFoundException.
+  if (value < 32) or (value = 33) or (value > 127) then
     begin
-      Result := false;
+      Result := False;
     end;
   end;
 end;
 
-function NextButtonClick(CurPageID: Integer): boolean;
+function NextButtonClick(CurPageID: Integer): Boolean;
 begin
   Result := True;
-  if (CurPageID = wpSelectDir) then
+  if CurPageID = wpSelectDir then
     begin
-    if(verifyPath(WizardDirValue) = false) then
+    if VerifyPath(WizardDirValue) = false then
       begin
       Result := False;
       MsgBox(ExpandConstant('{cm:UnicodeDir}'), mbError, MB_OK);
@@ -88,15 +93,11 @@ begin
     end;
 end;
 
-function InitializeSetup(): boolean;
-var
-  ResultStr: String;
-  ResultCode: Integer;
+procedure InitializeWizard;
 begin
-  if RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#guid}_is1', 'UninstallString', ResultStr) then
+  if VerifyPath(WizardDirValue) = False then
     begin
-      ResultStr := RemoveQuotes(ResultStr);
-      Exec(ResultStr, '/silent', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+      if MsgBox(ExpandConstant('{cm:WarnBeforeUpdate,' + WizardDirValue + '}'), mbError, MB_YESNO) = IDNO then
+        Abort();
     end;
-    result := true;
 end;
