@@ -296,6 +296,14 @@ public class MainController implements BaseController {
         if (export == null) {
             return;
         }
+        if (appHolder.getMatNodeList().isEmpty()) {
+            Toast.makeToast(stage, resourceBundle.getString("snackbar.empty.mat.nodes"));
+            return;
+        }
+        Optional<Integer> result = fxUtil.ocrExportAlert(stage);
+        if (result.isEmpty()) {
+            return;
+        }
         commonAsyncTask = new AsyncTask().setTaskListen(new AsyncTask.TaskListen() {
             @Override
             public void onPreExecute() {
@@ -310,7 +318,7 @@ public class MainController implements BaseController {
             @Override
             public Integer call() {
                 try {
-                    return fileService.saveOCRImage(export);
+                    return fileService.saveOCRImage(export, result.get());
                 } catch (Throwable ignored) {
                     return 0;
                 }

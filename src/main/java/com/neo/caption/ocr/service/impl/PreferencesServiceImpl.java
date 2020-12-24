@@ -36,10 +36,10 @@ public class PreferencesServiceImpl implements PreferencesService {
     public void init() {
         this.configBundle = ResourceBundle.getBundle("config");
         loadIntData(MIN_PIXEL_COUNT, SIMILARITY_TYPE, STORAGE_POLICY, COUNT_PRE_PAGE,
-                FRAME_INTERVAL, EDITOR_FONT_SIZE, BACKGROUND_OPACITY);
+                FRAME_INTERVAL, EDITOR_FONT_SIZE, BACKGROUND_OPACITY, EXPORT_PER_PAGE);
         loadDoubleData(MIN_SSIM_THRESHOLD, MIN_PSNR_THRESHOLD);
         loadStringData(MODULE_PROFILE_NAME, FILE_CHOOSE_DIR, DEFAULT_STYLE, TESS_LANG, BACKGROUND_IMAGE);
-        loadBooleanData(DARK_THEME, COMPRESS_IMAGE);
+        loadBooleanData(DARK_THEME, COMPRESS_IMAGE, EXPORT_ON_ONE_PAGE);
         MODULE_PROFILE_DEFAULT.setValue(gson.fromJson(getDefValue(MODULE_PROFILE_DEFAULT), ModuleStatus[].class));
     }
 

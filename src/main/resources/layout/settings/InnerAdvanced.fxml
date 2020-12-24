@@ -8,32 +8,24 @@
      fx:controller="com.neo.caption.ocr.controller.settings.InnerAdvancedController"
      text="%settings.advanced" closable="false">
     <ScrollPane fitToWidth="true" vbarPolicy="ALWAYS">
-        <GridPane hgap="8.0" vgap="16.0">
-            <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="180.0" minWidth="180.0" prefWidth="180.0"/>
-                <ColumnConstraints hgrow="SOMETIMES"/>
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
-            </rowConstraints>
-            <Label text="%settings.advanced.warn" GridPane.columnSpan="2"
-                   GridPane.rowIndex="0"/>
-            <Label text="%settings.advanced.log.level"
-                   GridPane.rowIndex="1"/>
-            <ChoiceBox fx:id="choice_log_level"
-                       GridPane.columnIndex="1" GridPane.rowIndex="1">
-                <items>
-                    <FXCollections fx:factory="observableArrayList">
-                        <Level fx:value="TRACE"/>
-                        <Level fx:value="DEBUG"/>
-                        <Level fx:value="INFO"/>
-                        <Level fx:value="WARN"/>
-                        <Level fx:value="ERROR"/>
-                        <Level fx:value="OFF"/>
-                    </FXCollections>
-                </items>
-            </ChoiceBox>
-        </GridPane>
+        <VBox spacing="32.0" styleClass="parent_vbox">
+            <VBox spacing="8.0">
+                <Label text="%settings.advanced.title.log" styleClass="setting_title"/>
+                <Label text="%settings.advanced.level" styleClass="setting_description"/>
+                <ChoiceBox fx:id="choice_log_level">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <Level fx:value="TRACE"/>
+                            <Level fx:value="DEBUG"/>
+                            <Level fx:value="INFO"/>
+                            <Level fx:value="WARN"/>
+                            <Level fx:value="ERROR"/>
+                            <Level fx:value="OFF"/>
+                        </FXCollections>
+                    </items>
+                </ChoiceBox>
+            </VBox>
+        </VBox>
     </ScrollPane>
 </Tab>
 

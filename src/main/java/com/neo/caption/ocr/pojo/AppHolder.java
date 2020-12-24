@@ -2,6 +2,7 @@ package com.neo.caption.ocr.pojo;
 
 import com.neo.caption.ocr.constant.FileType;
 import com.neo.caption.ocr.view.MatNode;
+import javafx.application.HostServices;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import lombok.Data;
@@ -27,6 +28,7 @@ public class AppHolder {
     private ThreadLocal<StringBuilder> stringBuilderThreadLocal;
     //FileChooser
     private Map<FileType, FileChooser.ExtensionFilter> filterMap;
+    private HostServices hostServices;
 
     @PostConstruct
     public void init() {

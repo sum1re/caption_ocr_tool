@@ -6,35 +6,26 @@
      fx:controller="com.neo.caption.ocr.controller.settings.InnerPersonaliseController"
      text="%settings.personalise" closable="false">
     <ScrollPane fitToWidth="true" vbarPolicy="ALWAYS">
-        <GridPane hgap="8.0" vgap="16.0">
-            <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="180.0" minWidth="180.0" prefWidth="180.0"/>
-                <ColumnConstraints hgrow="SOMETIMES"/>
-                <ColumnConstraints hgrow="SOMETIMES"/>
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
-                <RowConstraints valignment="CENTER" vgrow="SOMETIMES"/>
-            </rowConstraints>
-            <Label text="%settings.personalise.dark.theme"
-                   GridPane.rowIndex="0"/>
-            <Label text="%settings.personalise.background"
-                   GridPane.rowIndex="1"/>
-            <Label text="%settings.personalise.mask"
-                   GridPane.rowIndex="2"/>
-            <CheckBox fx:id="check_dark" text="%settings.personalise.dark.theme.enable"
-                      GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-            <HBox spacing="8.0"
-                  GridPane.columnIndex="1" GridPane.rowIndex="1">
-                <Button fx:id="background_image" textOverrun="CENTER_ELLIPSIS" text="..."
-                        onAction="#onClick"/>
-                <Button fx:id="background_del" text="❌" visible="false" managed="false"
-                        onAction="#onClick"/>
-            </HBox>
-            <Slider fx:id="slider_opacity" blockIncrement="1" showTickMarks="true"
-                    GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-        </GridPane>
+        <VBox spacing="32.0" styleClass="parent_vbox">
+            <VBox spacing="8.0">
+                <Label text="%settings.personalise.title.theme" styleClass="setting_title"/>
+                <Label text="%settings.personalise.dark_theme" styleClass="setting_description"/>
+                <CheckBox fx:id="check_dark"/>
+            </VBox>
 
+            <VBox spacing="8.0">
+                <Label text="%settings.personalise.title.background" styleClass="setting_title"/>
+                <Label text="%settings.personalise.background" styleClass="setting_description"/>
+                <HBox spacing="8.0">
+                    <Button fx:id="background_image" textOverrun="CENTER_ELLIPSIS" text="..."
+                            onAction="#onClick"/>
+                    <Button fx:id="background_del" text="❌" visible="false" managed="false"
+                            onAction="#onClick"/>
+                </HBox>
+                <Label text="%settings.personalise.mark" styleClass="setting_description"/>
+                <Slider fx:id="slider_opacity" blockIncrement="1" showTickMarks="true"/>
+            </VBox>
+        </VBox>
     </ScrollPane>
 </Tab>
 

@@ -62,6 +62,7 @@ public class InnerPersonaliseController {
         }
         slider_opacity.setValue(BACKGROUND_OPACITY.intValue());
         check_dark.setSelected(DARK_THEME.booleanValue());
+        settingsController.getFxUtil().modifyToggleText(check_dark);
     }
 
     protected void bindListener() {
@@ -105,6 +106,7 @@ public class InnerPersonaliseController {
     private void onThemeModify(ObservableValue<?> ov, Boolean a, Boolean b) {
         preferencesService.put(DARK_THEME, b);
         Toast.makeToast(settingsController.getStage(), resourceBundle.getString("snackbar.modify.theme"));
+        settingsController.getFxUtil().modifyToggleText(check_dark);
     }
 
 }
