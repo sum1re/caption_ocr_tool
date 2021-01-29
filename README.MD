@@ -57,6 +57,7 @@ COCR 提供 HSV, HLS, 二值形态学的过滤方法, 对于颜色偏暗的场�
 - 删除&合并操作逻辑
 
 ![flow](docs/flow_zh_cn.png)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fsum1re%2Fcaption_ocr_tool.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fsum1re%2Fcaption_ocr_tool?ref=badge_shield)
 
 ## 开发
 
@@ -115,3 +116,7 @@ mvn compile
   ```
   java.base,java.instrument,java.sql,jdk.unsupported,java.compiler,java.logging,java.desktop,java.naming,java.xml,java.prefs,java.management,java.rmi,java.scripting,jdk.httpserver,javafx.base,javafx.controls,javafx.fxml,javafx.graphics
   ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fsum1re%2Fcaption_ocr_tool.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fsum1re%2Fcaption_ocr_tool?ref=badge_large)
