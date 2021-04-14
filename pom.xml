@@ -13,16 +13,8 @@
 
     <properties>
         <java.version>11</java.version>
-        <app.description>License: Apache-2.0&#xD;&#xA;Powered by Java</app.description>
-        <!-- Semantic Versioning (https://semver.org/)
-        majorVersion: when making incompatible API changes
-        minorVersion: when adding functionality in a backwards compatible manner
-        patchVersion: when making backwards compatible bug fixes. A pre-release version denoted by appending a hyphen.
-        -->
-        <app.majorVersion>0</app.majorVersion>
-        <app.minorVersion>0</app.minorVersion>
-        <app.patchVersion>6-beta</app.patchVersion>
-        <app.versionCode>${maven.build.timestamp}</app.versionCode>
+        <app.license>License: Apache-2.0&#xD;&#xA;Powered by Java</app.license>
+        <!-- maven -->
         <maven.build.timestamp.format>yyMMddHHmm.ssSSS</maven.build.timestamp.format>
     </properties>
 
