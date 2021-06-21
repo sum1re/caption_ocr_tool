@@ -5,9 +5,9 @@
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${ROLLING_FILE_NAME_PATTERN}</fileNamePattern>
-            <maxHistory>${LOG_FILE_MAX_HISTORY}</maxHistory>
-            <maxFileSize>${LOG_FILE_MAX_SIZE}</maxFileSize>
+            <fileNamePattern>${LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN}</fileNamePattern>
+            <maxHistory>${LOGBACK_ROLLINGPOLICY_MAX_HISTORY}</maxHistory>
+            <maxFileSize>${LOGBACK_ROLLINGPOLICY_MAX_FILE_SIZE}</maxFileSize>
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
