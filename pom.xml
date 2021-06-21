@@ -23,6 +23,12 @@
     <groupId>com.neo.caption</groupId>
     <artifactId>ocr</artifactId>
     <name>Caption OCR Tool</name>
+    <!-- Semantic Versioning (https://semver.org/)
+        majorVersion: when making incompatible API changes
+        minorVersion: when adding functionality in a backwards compatible manner
+        patchVersion: when making backwards compatible bug fixes. A pre-release version denoted by appending a hyphen.
+        -->
+    <version>0.0.7-beta</version>
 
     <dependencies>
         <!-- SpringBoot -->

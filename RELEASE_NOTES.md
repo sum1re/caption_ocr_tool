@@ -1,3 +1,12 @@
+## 0.0.7-beta
+- 修复批处理进程错误 ([#22](https://github.com/sum1re/caption_ocr_tool/issues/22#issuecomment-774851645))
+
+##### TODO
+- 预处理无字幕图像
+- 简化图像处理流程
+- TensorFlow 辅助 
+- 有限的 Linux 支持
+
 ## 0.0.6-beta
 - **重要!** 安装路径不支持含*感叹号或非 ASCII 字符*, 如有此类字符请卸载后再安装
 - 增加: 可分割导出 OCR 图像
