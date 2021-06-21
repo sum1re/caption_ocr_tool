@@ -98,6 +98,9 @@ public class BatController implements BaseController {
             appHolder.getMatNodeList().clear();
             appHolder.setOcr("");
             stageService.remove(stage);
+            if (asyncTask.isRunning()) {
+                asyncTask.cancel(true);
+            }
             System.gc();
         });
     }
