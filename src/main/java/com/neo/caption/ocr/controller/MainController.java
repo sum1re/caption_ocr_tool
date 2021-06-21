@@ -1,10 +1,9 @@
 package com.neo.caption.ocr.controller;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.CharStreams;
+import com.google.common.io.Resources;
 import com.neo.caption.ocr.constant.LayoutName;
 import com.neo.caption.ocr.pojo.AppHolder;
-import com.neo.caption.ocr.pojo.Build;
+import com.neo.caption.ocr.property.InfoProperties;
 import com.neo.caption.ocr.service.*;
 import com.neo.caption.ocr.stage.StageBroadcast;
 import com.neo.caption.ocr.util.AsyncTask;
@@ -26,8 +25,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -84,6 +86,7 @@ public class MainController implements BaseController {
     private final AppHolder appHolder;
     private final PreferencesService preferencesService;
     private final ExecutorService service;
+    private final InfoProperties infoProperties;
 
     private final static String MASK_LIGHT_STYLE = "-fx-background-color: rgba(255,255,255,%1$f)";
     private final static String MASK_DARK_STYLE = "-fx-background-color: rgba(37,37,37,%1$f)";
@@ -104,7 +107,7 @@ public class MainController implements BaseController {
                           FileService fileService, OpenCVService openCVService, VideoService videoService,
                           StageService stageService, StageBroadcast stageBroadcast, FxUtil fxUtil,
                           ExecutorService service, ResourceBundle resourceBundle,
-                          AppHolder appHolder) {
+                          AppHolder appHolder, InfoProperties infoProperties) {
         this.ocrService = ocrService;
         this.matNodeService = matNodeService;
         this.fileService = fileService;
@@ -117,6 +120,7 @@ public class MainController implements BaseController {
         this.resourceBundle = resourceBundle;
         this.appHolder = appHolder;
         this.preferencesService = preferencesService;
+        this.infoProperties = infoProperties;
     }
 
     @Override
@@ -387,16 +391,17 @@ public class MainController implements BaseController {
         service.submit(commonAsyncTask);
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     @FXML
     public void onAboutClick() throws IOException {
-        try (InputStream ips = getClass().getResourceAsStream("/ThirdLicense");
-             InputStreamReader reader = new InputStreamReader(ips, Charsets.UTF_8)) {
-            fxUtil.alert(stage,
-                    Build.Info.NAME.value(),
-                    Build.Info.VERSION.value(),
-                    Build.Info.DESCRIPTION.value(),
-                    Collections.singletonList(CharStreams.toString(reader)));
-        }
+        var thirdLicenseURL = Resources.getResource("ThirdLicense");
+        var thirdLicenseString = Resources.toString(thirdLicenseURL, StandardCharsets.UTF_8);
+        fxUtil.alert(stage,
+                infoProperties.getName(),
+                infoProperties.getVersion(),
+                infoProperties.getAppLicense(),
+                Collections.singletonList(thirdLicenseString));
+
     }
 
     @FXML
