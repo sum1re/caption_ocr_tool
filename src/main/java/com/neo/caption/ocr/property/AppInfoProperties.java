@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
 @ConfigurationProperties(prefix = "cocr.info")
-public class InfoProperties {
+public class AppInfoProperties {
 
     private String artifact;
     private String group;
