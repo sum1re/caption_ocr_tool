@@ -4,7 +4,6 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.gson.Gson;
-import com.neo.caption.ocr.CaptionOCR;
 import lombok.extern.slf4j.Slf4j;
 import org.bytedeco.tesseract.TessBaseAPI;
 import org.opencv.videoio.VideoCapture;
@@ -16,7 +15,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.prefs.Preferences;
 
 @Configuration
 @Slf4j
@@ -33,11 +31,6 @@ public class AppConfig {
     @Bean
     public Gson gson() {
         return new Gson();
-    }
-
-    @Bean
-    public Preferences preferences() {
-        return Preferences.userRoot().node(CaptionOCR.class.getPackageName());
     }
 
     @Bean
