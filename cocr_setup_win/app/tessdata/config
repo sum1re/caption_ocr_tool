@@ -1,9 +1,1 @@
-preserve_interword_spaces 1
-chop_enable T
-language_model_ngram_on 0
-textord_force_make_prop_words F
-edges_max_children_per_outline 40
-tessedit_pageseg_mode 7
-tessedit_ocr_engine_mode 1
-unrecognised_char  
-tessedit_char_blacklist <>《》丨~|\/`^'-_§丶ˇ〆‰⺄⺈⺌⺗⺶⻗丷勹宀癶艹刂彳巛亻卩犭匚灬纟钅耂冫丿冖凵彡氵饣礻忄厶扌囗亠讠衤乚廴爫乛夂豸𥫗丬辶阝ノ
+# custom Tesseract parameters (override the default parameters)
