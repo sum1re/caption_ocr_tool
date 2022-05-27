@@ -13,12 +13,12 @@
 
     <properties>
         <java.version>17</java.version>
-        <app.license>License: Apache-2.0&#xD;&#xA;Powered by Java</app.license>
+        <app.license>https://github.com/sum1re/caption_ocr_tool/raw/main/LICENSE</app.license>
         <!-- maven -->
+        <build.timestamp>${maven.build.timestamp.format}</build.timestamp>
         <maven.build.timestamp.format>yyMMddHHmm.ssSSS</maven.build.timestamp.format>
         <!-- dependency version -->
-        <mapstruct.version>1.4.2.Final</mapstruct.version>
-        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+        <jetbrains.annotations.version>23.0.0</jetbrains.annotations.version>
         <bytedeco.opencv.version>4.5.5-1.5.7</bytedeco.opencv.version>
         <bytedeco.tesseract.version>5.0.1-1.5.7</bytedeco.tesseract.version>
         <guava.version>31.1-jre</guava.version>
@@ -55,12 +55,6 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- WebSocket -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
-
         <!-- Cache -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -95,6 +89,13 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
             <scope>provided</scope>
+        </dependency>
+        <!-- Jetbrains annotations -->
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>${jetbrains.annotations.version}</version>
+            <scope>compile</scope>
         </dependency>
         <!-- Test -->
         <dependency>
@@ -142,19 +143,9 @@
                     <target>${java.version}</target>
                     <annotationProcessorPaths>
                         <path>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>${mapstruct.version}</version>
-                        </path>
-                        <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                             <version>${lombok.version}</version>
-                        </path>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok-mapstruct-binding</artifactId>
-                            <version>${lombok-mapstruct-binding.version}</version>
                         </path>
                         <path>
                             <groupId>org.springframework.boot</groupId>
@@ -162,14 +153,6 @@
                             <version>${project.parent.version}</version>
                         </path>
                     </annotationProcessorPaths>
-                    <compilerArgs>
-                        <arg>
-                            -Amapstruct.defaultComponentModel=spring
-                        </arg>
-                        <arg>
-                            -Amapstruct.unmappedTargetPolicy=IGNORE
-                        </arg>
-                    </compilerArgs>
                 </configuration>
             </plugin>
         </plugins>
