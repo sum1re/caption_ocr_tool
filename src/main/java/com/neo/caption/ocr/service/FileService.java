@@ -20,6 +20,7 @@ public interface FileService {
 
     void combineFileChunk(FileChecksumDto fileChecksumDto);
 
-    Path getFileByHash(String hash);
+    Path getHashFile(String hash);
 
+    void removeHashCache(String hash);
 }

@@ -3,17 +3,17 @@ package com.neo.caption.ocr.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import com.neo.caption.ocr.constant.CacheKeyPrefix;
 import com.neo.caption.ocr.constant.ErrorCode;
 import com.neo.caption.ocr.domain.dto.FileChecksumDto;
 import com.neo.caption.ocr.domain.dto.FileChunkDto;
 import com.neo.caption.ocr.exception.BusinessException;
+import com.neo.caption.ocr.service.CacheService;
 import com.neo.caption.ocr.service.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -22,37 +22,33 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static com.neo.caption.ocr.util.BaseUtil.v2s;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@CacheConfig(cacheNames = "file-path")
 public class FileServiceImpl implements FileService {
 
     @Qualifier("dotJoiner")
     private final Joiner dotJoiner;
     private final ObjectMapper objectMapper;
+    private final CacheService cacheService;
 
     private StringBuilder stringBuilder;
-    private Map<String, Path> hashPathMap;
 
     @PostConstruct
     public void init() {
-        this.hashPathMap = new HashMap<>(4);
         this.stringBuilder = new StringBuilder(8);
     }
 
     @Override
     public <T> void saveJsonToFile(Path path, T object) {
-        try (var writer = Files.newBufferedWriter(path)) {
+        try (var writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE)) {
             objectMapper.writeValue(writer, object);
         } catch (IOException e) {
             throw new BusinessException(ErrorCode.INVALID_ARGUMENT, e);
@@ -94,18 +90,23 @@ public class FileServiceImpl implements FileService {
         if (Strings.isNullOrEmpty(hash)) {
             throw new BusinessException(ErrorCode.INVALID_ARGUMENT);
         }
-        if (hashPathMap.containsKey(hash)) {
-            var tempPath = hashPathMap.getOrDefault(hash, null);
-            if (tempPath != null && Files.exists(tempPath)) {
-                deleteDirectory(tempPath);
+        var queryCachePath = getHashDirectory(hash);
+        if (queryCachePath != null) {
+            try (var stream = Files.walk(queryCachePath)) {
+                stream.sorted(Comparator.reverseOrder())
+                        .forEach(this::deleteFile);
+            } catch (NoSuchFileException ignored) {
+                // do nothing
+            } catch (IOException e) {
+                throw new BusinessException(ErrorCode.FAILED_PRECONDITION, e);
             }
-            hashPathMap.remove(hash);
+            removeHashCache(hash);
         }
         try {
-            var hashPath = Files.createTempDirectory("");
-            hashPath.toFile().deleteOnExit();
-            hashPathMap.put(hash, hashPath);
-            log.info("{}: {}", hash, hashPath);
+            var hashDirectory = cacheService.putCache(
+                    CacheKeyPrefix.HASH_DIRECTORY, hash, Files.createTempDirectory(""));
+            hashDirectory.toFile().deleteOnExit();
+            log.info("hash: {}, path: {}", hash, hashDirectory);
         } catch (IOException e) {
             throw new BusinessException(ErrorCode.ABORTED, e);
         }
@@ -116,7 +117,7 @@ public class FileServiceImpl implements FileService {
         if (fileChunkDto.index() == null || fileChunkDto.file() == null || fileChunkDto.file().isEmpty()) {
             throw new BusinessException(ErrorCode.INVALID_ARGUMENT);
         }
-        var path = getPathByHash(fileChunkDto.hash());
+        var path = getHashDirectory(fileChunkDto.hash());
         var fileIndex = Strings.padStart(v2s(fileChunkDto.index()), 5, '0');
         var savePath = path.resolve(dotJoiner.join(fileIndex, "tmp"));
         try {
@@ -128,16 +129,26 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void combineFileChunk(@NotNull FileChecksumDto fileChecksumDto) {
-        var hashTempPath = getPathByHash(fileChecksumDto.hash());
-        var combinePath = getFileByHash(fileChecksumDto.hash());
+        var hashDirectory = getHashDirectory(fileChecksumDto.hash());
+        if (hashDirectory == null) {
+            throw new BusinessException(ErrorCode.INVALID_ARGUMENT);
+        }
+        var combinePath = getHashFile(fileChecksumDto.hash());
         var combineStandardOpenOptions = new StandardOpenOption[]{StandardOpenOption.CREATE, StandardOpenOption.APPEND};
-        try (var pathStream = Files.list(hashTempPath).filter(path -> path.toString().endsWith(".tmp"));
+        try (var pathStream = Files.list(hashDirectory).filter(path -> path.toString().endsWith(".tmp"));
              var combineChannel = FileChannel.open(combinePath, combineStandardOpenOptions)) {
             var list = pathStream.sorted().toList();
             if (list.size() != fileChecksumDto.totalChunk()) {
                 throw new BusinessException(ErrorCode.DATA_LOSS);
             }
-            combinePathList(combineChannel, list);
+            var start = 0;
+            for (var path : list) {
+                try (var fileChannel = FileChannel.open(path)) {
+                    combineChannel.transferFrom(fileChannel, start, fileChannel.size());
+                    start += fileChannel.size();
+                    deleteFile(path);
+                }
+            }
         } catch (IOException e) {
             throw new BusinessException(ErrorCode.ABORTED, e);
         }
@@ -153,10 +164,12 @@ public class FileServiceImpl implements FileService {
      * @return the file path
      */
     @Override
-    @Cacheable(key = "#hash")
-    public Path getFileByHash(String hash) {
-        var hashTempPath = getPathByHash(hash);
-        return hashTempPath.resolve(hash);
+    public Path getHashFile(String hash) {
+        var hashDirectory = getHashDirectory(hash);
+        if (hashDirectory == null) {
+            throw new BusinessException(ErrorCode.INVALID_ARGUMENT);
+        }
+        return hashDirectory.resolve(hash);
     }
 
     private @NotNull String bytesToHex(byte[] bytes) {
@@ -174,45 +187,20 @@ public class FileServiceImpl implements FileService {
         return stringBuilder.toString();
     }
 
-    private void combinePathList(FileChannel outChannel, @NotNull List<Path> chunkList) throws IOException {
-        var start = 0;
-        for (var path : chunkList) {
-            try (var fileChannel = FileChannel.open(path)) {
-                outChannel.transferFrom(fileChannel, start, fileChannel.size());
-                start += fileChannel.size();
-                Files.delete(path);
-            }
-        }
-    }
-
     /**
-     * Get the path from 'hashPathMap' by the given hash.
+     * Get the path from cache by the given hash.
      *
      * @param hash file hash, its temporary-file directory should exist, <br/>
      *             otherwise it will throw INVALID_ARGUMENT.
      * @return the hash temporary-file directory
      */
-    private @NotNull Path getPathByHash(String hash) {
-        if (Strings.isNullOrEmpty(hash)) {
-            throw new BusinessException(ErrorCode.INVALID_ARGUMENT);
-        }
-        var path = hashPathMap.getOrDefault(hash, null);
-        if (path == null || !Files.exists(path)) {
-            throw new BusinessException(ErrorCode.INVALID_ARGUMENT);
-        }
-        return path;
+    private Path getHashDirectory(String hash) {
+        return cacheService.getCache(CacheKeyPrefix.HASH_DIRECTORY, hash);
     }
 
-    private void deleteDirectory(@NotNull Path target) {
-        if (!Files.exists(target)) {
-            return;
-        }
-        try (var stream = Files.walk(target)) {
-            stream.sorted(Comparator.reverseOrder())
-                    .forEach(this::deleteFile);
-        } catch (IOException e) {
-            throw new BusinessException(ErrorCode.FAILED_PRECONDITION, e);
-        }
+    @Override
+    public void removeHashCache(String hash) {
+        cacheService.removeCache(CacheKeyPrefix.HASH_DIRECTORY, hash);
     }
 
     private void deleteFile(Path target) {
