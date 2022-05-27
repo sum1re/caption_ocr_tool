@@ -11,6 +11,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 @Slf4j
 public class OpenCVUtil {
@@ -21,8 +22,7 @@ public class OpenCVUtil {
         return new Point(-1, -1);
     }
 
-    @NotNull
-    public static byte[] mat2ByteArrayByGet(@NotNull Mat mat) {
+    public static byte @NotNull [] mat2ByteArrayByGet(@NotNull Mat mat) {
         var channels = (int) mat.total() * mat.channels();
         var bytes = new byte[channels];
         mat.get(0, 0, bytes);
@@ -141,9 +141,11 @@ public class OpenCVUtil {
      * @param mats Mat list, if the mat is null, it will be filtered out.
      */
     public static void release(Mat... mats) {
-        Arrays.stream(mats)
-                .filter(Objects::nonNull)
-                .forEach(Mat::release);
+        release(Arrays.stream(mats));
+    }
+
+    public static void release(@NotNull Stream<Mat> matStream) {
+        matStream.filter(Objects::nonNull).forEach(Mat::release);
     }
 
 }
