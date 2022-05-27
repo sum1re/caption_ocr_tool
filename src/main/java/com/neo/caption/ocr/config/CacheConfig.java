@@ -17,7 +17,7 @@ public class CacheConfig {
     public CacheManager cacheManager() {
         var cacheManager = new CaffeineCacheManager();
         var caffeine = Caffeine.newBuilder()
-                .expireAfterAccess(Duration.ofMinutes(30))
+                .expireAfterAccess(Duration.ofHours(Integer.MAX_VALUE))
                 .initialCapacity(2 << 6)
                 .maximumSize(2 << 8);
         cacheManager.setCaffeine(caffeine);
