@@ -1,13 +1,11 @@
 package com.neo.caption.ocr.util;
 
-import com.neo.caption.ocr.constant.LayoutName;
-import lombok.extern.slf4j.Slf4j;
+import com.google.common.base.Strings;
+import org.springframework.scheduling.annotation.Async;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.URL;
 
-@Slf4j
 public class BaseUtil {
 
     public static <T> String v2s(T t) {
@@ -50,29 +48,21 @@ public class BaseUtil {
         }
     }
 
-    public static URL fxmlURL(LayoutName layoutName) {
-        return BaseUtil.class.getResource("/layout/" + layoutName.getName() + ".fxml");
-    }
-
-    public static String cssURL(LayoutName layoutName) {
-        return BaseUtil.class.getResource("/css/" + layoutName.getName() + ".css").toExternalForm();
-    }
-
-    public static long getTimeGen() {
-        return System.currentTimeMillis();
-    }
-
     /**
-     * convert millisecond to HH:mm:ss.SS
+     * Convert millisecond to H:mm:ss.SS<br/>
+     * e.g. 82033 -> 0:01:22.33
      *
      * @param time unit: millisecond
      * @return String
      */
-    public static String convertTime(Double time) {
-        BigDecimal millisecond = DecimalUtil.divide(time, 1000D);
-        BigDecimal hour = BigDecimal.ZERO;
-        BigDecimal minute = BigDecimal.ZERO;
-        BigDecimal second = DecimalUtil.round(0, RoundingMode.DOWN, millisecond);
+    public static String convertTime(BigDecimal time) {
+        if (time == null || time.compareTo(BigDecimal.ZERO) <= 0) {
+            return "0:00:00.00";
+        }
+        var millisecond = DecimalUtil.divide(time, 1000D);
+        var hour = BigDecimal.ZERO;
+        var minute = BigDecimal.ZERO;
+        var second = DecimalUtil.round(0, RoundingMode.DOWN, millisecond);
         if (second.compareTo(new BigDecimal("60")) >= 0) {
             minute = DecimalUtil.divide(second, 60D);
             second = DecimalUtil.remainder(second, 60D);
@@ -81,12 +71,15 @@ public class BaseUtil {
             hour = DecimalUtil.divide(minute, 60D);
             minute = DecimalUtil.remainder(minute, 60D);
         }
-        String ms = DecimalUtil.round(5, RoundingMode.DOWN, DecimalUtil.remainder(millisecond, BigDecimal.ONE)).toString();
-        return String.format("%1$02d:%2$02d:%3$02d.%4$s",
+        var ms = DecimalUtil.remainder(millisecond, BigDecimal.ONE);
+        var msStr = DecimalUtil.round(5, RoundingMode.DOWN, ms).toString();
+        var msDotIndex = msStr.indexOf('.');
+        var subMs = msStr.substring(msDotIndex + 1, Math.min(msDotIndex + 3, msStr.length()));
+        return String.format("%1$01d:%2$02d:%3$02d.%4$s",
                 hour.intValue(),
                 minute.intValue(),
                 second.intValue(),
-                ms.substring(ms.indexOf(".") + 1));
+                Strings.padEnd(subMs, 2, '0'));
     }
 
 }

@@ -2,6 +2,7 @@ package com.neo.caption.ocr.util;
 
 import com.google.common.collect.Iterables;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -10,7 +11,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.neo.caption.ocr.util.BaseUtil.v2s;
 
 @Slf4j
 public class DecimalUtil {
@@ -113,10 +113,10 @@ public class DecimalUtil {
     }
 
     public static BigDecimal remainder(Number first, Number second) {
-        return remainder(v2s(first), v2s(second));
+        return remainder(BaseUtil.v2s(first), BaseUtil.v2s(second));
     }
 
-    public static BigDecimal remainder(BigDecimal first, BigDecimal second) {
+    public static BigDecimal remainder(BigDecimal first, @NotNull BigDecimal second) {
         if (second.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
@@ -133,7 +133,7 @@ public class DecimalUtil {
         return new BigDecimal(value).setScale(scale, roundingMode);
     }
 
-    public static BigDecimal round(int scale, RoundingMode roundingMode, Number number) {
+    public static BigDecimal round(int scale, RoundingMode roundingMode, @NotNull Number number) {
         return round(scale, roundingMode, number.toString());
     }
 
@@ -142,6 +142,7 @@ public class DecimalUtil {
     }
 
     public static BigDecimal round(Number number) {
-        return round(5, RoundingMode.HALF_EVEN, v2s(number));
+        return round(5, RoundingMode.HALF_EVEN, BaseUtil.v2s(number));
     }
+
 }
