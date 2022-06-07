@@ -1,21 +1,19 @@
 package com.neo.caption.ocr.service;
 
-import com.neo.caption.ocr.exception.InvalidMatException;
-import com.neo.caption.ocr.exception.ModuleException;
-import javafx.scene.control.ProgressBar;
-import org.opencv.core.Mat;
+import com.neo.caption.ocr.domain.dto.OCRDto;
+import com.neo.caption.ocr.domain.dto.TaskDto;
+import com.neo.caption.ocr.domain.entity.CaptionRow;
+import org.opencv.videoio.VideoCapture;
 
 import java.io.File;
 
 public interface VideoService {
 
-    boolean readFrame(Mat mat, double count);
+    Integer getFrameCount(String taskId);
 
-    Integer loadVideo(File videoFile);
+    void removeFrameCount(String taskId);
 
-    void videoToCOCR(ProgressBar progressBar) throws ModuleException, InvalidMatException;
-
-    boolean isVideoLoaded();
+    VideoCapture openVideoFile(String hash);
 
     boolean isVideoFinish();
 
