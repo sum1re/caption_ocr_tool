@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.6.7</version>
+        <version>2.7.0</version>
         <relativePath/>
     </parent>
 
@@ -22,6 +22,8 @@
         <bytedeco.opencv.version>4.5.5-1.5.7</bytedeco.opencv.version>
         <bytedeco.tesseract.version>5.0.1-1.5.7</bytedeco.tesseract.version>
         <guava.version>31.1-jre</guava.version>
+        <mapstruct.version>1.4.2.Final</mapstruct.version>
+        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
     </properties>
 
     <packaging>jar</packaging>
@@ -97,6 +99,12 @@
             <version>${jetbrains.annotations.version}</version>
             <scope>compile</scope>
         </dependency>
+        <!-- MapStruct -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -146,6 +154,11 @@
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                             <version>${lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>${lombok-mapstruct-binding.version}</version>
                         </path>
                         <path>
                             <groupId>org.springframework.boot</groupId>
