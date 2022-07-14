@@ -26,7 +26,6 @@ import java.util.List;
 public class TesseractServiceImpl implements TesseractService {
 
     private final TesseractProperties tesseractProperties;
-    @Qualifier("commaSplitter")
     private final Splitter commaSplitter;
 
     private Path tessDataPath;
@@ -37,7 +36,7 @@ public class TesseractServiceImpl implements TesseractService {
     public void init() {
         this.tessDataPath = Paths.get("").resolve("app").resolve("tessdata");
         if (!Files.exists(tessDataPath)) {
-            log.warn("missing the tessdata");
+            log.warn("The tessdata does not exist: {}", tessDataPath.toAbsolutePath());
             this.tessLanguageDtoList = Collections.emptyList();
             return;
         }
