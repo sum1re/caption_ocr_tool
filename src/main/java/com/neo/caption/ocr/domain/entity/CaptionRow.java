@@ -4,14 +4,19 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-public class CaptionRow {
+@AllArgsConstructor
+public class CaptionRow implements Cloneable {
 
     private int startIndex;
     private int endIndex;
     private String caption;
-    private Mat mat;
 
-    public CaptionRowDto toDto() {
-        return new CaptionRowDto(this.startTime, this.endTime, this.caption);
+    @Override
+    public CaptionRow clone() {
+        try {
+            return (CaptionRow) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }
