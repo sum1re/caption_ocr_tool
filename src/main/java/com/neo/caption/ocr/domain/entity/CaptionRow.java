@@ -1,20 +1,17 @@
 package com.neo.caption.ocr.domain.entity;
 
-import com.neo.caption.ocr.domain.dto.CaptionRowDto;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.opencv.core.Mat;
 
 @Data
 public class CaptionRow {
 
-    private int id;
-    private double startTime;
-    private double endTime;
+    private int startIndex;
+    private int endIndex;
     private String caption;
     private Mat mat;
 
     public CaptionRowDto toDto() {
         return new CaptionRowDto(this.startTime, this.endTime, this.caption);
     }
-
 }
