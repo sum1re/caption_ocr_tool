@@ -1,11 +1,10 @@
 package com.neo.caption.ocr.service;
 
-import com.neo.caption.ocr.domain.dto.OCRDto;
-import com.neo.caption.ocr.domain.dto.TaskDto;
 import com.neo.caption.ocr.domain.entity.CaptionRow;
+import com.neo.caption.ocr.domain.entity.TaskAttribute;
 import org.opencv.videoio.VideoCapture;
 
-import java.io.File;
+import java.util.List;
 
 public interface VideoService {
 
@@ -15,8 +14,6 @@ public interface VideoService {
 
     VideoCapture openVideoFile(String hash);
 
-    boolean isVideoFinish();
-
-    void closeVideo();
+    List<CaptionRow> processVideo(TaskAttribute taskAttribute);
 
 }
