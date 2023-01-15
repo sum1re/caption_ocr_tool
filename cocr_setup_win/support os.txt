@@ -1,0 +1,12 @@
+﻿Windows	✔
+cygwin	❌
+darwin	✔(macOS)
+linux	✔
+solaris	❌(SunOS)
+freebsd	✔
+other	✔
+
+
+home: app home
+base: $home/app
+log: $base/logs
