@@ -1,0 +1,39 @@
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+    context-path: /api
+  error:
+    whitelabel:
+      enabled: false
+
+spring:
+  profiles:
+    include:
+      - custom
+      - dev
+  mvc:
+    converters:
+      preferred-json-mapper: jackson
+    throw-exception-if-no-handler-found: true
+  task:
+    execution:
+      pool:
+        core-size: 4
+        max-size: 16
+        keep-alive: 60s
+        queue-capacity: 100
+      thread-name-prefix: COCRTask-
+  aop:
+    auto: true
+    proxy-target-class: true
+
+logging:
+  config: classpath:logback/logback-spring.xml
+  pattern:
+    dateformat: dd-MM-yyyy HH:mm:ss.SSS
+  logback:
+    rollingpolicy:
+      max-history: 7
+      max-file-size: 4096KB
+      file-name-pattern: ${cocr.dir}/logs/%d{yyyy-MM-dd}.%i.log

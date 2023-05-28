@@ -1,0 +1,42 @@
+cocr:
+  info:
+    app-license: @app.license@
+    artifact: @project.artifactId@
+    build-timestamp: @maven.build.timestamp@
+    group: @project.groupId@
+    java-version: @java.version@
+    name: @project.name@
+    spring-boot-version: @project.parent.version@
+    version: @project.version@
+
+tesseract:
+  ocr-engine-mode: 1
+  page-seg-mode: 7
+  supported-language: eng,jpn,chi_sim,chi_tra
+  configs:
+    - name: chop_enable
+      value: 'true'
+    - name: language_model_ngram_on
+      value: 'false'
+    - name: tessedit_char_blacklist
+      value: <>《》丨~|\/`^'-_§丶ˇ〆‰⺄⺈⺌⺗⺶⻗丷勹宀癶艹刂彳巛亻卩犭匚灬纟钅耂冫丿冖凵彡氵饣礻忄厶扌囗亠讠衤乚廴爫乛夂豸𥫗丬辶阝ノ
+    - name: preserve_interword_spaces
+      value: 'true'
+    - name: unrecognised_char
+      value: ' '
+    - name: textord_force_make_prop_words
+      value: 'false'
+    - name: edges_max_children_per_outline
+      value: '40'
+
+ocr:
+  config:
+    min-black-pixel-threshold: 0.01
+    max-white-pixel-threshold: 99.97
+    ssim-threshold: 0.95
+
+cors:
+  allowed-header: '*'
+  allowed-methods: GET,OPTIONS,PATCH,POST,PUT
+  allowed-origin-patterns:
+    - http://localhost:[*]
