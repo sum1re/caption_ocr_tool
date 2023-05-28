@@ -8,6 +8,17 @@ cocr:
     name: @project.name@
     spring-boot-version: @project.parent.version@
     version: @project.version@
+  cors:
+    allowed-header:
+      - *
+    allowed-methods:
+      - GET
+      - OPTIONS
+      - PATCH
+      - POST
+      - DELETE
+    origin-patterns:
+      - http://localhost:[*]
 
 tesseract:
   ocr-engine-mode: 1
@@ -34,9 +45,3 @@ ocr:
     min-black-pixel-threshold: 0.01
     max-white-pixel-threshold: 99.97
     ssim-threshold: 0.95
-
-cors:
-  allowed-header: '*'
-  allowed-methods: GET,OPTIONS,PATCH,POST,PUT
-  allowed-origin-patterns:
-    - http://localhost:[*]
