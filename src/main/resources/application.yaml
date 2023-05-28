@@ -2,7 +2,6 @@ server:
   servlet:
     encoding:
       charset: UTF-8
-    context-path: /api
   error:
     whitelabel:
       enabled: false
