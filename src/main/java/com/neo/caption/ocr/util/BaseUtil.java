@@ -48,38 +48,4 @@ public class BaseUtil {
         }
     }
 
-    /**
-     * Convert millisecond to H:mm:ss.SS<br/>
-     * e.g. 82033 -> 0:01:22.33
-     *
-     * @param time unit: millisecond
-     * @return String
-     */
-    public static String convertTime(BigDecimal time) {
-        if (time == null || time.compareTo(BigDecimal.ZERO) <= 0) {
-            return "0:00:00.00";
-        }
-        var millisecond = DecimalUtil.divide(time, 1000D);
-        var hour = BigDecimal.ZERO;
-        var minute = BigDecimal.ZERO;
-        var second = DecimalUtil.round(0, RoundingMode.DOWN, millisecond);
-        if (second.compareTo(new BigDecimal("60")) >= 0) {
-            minute = DecimalUtil.divide(second, 60D);
-            second = DecimalUtil.remainder(second, 60D);
-        }
-        if (minute.compareTo(new BigDecimal("60")) >= 0) {
-            hour = DecimalUtil.divide(minute, 60D);
-            minute = DecimalUtil.remainder(minute, 60D);
-        }
-        var ms = DecimalUtil.remainder(millisecond, BigDecimal.ONE);
-        var msStr = DecimalUtil.round(5, RoundingMode.DOWN, ms).toString();
-        var msDotIndex = msStr.indexOf('.');
-        var subMs = msStr.substring(msDotIndex + 1, Math.min(msDotIndex + 3, msStr.length()));
-        return String.format("%1$01d:%2$02d:%3$02d.%4$s",
-                hour.intValue(),
-                minute.intValue(),
-                second.intValue(),
-                Strings.padEnd(subMs, 2, '0'));
-    }
-
 }
