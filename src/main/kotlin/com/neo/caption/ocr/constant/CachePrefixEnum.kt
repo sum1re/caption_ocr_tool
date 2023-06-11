@@ -1,6 +1,6 @@
 package com.neo.caption.ocr.constant;
 
-public enum CacheKeyPrefix {
+enum class CachePrefixEnum {
 
     HASH_DIRECTORY,
     FRAME_COUNT,
