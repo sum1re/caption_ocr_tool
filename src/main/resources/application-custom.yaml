@@ -20,10 +20,12 @@ cocr:
     origin-patterns:
       - http://localhost:[*]
   tesseract:
-    ocr-engine-mode: 1
-    page-seg-mode: 7
-    supported-language: eng,jpn,chi_sim,chi_tra
-    configs:
+    ocr-engine-mode: OEM_LSTM_ONLY
+    page-seg-mode: PSM_SINGLE_LINE
+    language:
+      - eng
+      - chi_sim
+    vectors:
       - name: chop_enable
         value: 'true'
       - name: language_model_ngram_on

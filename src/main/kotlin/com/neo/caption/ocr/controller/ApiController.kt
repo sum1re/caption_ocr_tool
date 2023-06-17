@@ -7,6 +7,7 @@ import com.neo.caption.ocr.domain.vo.BaseVo
 import com.neo.caption.ocr.domain.vo.RestVo
 import com.neo.caption.ocr.service.AppInfoService
 import com.neo.caption.ocr.service.FileService
+import com.neo.caption.ocr.service.TesseractService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -17,7 +18,8 @@ import org.springframework.web.multipart.MultipartFile
 @RestEntityController("/api")
 class ApiController(
     private val appInfoService: AppInfoService,
-    private val fileService: FileService
+    private val fileService: FileService,
+    private val tesseractService: TesseractService
 ) {
 
     @GetMapping("/v1/info")
@@ -37,6 +39,12 @@ class ApiController(
     @PatchMapping("/v1/file")
     fun combineFileChunk(fileChecksumDto: FileChecksumDto) =
         fileService.combineFileChunk(fileChecksumDto).toRestVo()
+
+    @GetMapping("/v1/tesseract/language")
+    fun getSupportLanguage() = RestVo(tesseractService.supportedLanguage)
+
+    @GetMapping("/v1/tesseract/default-config")
+    fun getDefaultConfig() = tesseractService.getDefaultConfig().toRestVo()
 
     private fun <T : BaseVo> T.toRestVo() = RestVo(this)
 
