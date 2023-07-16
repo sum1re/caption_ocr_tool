@@ -41,7 +41,7 @@ class FileServiceImpl : FileService {
      */
     override fun saveFileChunk(fileChunkDto: FileChunkDto): SavedFileVo {
         val workingPath = getWorkingDir(fileChunkDto.identity)
-        val savedPath = workingPath.resolve(UUID.randomUUID().toString().substring(8))
+        val savedPath = workingPath.resolve(UUID.randomUUID().toString().substring(0, 8))
         fileChunkDto.multipartFile.transferTo(savedPath)
         // TODO: use xxhash to rename chunk
         return SavedFileVo(savedPath.name, savedPath.fileSize())
@@ -58,7 +58,7 @@ class FileServiceImpl : FileService {
         }
         // TODO check combineFile with the gaven xxhash
         combinePath.toFile().deleteOnExit()
-        return SavedFileVo(combinePath.name,combinePath.fileSize())
+        return SavedFileVo(combinePath.name, combinePath.fileSize())
     }
 
     /**

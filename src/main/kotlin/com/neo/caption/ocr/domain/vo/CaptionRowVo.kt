@@ -9,5 +9,6 @@ data class CaptionRowVo(
     val start: BigDecimal,
     @JsonSerialize(using = TimelineSerialize::class)
     val end: BigDecimal,
+    val imgData: String,
     val caption: String,
 ) : BaseVo()
