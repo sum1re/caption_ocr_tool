@@ -11,8 +11,8 @@ class BadRequestException(
 
     constructor(message: String) : this(ErrorCodeEnum.DEFAULT_BAD_REQUEST, message)
 
-    constructor(errorCode: ErrorCodeEnum, message: String?) : this(
-        errorCode.code, message ?: errorCode.message, errorCode.httpStatus
+    constructor(errorCode: ErrorCodeEnum, message: String = errorCode.message) : this(
+        errorCode.code, message, errorCode.httpStatus
     )
 
 }
