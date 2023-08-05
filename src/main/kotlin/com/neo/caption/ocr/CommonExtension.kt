@@ -1,6 +1,7 @@
 package com.neo.caption.ocr
 
 import org.opencv.core.*
+import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -8,6 +9,13 @@ import kotlin.contracts.contract
 import kotlin.math.abs
 
 fun Mat.toByteArray() = ByteArray(this.calcTotal().toInt()).also { this.get(0, 0, it) }
+
+fun Mat.toEncodeByteArray(
+    ext: String = ".webp",
+    extQuality: Int = Imgcodecs.IMWRITE_WEBP_QUALITY,
+    quality: Int = 80
+): ByteArray =
+    MatOfByte().also { Imgcodecs.imencode(ext, this, it, MatOfInt(extQuality, quality)) }.toArray()
 
 fun Mat.calcWhitePixel() = Core.countNonZero(this)
 
