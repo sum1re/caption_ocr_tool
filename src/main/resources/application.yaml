@@ -5,6 +5,7 @@ server:
   error:
     whitelabel:
       enabled: false
+  port: 2627
 
 spring:
   profiles:
