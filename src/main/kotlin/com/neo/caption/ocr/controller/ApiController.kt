@@ -7,10 +7,7 @@ import com.neo.caption.ocr.domain.dto.TaskConfigDto
 import com.neo.caption.ocr.domain.mapper.TaskMapper
 import com.neo.caption.ocr.domain.vo.BaseVo
 import com.neo.caption.ocr.domain.vo.RestVo
-import com.neo.caption.ocr.service.AppInfoService
-import com.neo.caption.ocr.service.FileService
-import com.neo.caption.ocr.service.TaskService
-import com.neo.caption.ocr.service.TesseractService
+import com.neo.caption.ocr.service.*
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -26,6 +23,7 @@ class ApiController(
     private val fileService: FileService,
     private val tesseractService: TesseractService,
     private val taskService: TaskService,
+    private val videoService: VideoService,
     private val taskMapper: TaskMapper,
 ) {
 
@@ -67,7 +65,7 @@ class ApiController(
 
     @GetMapping("/v1/task/{identity}")
     fun startTask(@PathVariable identity: String): RestVo<Nothing?> {
-        taskService.runTask(identity)
+        videoService.processVideo(identity)
         return RestVo(null)
     }
 

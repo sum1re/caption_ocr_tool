@@ -13,25 +13,17 @@ import com.neo.caption.ocr.domain.vo.CaptionRowVo
 import com.neo.caption.ocr.domain.vo.TaskScheduleVo
 import com.neo.caption.ocr.service.FileService
 import com.neo.caption.ocr.service.TaskService
-import com.neo.caption.ocr.service.VideoService
 import com.neo.caption.ocr.use
 import org.opencv.core.Mat
 import org.opencv.videoio.Videoio
-import org.springframework.cache.annotation.CacheConfig
-import org.springframework.cache.annotation.CacheEvict
-import org.springframework.cache.annotation.CachePut
-import org.springframework.cache.annotation.Cacheable
-import org.springframework.cache.annotation.Caching
-import org.springframework.scheduling.annotation.Async
+import org.springframework.cache.annotation.*
 import org.springframework.stereotype.Service
 import java.util.*
-import kotlin.io.path.absolutePathString
 
 @Slf4j
 @Service
 @CacheConfig(cacheNames = ["task::"])
 class TaskServiceImpl(
-    private val videoService: VideoService,
     private val fileService: FileService,
     private val cropRangeMapper: CropRangeMapper,
     private val tesseractConfigMapper: TesseractConfigMapper,
@@ -43,8 +35,7 @@ class TaskServiceImpl(
      */
     @Cacheable(key = "#p0.identity")
     override fun initTask(taskConfigDto: TaskConfigDto): TaskConfig {
-        val videoAbsolutePath = fileService.getVideoFile(taskConfigDto.identity).absolutePathString()
-        val videoCapture = videoService.openVideo(videoAbsolutePath)
+        val videoCapture = fileService.openVideoFile(taskConfigDto.identity)
         val videoInfo = VideoInfo(
             width = videoCapture.get(Videoio.CAP_PROP_FRAME_WIDTH).toInt(),
             height = videoCapture.get(Videoio.CAP_PROP_FRAME_HEIGHT).toInt(),
@@ -74,7 +65,6 @@ class TaskServiceImpl(
         return TaskConfig(
             identity = taskConfigDto.identity,
             taskId = UUID.randomUUID().toString().substring(0, 8),
-            videoAbsolutePath = videoAbsolutePath,
             cropRange = cropRange,
             videoInfo = videoInfo,
             tesseractConfig = tesseractConfigMapper.toEntity(taskConfigDto.tesseractConfigDto)
@@ -87,11 +77,6 @@ class TaskServiceImpl(
      */
     @Cacheable(key = "#p0")
     override fun getTaskConfig(identity: String) = TaskConfig()
-
-    @Async
-    override fun runTask(identity: String) {
-        videoService.processVideo(identity)
-    }
 
     @Caching(evict = [CacheEvict(key = "#p0 + 'row'"), CacheEvict(key = "#p0 + 'schedule'")])
     override fun closeTask(taskId: String) {

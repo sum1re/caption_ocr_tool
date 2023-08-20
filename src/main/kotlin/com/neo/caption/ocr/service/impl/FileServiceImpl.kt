@@ -8,6 +8,7 @@ import com.neo.caption.ocr.domain.vo.SavedDirVo
 import com.neo.caption.ocr.domain.vo.SavedFileVo
 import com.neo.caption.ocr.exception.BadRequestException
 import com.neo.caption.ocr.service.FileService
+import org.opencv.videoio.VideoCapture
 import org.springframework.stereotype.Service
 import java.nio.channels.FileChannel
 import java.nio.file.Files
@@ -61,21 +62,13 @@ class FileServiceImpl : FileService {
         return SavedFileVo(combinePath.name, combinePath.fileSize())
     }
 
-    /**
-     * windows: %tmp%/cocr_xxx/video.ext
-     * linux: /tmp/cocr_xxx/video.<ext>
-     */
-    override fun getVideoFile(identify: String): Path {
-        return getWorkingDir(identify).let {
-            Files.find(it, 1, { path, _ -> path.name.startsWith("video.") })
-                .findFirst()
-                .orElseThrow {
-                    BadRequestException(
-                        ErrorCodeEnum.INVALID_PARAMETER, "not found video in ${it.absolutePathString()}"
-                    )
-                }
-        }
-    }
+    override fun openVideoFile(identify: String) =
+        Files.find(getWorkingDir(identify), 1, { path, _ -> path.name.startsWith("video.") })
+            .findFirst()
+            .orElseThrow { BadRequestException(ErrorCodeEnum.VIDEO_NOT_FOUND) }
+            .let { VideoCapture(it.absolutePathString()) }
+            .also { if (!it.isOpened) throw BadRequestException(ErrorCodeEnum.VIDEO_READ_ERROR) }
+
 
     /**
      * return the working dir

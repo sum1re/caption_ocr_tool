@@ -11,8 +11,6 @@ interface TaskService {
 
     fun getTaskConfig(identity: String): TaskConfig
 
-    fun runTask(identity: String)
-
     fun closeTask(taskId: String)
 
     fun removeTask(identity: String)

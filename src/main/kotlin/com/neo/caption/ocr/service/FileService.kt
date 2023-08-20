@@ -4,7 +4,7 @@ import com.neo.caption.ocr.domain.dto.FileChecksumDto
 import com.neo.caption.ocr.domain.dto.FileChunkDto
 import com.neo.caption.ocr.domain.vo.SavedFileVo
 import com.neo.caption.ocr.domain.vo.SavedDirVo
-import java.nio.file.Path
+import org.opencv.videoio.VideoCapture
 
 interface FileService {
 
@@ -14,6 +14,6 @@ interface FileService {
 
     fun combineFileChunk(fileChecksumDto: FileChecksumDto): SavedFileVo
 
-    fun getVideoFile(identify: String): Path
+    fun openVideoFile(identify: String): VideoCapture
 
 }
