@@ -1,16 +1,16 @@
 cocr:
   info:
-    app-license: @app.license@
-    artifact: @project.artifactId@
-    build-timestamp: @maven.build.timestamp@
-    group: @project.groupId@
-    java-version: @java.version@
-    name: @project.name@
-    spring-boot-version: @project.parent.version@
-    version: @project.version@
+    app-license: app.license
+    artifact: project.artifactId
+    build-timestamp: maven.build.timestamp
+    group: project.groupId
+    java-version: java.version
+    name: project.name
+    spring-boot-version: project.parent.version
+    version: project.version
   cors:
     allowed-header:
-      - *
+      - '*'
     allowed-methods:
       - GET
       - OPTIONS
@@ -44,3 +44,4 @@ cocr:
     min-black-pixel-threshold: 0.01
     max-white-pixel-threshold: 99.97
     ssim-threshold: 0.95
+    invert-threshold: 0
