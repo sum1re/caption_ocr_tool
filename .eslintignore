@@ -1,0 +1,6 @@
+build/*
+public/*
+src/react-app-env.d.ts
+src/service-worker.ts
+src/serviceWorkerRegistration.ts
+/.eslintrc.js
