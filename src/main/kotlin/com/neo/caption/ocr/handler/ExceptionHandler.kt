@@ -1,6 +1,5 @@
 package com.neo.caption.ocr.handler
 
-import com.google.common.base.Throwables
 import com.neo.caption.ocr.annotation.Slf4j
 import com.neo.caption.ocr.annotation.Slf4j.Companion.log
 import com.neo.caption.ocr.constant.ErrorCodeEnum
@@ -41,7 +40,7 @@ class RestExceptionHandler {
 class AsyncExceptionHandler : AsyncUncaughtExceptionHandler {
 
     override fun handleUncaughtException(ex: Throwable, method: Method, vararg params: Any) {
-        log.error { "async exception: [method: $method, params: $params, message: ${Throwables.getStackTraceAsString(ex)}]" }
+        log.error { "async exception: [method: $method, params: $params, message: ${ex.stackTraceToString()}]" }
         throw ex
     }
 

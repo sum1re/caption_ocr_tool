@@ -1,6 +1,5 @@
 package com.neo.caption.ocr.service.impl
 
-import com.google.common.base.Joiner
 import com.neo.caption.ocr.annotation.Slf4j
 import com.neo.caption.ocr.annotation.Slf4j.Companion.log
 import com.neo.caption.ocr.domain.dto.TesseractConfigDto
@@ -24,7 +23,6 @@ import kotlin.io.path.notExists
 @CacheConfig(cacheNames = ["tess::"])
 class TesseractServiceImpl(
     private val tesseractProperties: TesseractProperties,
-    private val plusJoiner: Joiner,
 ) : TesseractService {
 
     private val tessdataPath = Path.of("").resolve("lib").resolve("tessdata")
@@ -62,7 +60,7 @@ class TesseractServiceImpl(
             }
             this.Init(
                 tessdataPath.absolutePathString(),
-                plusJoiner.join(tesseractConfigDto.language),
+                tesseractConfigDto.language.joinToString("+"),
                 tesseractConfigDto.oemMode.code,
                 ByteArray(0),
                 vectorKey.size().toInt(),
