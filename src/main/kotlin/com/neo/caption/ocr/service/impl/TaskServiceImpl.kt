@@ -8,6 +8,7 @@ import com.neo.caption.ocr.domain.entity.CropRange
 import com.neo.caption.ocr.domain.entity.TaskConfig
 import com.neo.caption.ocr.domain.entity.VideoInfo
 import com.neo.caption.ocr.domain.mapper.CropRangeMapper
+import com.neo.caption.ocr.domain.mapper.TesseractConfigMapper
 import com.neo.caption.ocr.domain.vo.CaptionRowVo
 import com.neo.caption.ocr.domain.vo.TaskScheduleVo
 import com.neo.caption.ocr.service.FileService
@@ -33,6 +34,7 @@ class TaskServiceImpl(
     private val videoService: VideoService,
     private val fileService: FileService,
     private val cropRangeMapper: CropRangeMapper,
+    private val tesseractConfigMapper: TesseractConfigMapper,
 ) : TaskService {
 
     /**
@@ -74,7 +76,8 @@ class TaskServiceImpl(
             taskId = UUID.randomUUID().toString().substring(0, 8),
             videoAbsolutePath = videoAbsolutePath,
             cropRange = cropRange,
-            videoInfo = videoInfo
+            videoInfo = videoInfo,
+            tesseractConfig = tesseractConfigMapper.toEntity(taskConfigDto.tesseractConfigDto)
         )
             .also { log.info { it.toString() } }
     }

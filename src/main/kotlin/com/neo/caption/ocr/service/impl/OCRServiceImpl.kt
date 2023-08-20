@@ -2,7 +2,7 @@ package com.neo.caption.ocr.service.impl
 
 import com.neo.caption.ocr.annotation.Slf4j
 import com.neo.caption.ocr.constant.ErrorCodeEnum
-import com.neo.caption.ocr.domain.dto.TesseractConfigDto
+import com.neo.caption.ocr.domain.entity.TesseractConfig
 import com.neo.caption.ocr.exception.BadRequestException
 import com.neo.caption.ocr.service.OCRService
 import com.neo.caption.ocr.service.TesseractService
@@ -19,8 +19,13 @@ class OCRServiceImpl(
 
     private var apiMap: MutableMap<String, TessBaseAPI> = mutableMapOf()
 
-    override fun initial(tesseractConfigDto: TesseractConfigDto, identity: String) {
-        apiMap[identity] = tesseractService.initTessBaseApi(tesseractConfigDto)
+    override fun initial(tesseractConfig: TesseractConfig, identity: String) {
+        apiMap[identity] = tesseractService.initTessBaseApi(tesseractConfig)
+    }
+
+    override fun release(identity: String) {
+        getTessBaseAPI(identity).releaseReference()
+        apiMap.remove(identity)
     }
 
     override fun doOCR(identity: String, mat: Mat): String {

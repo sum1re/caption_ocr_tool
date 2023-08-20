@@ -2,11 +2,10 @@ package com.neo.caption.ocr.service.impl
 
 import com.neo.caption.ocr.annotation.Slf4j
 import com.neo.caption.ocr.annotation.Slf4j.Companion.log
-import com.neo.caption.ocr.domain.dto.TesseractConfigDto
+import com.neo.caption.ocr.domain.entity.TesseractConfig
 import com.neo.caption.ocr.domain.vo.TesseractConfigVo
 import com.neo.caption.ocr.property.TesseractProperties
 import com.neo.caption.ocr.service.TesseractService
-import org.bytedeco.tesseract.StringVector
 import org.bytedeco.tesseract.TessBaseAPI
 import org.springframework.cache.annotation.CacheConfig
 import org.springframework.cache.annotation.Cacheable
@@ -48,24 +47,16 @@ class TesseractServiceImpl(
         )
     }
 
-    override fun initTessBaseApi(tesseractConfigDto: TesseractConfigDto): TessBaseAPI {
+    override fun initTessBaseApi(tesseractConfig: TesseractConfig): TessBaseAPI {
         return TessBaseAPI().apply {
-            val vectorKey = StringVector()
-            val vectorValue = StringVector()
-            vectorKey.put("tessedit_pageseg_mode")
-            vectorValue.put(tesseractConfigDto.psmMode.code.toString())
-            tesseractConfigDto.vectors.entries.forEach {
-                vectorKey.put(it.key)
-                vectorValue.put(it.value)
-            }
             this.Init(
                 tessdataPath.absolutePathString(),
-                tesseractConfigDto.language.joinToString("+"),
-                tesseractConfigDto.oemMode.code,
+                tesseractConfig.language,
+                tesseractConfig.oem,
                 ByteArray(0),
-                vectorKey.size().toInt(),
-                vectorKey,
-                vectorValue,
+                tesseractConfig.vectorKey.size().toInt(),
+                tesseractConfig.vectorKey,
+                tesseractConfig.vectorValue,
                 true
             )
         }
