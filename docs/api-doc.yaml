@@ -1,0 +1,866 @@
+openapi: 3.1.0
+info:
+  version: '1.0'
+  title: Caption OCR Tool
+  description: API for COCR
+  termsOfService: 'https://github.com/sum1re/caption_ocr_tool'
+  contact:
+    name: sum1re
+    url: 'https://github.com/sum1re'
+    email: appjason6561@gmail.com
+  license:
+    url: 'https://github.com/sum1re/caption_ocr_tool/blob/main/LICENSE'
+    name: Apache 2.0
+servers:
+  - url: 'http://localhost:2627/api/v1'
+    description: API-V1
+paths:
+  /info:
+    get:
+      tags:
+        - info
+      summary: getAppInfo
+      description: get backend information
+      operationId: get-info
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: "allowed-value: `true`<br/>\r\nexample: `true`"
+                    default: true
+                  errors:
+                    type: array
+                    description: 'example: `[]`'
+                    items:
+                      $ref: '#/components/schemas/RestErrorVo'
+                  result:
+                    $ref: '#/components/schemas/AppInfoVo'
+                  resultInfo:
+                    type: 'null'
+                required:
+                  - success
+                  - errors
+                  - result
+                  - resultInfo
+                x-examples:
+                  Example 1:
+                    success: true
+                    errors: []
+                    result: {}
+                    resultInfo: null
+        '400':
+          $ref: '#/components/responses/4xx'
+      servers:
+        - url: 'http://localhost:2627/api/v1'
+          description: API-V1
+  '/file/{projectId}':
+    post:
+      tags:
+        - file
+      summary: uploadFileChunk
+      description: upload video file chunk to backend
+      operationId: uploadFileChunk
+      parameters:
+        - name: projectId
+          in: path
+          description: created by initialProject
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ''
+        content:
+          multipart/form-data:
+            schema:
+              type: string
+              contentMediaType: application/octet-stream
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  errors:
+                    type: array
+                    maxItems: 0
+                    items:
+                      $ref: '#/components/schemas/RestErrorVo'
+                  result:
+                    $ref: '#/components/schemas/SavedFileVo'
+                  resultInfo:
+                    type: 'null'
+                required:
+                  - success
+                  - errors
+                  - result
+                  - resultInfo
+                x-examples:
+                  Example 1:
+                    success: 'true'
+                    errors: []
+                    'result:Info': 'null'
+        '400':
+          $ref: '#/components/responses/4xx'
+      servers:
+        - url: 'http://localhost:2627/api/v1'
+          description: API-V1
+    patch:
+      tags:
+        - file
+      summary: combineFileCunk
+      description: combile chunk to file
+      operationId: combineFileCunk
+      parameters:
+        - name: projectId
+          in: path
+          description: created by initialProject
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileChecksumDto'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  errors:
+                    type: array
+                    description: 'Default: `[]`'
+                    items:
+                      $ref: '#/components/schemas/RestErrorVo'
+                  result:
+                    $ref: '#/components/schemas/SavedFileVo'
+                  resultInfo:
+                    type: 'null'
+        '400':
+          $ref: '#/components/responses/4xx'
+      servers:
+        - url: 'http://localhost:2627/api/v1'
+          description: API-V1
+  /project:
+    post:
+      tags:
+        - project
+      summary: initialProject
+      description: 'initial project, backend will create a working directory and return the folder name as projectId'
+      operationId: initialProject
+      requestBody:
+        content: {}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  errors:
+                    type: array
+                    maxItems: 0
+                    items:
+                      $ref: '#/components/schemas/RestErrorVo'
+                  result:
+                    $ref: '#/components/schemas/ProjectVo'
+                  resultInfo:
+                    type: 'null'
+                required:
+                  - success
+                  - errors
+                  - result
+                  - resultInfo
+                x-examples:
+                  Example 1:
+                    success: true
+                    errors: []
+                    result: null
+                    resultInfo: null
+        '400':
+          $ref: '#/components/responses/4xx'
+      servers:
+        - url: 'http://localhost:2627/api/v1'
+          description: API-V1
+  '/project/{projectId}':
+    delete:
+      tags:
+        - project
+      summary: removeProject
+      description: tell backend to delete project's data
+      operationId: removeProject
+      parameters:
+        - name: projectId
+          in: path
+          description: created by initialProject
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  errors:
+                    type: array
+                    description: 'Default: `[]`'
+                    items:
+                      $ref: '#/components/schemas/RestErrorVo'
+                  result:
+                    type: 'null'
+                  resultInfo:
+                    type: 'null'
+                required:
+                  - success
+                  - errors
+                  - result
+                  - resultInfo
+        '400':
+          $ref: '#/components/responses/4xx'
+      servers:
+        - url: 'http://localhost:2627/api/v1'
+          description: API-V1
+    get:
+      tags:
+        - project
+      summary: startProjectTask
+      description: start task
+      operationId: startProjectTask
+      parameters:
+        - name: projectId
+          in: path
+          description: created by initialProject
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  errors:
+                    type: array
+                    maxItems: 0
+                    items:
+                      $ref: '#/components/schemas/RestErrorVo'
+                  result:
+                    type: 'null'
+                  resultInfo:
+                    type: 'null'
+                required:
+                  - success
+                  - errors
+                  - result
+                  - resultInfo
+        '400':
+          $ref: '#/components/responses/4xx'
+      servers:
+        - url: 'http://localhost:2627/api/v1'
+          description: API-V1
+    put:
+      tags:
+        - project
+      summary: initialProjectTask
+      description: 'create task for project, return a taskId and video total frame'
+      operationId: initialProjectTask
+      parameters:
+        - name: projectId
+          in: path
+          description: created by initialProject
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskConfigDto'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  errors:
+                    type: array
+                    maxItems: 0
+                    items:
+                      $ref: '#/components/schemas/RestErrorVo'
+                  result:
+                    $ref: '#/components/schemas/TaskVo'
+                  resultInfo:
+                    type: 'null'
+                required:
+                  - success
+                  - errors
+                  - result
+                  - resultInfo
+        '400':
+          $ref: '#/components/responses/4xx'
+      servers:
+        - url: 'http://localhost:2627/api/v1'
+          description: API-V1
+  '/task/{taskId}':
+    delete:
+      tags:
+        - task
+      summary: closeTask
+      description: tell backend to delete task's data
+      operationId: closeTask
+      parameters:
+        - name: taskId
+          in: path
+          description: created by initialProjectTask
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  errors:
+                    type: array
+                    description: 'Default: `[]`'
+                    items:
+                      $ref: '#/components/schemas/RestErrorVo'
+                  result:
+                    type: 'null'
+                  resultInfo:
+                    type: 'null'
+                required:
+                  - success
+                  - errors
+                  - result
+                  - resultInfo
+        '400':
+          $ref: '#/components/responses/4xx'
+      servers:
+        - url: 'http://localhost:2627/api/v1'
+          description: API-V1
+  '/task/{taskId}/result':
+    get:
+      tags:
+        - task
+      summary: GetTaskResult
+      description: get caption row list from backend
+      operationId: getTaskResult
+      parameters:
+        - name: taskId
+          in: path
+          description: created by initialProjectTask
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  errors:
+                    type: array
+                    maxItems: 0
+                    items:
+                      $ref: '#/components/schemas/RestErrorVo'
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CaptionRowVo'
+                  resultInfo:
+                    type: 'null'
+                required:
+                  - success
+                  - errors
+                  - result
+                  - resultInfo
+        '400':
+          $ref: '#/components/responses/4xx'
+      servers:
+        - url: 'http://localhost:2627/api/v1'
+          description: API-V1
+  '/task/{taskId}/schedule':
+    get:
+      tags:
+        - task
+      summary: GetTaskSchedule
+      description: get task schedule
+      operationId: getTaskSchedule
+      parameters:
+        - name: taskId
+          in: path
+          description: created by initialProjectTask
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  errors:
+                    type: array
+                    maxItems: 0
+                    items:
+                      $ref: '#/components/schemas/RestErrorVo'
+                  result:
+                    $ref: '#/components/schemas/TaskScheduleVo'
+                  resultInfo:
+                    type: 'null'
+                required:
+                  - success
+                  - errors
+                  - result
+                  - resultInfo
+        '400':
+          $ref: '#/components/responses/4xx'
+      servers:
+        - url: 'http://localhost:2627/api/v1'
+          description: API-V1
+  /tesseract/config:
+    get:
+      tags:
+        - tesseract
+      summary: getTesseractConfig
+      description: get default tesseract config
+      operationId: getTesseractConfig
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  errors:
+                    type: array
+                    maxItems: 0
+                    items:
+                      $ref: '#/components/schemas/RestErrorVo'
+                  result:
+                    $ref: '#/components/schemas/TesseractConfigVo'
+                  resultInfo:
+                    type: 'null'
+                required:
+                  - success
+                  - errors
+                  - result
+                  - resultInfo
+        '400':
+          $ref: '#/components/responses/4xx'
+      servers:
+        - url: 'http://localhost:2627/api/v1'
+          description: API-V1
+  /tesseract/options:
+    get:
+      tags:
+        - tesseract
+      summary: getTesseractOptions
+      description: get allowed options
+      operationId: getTesseractOptions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  errors:
+                    type: array
+                    maxItems: 0
+                    items:
+                      $ref: '#/components/schemas/RestErrorVo'
+                  result:
+                    $ref: '#/components/schemas/TesseractOptionVo'
+                  resultInfo:
+                    type: 'null'
+                required:
+                  - success
+                  - errors
+                  - result
+                  - resultInfo
+        '400':
+          $ref: '#/components/responses/4xx'
+      servers:
+        - url: 'http://localhost:2627/api/v1'
+          description: API-V1
+tags:
+  - name: cocr
+    description: api name
+  - name: file
+    description: api for file
+  - name: info
+    description: api for info
+  - name: project
+    description: api for project
+  - name: task
+    description: api for task
+  - name: tesseract
+    description: api for tesseract
+components:
+  responses:
+    4xx:
+      description: 4xx
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                default: false
+              errors:
+                type: array
+                minItems: 1
+                items:
+                  $ref: '#/components/schemas/RestErrorVo'
+              result:
+                type: 'null'
+              resultInfo:
+                type: 'null'
+            required:
+              - success
+              - errors
+              - result
+              - resultInfo
+  schemas:
+    RestErrorVo:
+      type: object
+      title: RestErrorVo
+      properties:
+        code:
+          type: integer
+          minimum: 1000
+          maximum: 10999
+        message:
+          type: string
+      required:
+        - code
+        - message
+    AppInfoVo:
+      type: object
+      title: AppInfoVo
+      properties:
+        name:
+          type: string
+        appLicense:
+          type: string
+        version:
+          type: string
+        buildTimestamp:
+          type: string
+      required:
+        - name
+        - appLicense
+        - version
+        - buildTimestamp
+      x-tags:
+        - info
+    SavedFileVo:
+      type: object
+      title: SavedFileVo
+      properties:
+        name:
+          type: string
+        size:
+          type: number
+      required:
+        - name
+        - size
+    FileChecksumDto:
+      type: object
+      title: FileChecksumDto
+      properties:
+        hash:
+          type: string
+        extension:
+          type: string
+        fileChunkName:
+          type: array
+          items:
+            type: string
+      required:
+        - hash
+        - extension
+        - fileChunkName
+    ProjectVo:
+      type: object
+      title: ProjectVo
+      properties:
+        projectId:
+          type: string
+      required:
+        - projectId
+    TaskConfigDto:
+      type: object
+      title: TaskConfigDto
+      properties:
+        tesseractConfigDto:
+          $ref: '#/components/schemas/TesseractConfigDto'
+        cropRangeDto:
+          $ref: '#/components/schemas/CropRangeDto'
+      required:
+        - tesseractConfigDto
+        - cropRangeDto
+    TesseractConfigDto:
+      type: object
+      title: TesseractConfigDto
+      properties:
+        oemMode:
+          enum:
+            - OEM_TESSERACT_ONLY
+            - OEM_LSTM_ONLY
+            - OEM_TESSERACT_LSTM_COMBINED
+            - OEM_DEFAULT
+          default: OEM_LSTM_ONLY
+          examples:
+            - OEM_LSTM_ONLY
+        psmMode:
+          enum:
+            - PSM_OSD_ONLY
+            - PSM_AUTO_OSD
+            - PSM_AUTO_ONLY
+            - PSM_AUTO
+            - PSM_SINGLE_COLUMN
+            - PSM_SINGLE_BLOCK_VERT_TEXT
+            - PSM_SINGLE_BLOCK
+            - PSM_SINGLE_LINE
+            - PSM_SINGLE_WORD
+            - PSM_SINGLE_CIRCLE_WORD
+            - PSM_SINGLE_CHAR
+            - PSM_SPARSE_TEXT
+            - PSM_SPARSE_OSD
+            - PSM_RAW_LINE
+          default: PSM_SINGLE_LINE
+          examples:
+            - PSM_SINGLE_LINE
+        language:
+          type: array
+          items:
+            type: string
+        vectors:
+          type: object
+      required:
+        - oemMode
+        - psmMode
+        - language
+        - vectors
+    CropRangeDto:
+      type: object
+      title: CropRangeDto
+      properties:
+        upperLeftX:
+          type: integer
+        upperLeftY:
+          type: integer
+        lowerRightX:
+          type: integer
+        lowerRightY:
+          type: integer
+      required:
+        - upperLeftX
+        - upperLeftY
+        - lowerRightX
+        - lowerRightY
+    TaskVo:
+      type: object
+      title: TaskVo
+      properties:
+        taskId:
+          type: string
+        totalFrame:
+          type: integer
+      required:
+        - taskId
+        - totalFrame
+    CaptionRowVo:
+      type: object
+      title: CaptionRowVo
+      properties:
+        start:
+          type: string
+          examples:
+            - '0:01:20.11'
+        end:
+          type: string
+          examples:
+            - '0:01:22.33'
+        imgData:
+          type: string
+          description: webp image encoded with base64
+        caption:
+          type: string
+      required:
+        - start
+        - end
+        - imgData
+        - caption
+    TaskScheduleVo:
+      type: object
+      title: TaskScheduleVo
+      properties:
+        current:
+          type: number
+        isFinished:
+          type: boolean
+      required:
+        - current
+        - isFinished
+    TesseractConfigVo:
+      type: object
+      title: TesseractConfigVo
+      properties:
+        oemMode:
+          enum:
+            - OEM_TESSERACT_ONLY
+            - OEM_LSTM_ONLY
+            - OEM_TESSERACT_LSTM_COMBINED
+            - OEM_DEFAULT
+          default: OEM_LSTM_ONLY
+          examples:
+            - OEM_LSTM_ONLY
+        psmMode:
+          enum:
+            - PSM_OSD_ONLY
+            - PSM_AUTO_OSD
+            - PSM_AUTO_ONLY
+            - PSM_AUTO
+            - PSM_SINGLE_COLUMN
+            - PSM_SINGLE_BLOCK_VERT_TEXT
+            - PSM_SINGLE_BLOCK
+            - PSM_SINGLE_LINE
+            - PSM_SINGLE_WORD
+            - PSM_SINGLE_CIRCLE_WORD
+            - PSM_SINGLE_CHAR
+            - PSM_SPARSE_TEXT
+            - PSM_SPARSE_OSD
+            - PSM_RAW_LINE
+          default: PSM_SINGLE_LINE
+          examples:
+            - PSM_SINGLE_LINE
+        language:
+          type: array
+          items:
+            type: string
+        vectors:
+          type: object
+      required:
+        - oemMode
+        - psmMode
+        - language
+        - vectors
+    TesseractOptionVo:
+      type: object
+      title: TesseractOptionVo
+      properties:
+        oemModeList:
+          type: array
+          minItems: 4
+          maxItems: 4
+          uniqueItems: true
+          items:
+            enum:
+              - OEM_TESSERACT_ONLY
+              - OEM_LSTM_ONLY
+              - OEM_TESSERACT_LSTM_COMBINED
+              - OEM_DEFAULT
+            readOnly: true
+        psmModeList:
+          type: array
+          minItems: 14
+          maxItems: 14
+          uniqueItems: true
+          items:
+            enum:
+              - PSM_OSD_ONLY
+              - PSM_AUTO_OSD
+              - PSM_AUTO_ONLY
+              - PSM_AUTO
+              - PSM_SINGLE_COLUMN
+              - PSM_SINGLE_BLOCK_VERT_TEXT
+              - PSM_SINGLE_BLOCK
+              - PSM_SINGLE_LINE
+              - PSM_SINGLE_WORD
+              - PSM_SINGLE_CIRCLE_WORD
+              - PSM_SINGLE_CHAR
+              - PSM_SPARSE_TEXT
+              - PSM_SPARSE_OSD
+              - PSM_RAW_LINE
+            readOnly: true
+        supportedLanguage:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+        vectorKeyList:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+      required:
+        - oemModeList
+        - psmModeList
+        - supportedLanguage
+        - vectorKeyList
