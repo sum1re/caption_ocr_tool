@@ -28,9 +28,6 @@ dependencies {
     implementation(libs.bundles.bytedeco)
     // cache
     implementation(libs.bundles.spring.cache)
-    // mapstruct
-    kapt(libs.mapstruct.processor)
-    implementation(libs.mapstruct.core)
     // web
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
@@ -43,14 +40,6 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-}
-
-sourceSets {
-    main {
-        kotlin {
-            srcDir("$buildDir/generated/source/kapt/main")
-        }
-    }
 }
 
 tasks.withType<KotlinCompile> {

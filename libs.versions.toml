@@ -1,11 +1,8 @@
 [versions]
-mapstruct = "1.5.3.Final"
 opencv = "4.5.5-1.5.7"
 tesseract = "5.0.1-1.5.7"
 
 [libraries]
-mapstruct-core = { module = "org.mapstruct:mapstruct", version.ref = "mapstruct" }
-mapstruct-processor = { module = "org.mapstruct:mapstruct-processor", version.ref = "mapstruct" }
 cache-core = { module = "org.springframework.boot:spring-boot-starter-cache" }
 cache-caffeine = { module = "com.github.ben-manes.caffeine:caffeine" }
 opencv-platform = { module = "org.bytedeco:opencv-platform", version.ref = "opencv" }
