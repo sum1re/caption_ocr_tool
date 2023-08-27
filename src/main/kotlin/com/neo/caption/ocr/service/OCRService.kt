@@ -5,10 +5,10 @@ import org.opencv.core.Mat
 
 interface OCRService {
 
-    fun initial(tesseractConfig: TesseractConfig, identity: String)
+    fun initial(tesseractConfig: TesseractConfig, projectId: String)
 
-    fun release(identity: String)
+    fun release(projectId: String)
 
-    fun doOCR(identity: String, mat: Mat): String
+    fun doOCR(projectId: String, mat: Mat): String
 
 }

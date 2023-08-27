@@ -2,8 +2,11 @@ package com.neo.caption.ocr.service.impl
 
 import com.neo.caption.ocr.annotation.Slf4j
 import com.neo.caption.ocr.annotation.Slf4j.Companion.log
+import com.neo.caption.ocr.constant.OCREngineModeEnum
+import com.neo.caption.ocr.constant.PageSegModeEnum
 import com.neo.caption.ocr.domain.entity.TesseractConfig
 import com.neo.caption.ocr.domain.vo.TesseractConfigVo
+import com.neo.caption.ocr.domain.vo.TesseractOptionVo
 import com.neo.caption.ocr.property.TesseractProperties
 import com.neo.caption.ocr.service.TesseractService
 import org.bytedeco.tesseract.TessBaseAPI
@@ -46,6 +49,15 @@ class TesseractServiceImpl(
             tesseractProperties.linkedHashMap()
         )
     }
+
+    @Cacheable(key = "'option'")
+    override fun getTesseractOption() =
+        TesseractOptionVo(
+            oemModeList = OCREngineModeEnum.values().toList(),
+            psmModeList = PageSegModeEnum.values().toList(),
+            supportedLanguage = supportedLanguage,
+            vectorKeyList = emptyList()
+        )
 
     override fun initTessBaseApi(tesseractConfig: TesseractConfig): TessBaseAPI {
         return TessBaseAPI().apply {

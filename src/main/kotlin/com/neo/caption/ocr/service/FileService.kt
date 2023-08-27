@@ -1,19 +1,18 @@
 package com.neo.caption.ocr.service
 
-import com.neo.caption.ocr.domain.dto.FileChecksumDto
-import com.neo.caption.ocr.domain.dto.FileChunkDto
+import com.neo.caption.ocr.domain.entity.FileChecksum
+import com.neo.caption.ocr.domain.entity.FileChunk
 import com.neo.caption.ocr.domain.vo.SavedFileVo
-import com.neo.caption.ocr.domain.vo.SavedDirVo
 import org.opencv.videoio.VideoCapture
 
 interface FileService {
 
-    fun createWorkingDirectory(): SavedDirVo
+    fun createWorkingDirectory(): String
 
-    fun saveFileChunk(fileChunkDto: FileChunkDto): SavedFileVo
+    fun saveFileChunk(fileChunk: FileChunk): SavedFileVo
 
-    fun combineFileChunk(fileChecksumDto: FileChecksumDto): SavedFileVo
+    fun combineFileChunk(fileChecksum: FileChecksum): SavedFileVo
 
-    fun openVideoFile(identify: String): VideoCapture
+    fun openVideoFile(projectId: String): VideoCapture
 
 }

@@ -19,27 +19,27 @@ class OCRServiceImpl(
 
     private var apiMap: MutableMap<String, TessBaseAPI> = mutableMapOf()
 
-    override fun initial(tesseractConfig: TesseractConfig, identity: String) {
-        apiMap[identity] = tesseractService.initTessBaseApi(tesseractConfig)
+    override fun initial(tesseractConfig: TesseractConfig, projectId: String) {
+        apiMap[projectId] = tesseractService.initTessBaseApi(tesseractConfig)
     }
 
-    override fun release(identity: String) {
-        getTessBaseAPI(identity).releaseReference()
-        apiMap.remove(identity)
+    override fun release(projectId: String) {
+        getTessBaseAPI(projectId).releaseReference()
+        apiMap.remove(projectId)
     }
 
-    override fun doOCR(identity: String, mat: Mat): String {
-        val api = getTessBaseAPI(identity)
+    override fun doOCR(projectId: String, mat: Mat): String {
+        val api = getTessBaseAPI(projectId)
         return doOCR(api, mat)
     }
 
-    fun doOCR(identity: String, matList: List<Mat>): List<String> {
-        val api = getTessBaseAPI(identity)
+    fun doOCR(projectId: String, matList: List<Mat>): List<String> {
+        val api = getTessBaseAPI(projectId)
         return matList.map { doOCR(api, it) }.toList()
     }
 
-    private fun getTessBaseAPI(identity: String) =
-        apiMap[identity] ?: throw BadRequestException(ErrorCodeEnum.INVALID_PARAMETER, "failed to invoke tesseract")
+    private fun getTessBaseAPI(projectId: String) =
+        apiMap[projectId] ?: throw BadRequestException(ErrorCodeEnum.INVALID_PARAMETER, "failed to invoke tesseract")
 
     private fun doOCR(tessBaseAPI: TessBaseAPI, mat: Mat): String {
         tessBaseAPI.SetImage(mat.toByteArray(), mat.cols(), mat.rows(), mat.channels(), mat.cols())

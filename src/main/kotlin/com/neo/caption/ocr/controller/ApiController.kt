@@ -2,19 +2,14 @@ package com.neo.caption.ocr.controller
 
 import com.neo.caption.ocr.annotation.RestEntityController
 import com.neo.caption.ocr.domain.dto.FileChecksumDto
-import com.neo.caption.ocr.domain.dto.FileChunkDto
 import com.neo.caption.ocr.domain.dto.TaskConfigDto
+import com.neo.caption.ocr.domain.entity.FileChunk
 import com.neo.caption.ocr.domain.mapper.TaskMapper
+import com.neo.caption.ocr.domain.toEntity
 import com.neo.caption.ocr.domain.vo.BaseVo
 import com.neo.caption.ocr.domain.vo.RestVo
 import com.neo.caption.ocr.service.*
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestPart
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
 @RestEntityController("/api")
@@ -22,6 +17,7 @@ class ApiController(
     private val appInfoService: AppInfoService,
     private val fileService: FileService,
     private val tesseractService: TesseractService,
+    private val projectService: ProjectService,
     private val taskService: TaskService,
     private val videoService: VideoService,
     private val taskMapper: TaskMapper,
@@ -30,56 +26,49 @@ class ApiController(
     @GetMapping("/v1/info")
     fun getAppInfo() = appInfoService.getInfo().toRestVo()
 
-    @GetMapping("/v1/file")
-    fun initialFile() = fileService.createWorkingDirectory().toRestVo()
+    @PostMapping("/v1/file/{projectId}")
+    fun uploadFileChunk(@PathVariable projectId: String, @RequestPart multipartFile: MultipartFile) =
+        FileChunk(projectId, multipartFile).let { fileService.saveFileChunk(it) }.toRestVo()
 
-    @PutMapping("/v1/file/{identity}/{index}")
-    fun uploadFileChunk(
-        @PathVariable identity: String,
-        @PathVariable index: Int,
-        @RequestPart multipartFile: MultipartFile
-    ) =
-        FileChunkDto(identity, index, multipartFile).let { fileService.saveFileChunk(it) }.toRestVo()
+    @PatchMapping("/v1/file/{projectId}")
+    fun combineFileChunk(@PathVariable projectId: String, fileChecksumDto: FileChecksumDto) =
+        fileChecksumDto.toEntity(projectId).let { fileService.combineFileChunk(it) }.toRestVo()
 
-    @PatchMapping("/v1/file")
-    fun combineFileChunk(fileChecksumDto: FileChecksumDto) =
-        fileService.combineFileChunk(fileChecksumDto).toRestVo()
+    @GetMapping("/v1/tesseract/option")
+    fun getTesseractOptions() =
+        tesseractService.getTesseractOption().toRestVo()
 
-    @GetMapping("/v1/tesseract/language")
-    fun getSupportLanguage() = RestVo(tesseractService.supportedLanguage)
+    @GetMapping("/v1/tesseract/config")
+    fun getTesseractConfig() =
+        tesseractService.getDefaultConfig().toRestVo()
 
-    @GetMapping("/v1/tesseract/default-config")
-    fun getDefaultConfig() = tesseractService.getDefaultConfig().toRestVo()
+    @PostMapping("/v1/project")
+    fun initialProject() =
+        projectService.initProject().toRestVo()
 
-    @PostMapping("/v1/task")
-    fun initialTask(taskConfigDto: TaskConfigDto) =
-        taskService.initTask(taskConfigDto).let { taskMapper.toVo(it) }.toRestVo()
+    @PutMapping("/v1/project/{projectId}")
+    fun initialProjectTask(@PathVariable projectId: String, taskConfigDto: TaskConfigDto) =
+        taskService.initTask(projectId, taskConfigDto).let { taskMapper.toVo(it) }.toRestVo()
 
-    @GetMapping("/v1/task/result/{taskId}")
+    @GetMapping("/v1/project/{projectId}")
+    fun startProjectTask(@PathVariable projectId: String) =
+        videoService.processVideo(projectId).run { RestVo(null) }
+
+    @DeleteMapping("/v1/project/{projectId}")
+    fun removeProject(@PathVariable projectId: String) =
+        projectService.closeProject(projectId).run { RestVo(null) }
+
+    @GetMapping("/v1/task/{taskId}/result")
     fun getCaptionRow(@PathVariable taskId: String) =
         taskService.getCaptionRowVoList(taskId).toRestVo()
 
-    @GetMapping("/v1/task/schedule/{taskId}")
+    @GetMapping("/v1/task/{taskId}/schedule")
     fun getSchedule(@PathVariable taskId: String) =
         taskService.getSchedule(taskId).toRestVo()
 
-    @GetMapping("/v1/task/{identity}")
-    fun startTask(@PathVariable identity: String): RestVo<Nothing?> {
-        videoService.processVideo(identity)
-        return RestVo(null)
-    }
-
-    @DeleteMapping("/v1/task/close/{taskId}")
-    fun deleteTask(@PathVariable taskId: String): RestVo<Nothing?> {
-        taskService.closeTask(taskId)
-        return RestVo(null)
-    }
-
-    @DeleteMapping("/v1/task/remove/{identity}")
-    fun removeTask(@PathVariable identity: String): RestVo<Nothing?> {
-        taskService.removeTask(identity)
-        return RestVo(null)
-    }
+    @DeleteMapping("/v1/task/{taskId}")
+    fun removeTask(@PathVariable taskId: String) =
+        taskService.closeTask(taskId).run { RestVo(null) }
 
     private fun <T : BaseVo> T.toRestVo() = RestVo(this)
 

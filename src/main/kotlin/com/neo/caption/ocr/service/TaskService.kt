@@ -7,13 +7,11 @@ import com.neo.caption.ocr.domain.vo.TaskScheduleVo
 
 interface TaskService {
 
-    fun initTask(taskConfigDto: TaskConfigDto): TaskConfig
+    fun initTask(projectId: String, taskConfigDto: TaskConfigDto): TaskConfig
 
-    fun getTaskConfig(identity: String): TaskConfig
+    fun getTaskConfig(projectId: String): TaskConfig
 
     fun closeTask(taskId: String)
-
-    fun removeTask(identity: String)
 
     fun getCaptionRowVoList(taskId: String): List<CaptionRowVo>
 

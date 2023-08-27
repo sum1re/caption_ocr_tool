@@ -33,9 +33,9 @@ class TaskServiceImpl(
      * initial task, return necessary config for task
      * it will also check whether [CropRange] is valid
      */
-    @Cacheable(key = "#p0.identity")
-    override fun initTask(taskConfigDto: TaskConfigDto): TaskConfig {
-        val videoCapture = fileService.openVideoFile(taskConfigDto.identity)
+    @Cacheable(key = "#p0")
+    override fun initTask(projectId: String, taskConfigDto: TaskConfigDto): TaskConfig {
+        val videoCapture = fileService.openVideoFile(projectId)
         val videoInfo = VideoInfo(
             width = videoCapture.get(Videoio.CAP_PROP_FRAME_WIDTH).toInt(),
             height = videoCapture.get(Videoio.CAP_PROP_FRAME_HEIGHT).toInt(),
@@ -63,7 +63,7 @@ class TaskServiceImpl(
             }
         }
         return TaskConfig(
-            identity = taskConfigDto.identity,
+            projectId = projectId,
             taskId = UUID.randomUUID().toString().substring(0, 8),
             cropRange = cropRange,
             videoInfo = videoInfo,
@@ -76,16 +76,11 @@ class TaskServiceImpl(
      * only VideoService can invoke it after [initTask]
      */
     @Cacheable(key = "#p0")
-    override fun getTaskConfig(identity: String) = TaskConfig()
+    override fun getTaskConfig(projectId: String) = TaskConfig()
 
     @Caching(evict = [CacheEvict(key = "#p0 + 'row'"), CacheEvict(key = "#p0 + 'schedule'")])
     override fun closeTask(taskId: String) {
         // remove List<CaptionRowVo> and CurrentFrame from cache
-    }
-
-    @CacheEvict(key = "#p0")
-    override fun removeTask(identity: String) {
-        // remove TaskConfig (create by initTask()) from cache
     }
 
     /**

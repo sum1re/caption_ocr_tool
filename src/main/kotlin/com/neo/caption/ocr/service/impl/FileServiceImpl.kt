@@ -2,9 +2,8 @@ package com.neo.caption.ocr.service.impl
 
 import com.neo.caption.ocr.annotation.Slf4j
 import com.neo.caption.ocr.constant.ErrorCodeEnum
-import com.neo.caption.ocr.domain.dto.FileChecksumDto
-import com.neo.caption.ocr.domain.dto.FileChunkDto
-import com.neo.caption.ocr.domain.vo.SavedDirVo
+import com.neo.caption.ocr.domain.entity.FileChecksum
+import com.neo.caption.ocr.domain.entity.FileChunk
 import com.neo.caption.ocr.domain.vo.SavedFileVo
 import com.neo.caption.ocr.exception.BadRequestException
 import com.neo.caption.ocr.service.FileService
@@ -34,16 +33,16 @@ class FileServiceImpl : FileService {
     override fun createWorkingDirectory() = Files.createTempDirectory(tempDirPrefix)
         .let {
             it.toFile().deleteOnExit()
-            SavedDirVo(it.name)
+            it.name
         }
 
     /**
      * save chunk and return the xxhash for chunk
      */
-    override fun saveFileChunk(fileChunkDto: FileChunkDto): SavedFileVo {
-        val workingPath = getWorkingDir(fileChunkDto.identity)
+    override fun saveFileChunk(fileChunk: FileChunk): SavedFileVo {
+        val workingPath = getWorkingDir(fileChunk.projectId)
         val savedPath = workingPath.resolve(UUID.randomUUID().toString().substring(0, 8))
-        fileChunkDto.multipartFile.transferTo(savedPath)
+        fileChunk.multipartFile.transferTo(savedPath)
         // TODO: use xxhash to rename chunk
         return SavedFileVo(savedPath.name, savedPath.fileSize())
     }
@@ -51,19 +50,19 @@ class FileServiceImpl : FileService {
     /**
      * combine chunks with the gaven list
      */
-    override fun combineFileChunk(fileChecksumDto: FileChecksumDto): SavedFileVo {
-        val workingPath = getWorkingDir(fileChecksumDto.identity)
-        val combinePath = workingPath.resolve("video.${fileChecksumDto.extension}")
+    override fun combineFileChunk(fileChecksum: FileChecksum): SavedFileVo {
+        val workingPath = getWorkingDir(fileChecksum.projectId)
+        val combinePath = workingPath.resolve("video.${fileChecksum.extension}")
         FileChannel.open(combinePath, StandardOpenOption.CREATE, StandardOpenOption.APPEND).use {
-            combine(fileChecksumDto.fileChunkName.map { chunk -> workingPath.resolve(chunk) }, it)
+            combine(fileChecksum.fileChunkName.map { chunk -> workingPath.resolve(chunk) }, it)
         }
         // TODO check combineFile with the gaven xxhash
         combinePath.toFile().deleteOnExit()
         return SavedFileVo(combinePath.name, combinePath.fileSize())
     }
 
-    override fun openVideoFile(identify: String) =
-        Files.find(getWorkingDir(identify), 1, { path, _ -> path.name.startsWith("video.") })
+    override fun openVideoFile(projectId: String) =
+        Files.find(getWorkingDir(projectId), 1, { path, _ -> path.name.startsWith("video.") })
             .findFirst()
             .orElseThrow { BadRequestException(ErrorCodeEnum.VIDEO_NOT_FOUND) }
             .let { VideoCapture(it.absolutePathString()) }
@@ -75,7 +74,8 @@ class FileServiceImpl : FileService {
      * windows: %tmp%/cocr_xxx
      * linux: /tmp/cocr_xxx
      */
-    private fun getWorkingDir(identity: String): Path = Path.of(System.getProperty("java.io.tmpdir")).resolve(identity)
+    private fun getWorkingDir(projectId: String): Path =
+        Path.of(System.getProperty("java.io.tmpdir")).resolve(projectId)
 
     private fun combine(fileList: List<Path>, outFileChannel: FileChannel) {
         var start: Long = 0
