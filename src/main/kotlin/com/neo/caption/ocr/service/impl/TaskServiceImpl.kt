@@ -7,8 +7,7 @@ import com.neo.caption.ocr.domain.dto.TaskConfigDto
 import com.neo.caption.ocr.domain.entity.CropRange
 import com.neo.caption.ocr.domain.entity.TaskConfig
 import com.neo.caption.ocr.domain.entity.VideoInfo
-import com.neo.caption.ocr.domain.mapper.CropRangeMapper
-import com.neo.caption.ocr.domain.mapper.TesseractConfigMapper
+import com.neo.caption.ocr.domain.toEntity
 import com.neo.caption.ocr.domain.vo.CaptionRowVo
 import com.neo.caption.ocr.domain.vo.TaskScheduleVo
 import com.neo.caption.ocr.service.FileService
@@ -25,8 +24,6 @@ import java.util.*
 @CacheConfig(cacheNames = ["task::"])
 class TaskServiceImpl(
     private val fileService: FileService,
-    private val cropRangeMapper: CropRangeMapper,
-    private val tesseractConfigMapper: TesseractConfigMapper,
 ) : TaskService {
 
     /**
@@ -42,11 +39,7 @@ class TaskServiceImpl(
             fps = videoCapture.get(Videoio.CAP_PROP_FPS),
             totalFrame = videoCapture.get(Videoio.CAP_PROP_FRAME_COUNT).toInt()
         )
-        val cropRange = cropRangeMapper.toEntity(
-            taskConfigDto.cropRangeDto,
-            videoInfo.width - 1,
-            videoInfo.height - 1
-        )
+        val cropRange = taskConfigDto.cropRangeDto.toEntity(videoInfo.width - 1, videoInfo.height - 1)
         Mat().use {
             try {
                 videoCapture.read(it)
@@ -67,7 +60,7 @@ class TaskServiceImpl(
             taskId = UUID.randomUUID().toString().substring(0, 8),
             cropRange = cropRange,
             videoInfo = videoInfo,
-            tesseractConfig = tesseractConfigMapper.toEntity(taskConfigDto.tesseractConfigDto)
+            tesseractConfig = taskConfigDto.tesseractConfigDto.toEntity()
         )
             .also { log.info { it.toString() } }
     }

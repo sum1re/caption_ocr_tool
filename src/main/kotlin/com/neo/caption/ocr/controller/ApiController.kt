@@ -4,8 +4,8 @@ import com.neo.caption.ocr.annotation.RestEntityController
 import com.neo.caption.ocr.domain.dto.FileChecksumDto
 import com.neo.caption.ocr.domain.dto.TaskConfigDto
 import com.neo.caption.ocr.domain.entity.FileChunk
-import com.neo.caption.ocr.domain.mapper.TaskMapper
 import com.neo.caption.ocr.domain.toEntity
+import com.neo.caption.ocr.domain.toVo
 import com.neo.caption.ocr.domain.vo.BaseVo
 import com.neo.caption.ocr.domain.vo.RestVo
 import com.neo.caption.ocr.service.*
@@ -20,7 +20,6 @@ class ApiController(
     private val projectService: ProjectService,
     private val taskService: TaskService,
     private val videoService: VideoService,
-    private val taskMapper: TaskMapper,
 ) {
 
     @GetMapping("/v1/info")
@@ -48,7 +47,7 @@ class ApiController(
 
     @PutMapping("/v1/project/{projectId}")
     fun initialProjectTask(@PathVariable projectId: String, taskConfigDto: TaskConfigDto) =
-        taskService.initTask(projectId, taskConfigDto).let { taskMapper.toVo(it) }.toRestVo()
+        taskService.initTask(projectId, taskConfigDto).run { this.toVo() }.toRestVo()
 
     @GetMapping("/v1/project/{projectId}")
     fun startProjectTask(@PathVariable projectId: String) =
