@@ -24,6 +24,7 @@ enum class ErrorCodeEnum(val code: Int, val message: String, val httpStatus: Htt
     SERVER_IO_ERROR(10100, "IO Error", HttpStatus.INTERNAL_SERVER_ERROR),
     LOSS_TESSERACT_DATA(10101, "miss tess data", HttpStatus.INTERNAL_SERVER_ERROR),
     VIDEO_READ_ERROR(10102, "failed to open video file", HttpStatus.INTERNAL_SERVER_ERROR),
+    FILE_COMBINE_FAILED_ERROR(10103, "failed to combine file chunk", HttpStatus.INTERNAL_SERVER_ERROR),
     UNKNOWN_ERROR(10999, "issue to sum1re/caption_ocr_tool", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 

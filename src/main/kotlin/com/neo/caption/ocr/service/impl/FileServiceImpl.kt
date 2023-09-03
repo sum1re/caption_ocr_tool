@@ -1,5 +1,6 @@
 package com.neo.caption.ocr.service.impl
 
+import com.appmattus.crypto.Algorithm
 import com.neo.caption.ocr.annotation.Slf4j
 import com.neo.caption.ocr.constant.ErrorCodeEnum
 import com.neo.caption.ocr.domain.entity.FileChecksum
@@ -14,10 +15,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import java.util.*
-import kotlin.io.path.absolutePathString
-import kotlin.io.path.deleteExisting
-import kotlin.io.path.fileSize
-import kotlin.io.path.name
+import kotlin.io.path.*
 
 @Slf4j
 @Service
@@ -37,14 +35,17 @@ class FileServiceImpl : FileService {
         }
 
     /**
-     * save chunk and return the xxhash for chunk
+     * save chunk and return the xxHash for chunk
      */
     override fun saveFileChunk(fileChunk: FileChunk): SavedFileVo {
         val workingPath = getWorkingDir(fileChunk.projectId)
         val savedPath = workingPath.resolve(UUID.randomUUID().toString().substring(0, 8))
         fileChunk.multipartFile.transferTo(savedPath)
-        // TODO: use xxhash to rename chunk
-        return SavedFileVo(savedPath.name, savedPath.fileSize())
+        return SavedFileVo(
+            name = savedPath.name,
+            size = savedPath.fileSize(),
+            hash = savedPath.calcXXHash3()
+        )
     }
 
     /**
@@ -56,9 +57,10 @@ class FileServiceImpl : FileService {
         FileChannel.open(combinePath, StandardOpenOption.CREATE, StandardOpenOption.APPEND).use {
             combine(fileChecksum.fileChunkName.map { chunk -> workingPath.resolve(chunk) }, it)
         }
-        // TODO check combineFile with the gaven xxhash
+        val xxHash3 = combinePath.calcXXHash3()
+        if (xxHash3 != fileChecksum.hash) throw BadRequestException(ErrorCodeEnum.FILE_COMBINE_FAILED_ERROR)
         combinePath.toFile().deleteOnExit()
-        return SavedFileVo(combinePath.name, combinePath.fileSize())
+        return SavedFileVo(combinePath.name, combinePath.fileSize(), xxHash3)
     }
 
     override fun openVideoFile(projectId: String) =
@@ -67,7 +69,6 @@ class FileServiceImpl : FileService {
             .orElseThrow { BadRequestException(ErrorCodeEnum.VIDEO_NOT_FOUND) }
             .let { VideoCapture(it.absolutePathString()) }
             .also { if (!it.isOpened) throw BadRequestException(ErrorCodeEnum.VIDEO_READ_ERROR) }
-
 
     /**
      * return the working dir
@@ -87,5 +88,8 @@ class FileServiceImpl : FileService {
             }
         }
     }
+
+    @OptIn(ExperimentalStdlibApi::class)
+    private fun Path.calcXXHash3() = this.readBytes().let { Algorithm.XXH3_64().hash(it).toHexString() }
 
 }
