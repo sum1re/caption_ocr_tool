@@ -1,6 +1,6 @@
 package com.neo.caption.ocr.controller
 
-import com.neo.caption.ocr.annotation.RestEntityController
+import com.neo.caption.ocr.common.RestEntityController
 import com.neo.caption.ocr.domain.dto.FileChecksumDto
 import com.neo.caption.ocr.domain.dto.TaskConfigDto
 import com.neo.caption.ocr.domain.entity.FileChunk

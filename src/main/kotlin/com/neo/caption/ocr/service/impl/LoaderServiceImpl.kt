@@ -1,8 +1,8 @@
 package com.neo.caption.ocr.service.impl
 
-import com.neo.caption.ocr.annotation.Slf4j
-import com.neo.caption.ocr.annotation.Slf4j.Companion.log
-import com.neo.caption.ocr.property.AppInfoProperties
+import com.neo.caption.ocr.common.Slf4j
+import com.neo.caption.ocr.common.Slf4j.Companion.log
+import com.neo.caption.ocr.common.AppInfoProperties
 import com.neo.caption.ocr.service.LoaderService
 import org.bytedeco.javacpp.Loader
 import org.springframework.core.env.Environment

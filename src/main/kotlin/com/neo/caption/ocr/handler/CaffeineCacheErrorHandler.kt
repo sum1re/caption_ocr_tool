@@ -1,7 +1,7 @@
 package com.neo.caption.ocr.handler
 
-import com.neo.caption.ocr.annotation.Slf4j
-import com.neo.caption.ocr.annotation.Slf4j.Companion.log
+import com.neo.caption.ocr.common.Slf4j
+import com.neo.caption.ocr.common.Slf4j.Companion.log
 import org.springframework.cache.Cache
 import org.springframework.cache.interceptor.CacheErrorHandler
 import java.lang.RuntimeException

@@ -1,7 +1,7 @@
 package com.neo.caption.ocr.service.impl
 
 import com.neo.caption.ocr.domain.vo.AppInfoVo
-import com.neo.caption.ocr.property.AppInfoProperties
+import com.neo.caption.ocr.common.AppInfoProperties
 import com.neo.caption.ocr.service.AppInfoService
 import org.springframework.cache.annotation.CacheConfig
 import org.springframework.cache.annotation.Cacheable

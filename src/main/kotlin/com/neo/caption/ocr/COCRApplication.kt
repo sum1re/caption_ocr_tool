@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-@ConfigurationPropertiesScan("com.neo.caption.ocr.property")
+@ConfigurationPropertiesScan("com.neo.caption.ocr.common")
 class COCRApplication(
     private val loaderService: LoaderService
 ) : InitializingBean {

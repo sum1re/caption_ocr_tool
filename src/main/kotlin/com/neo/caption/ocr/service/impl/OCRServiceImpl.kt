@@ -1,6 +1,6 @@
 package com.neo.caption.ocr.service.impl
 
-import com.neo.caption.ocr.annotation.Slf4j
+import com.neo.caption.ocr.common.Slf4j
 import com.neo.caption.ocr.constant.ErrorCodeEnum
 import com.neo.caption.ocr.domain.entity.TesseractConfig
 import com.neo.caption.ocr.exception.BadRequestException
