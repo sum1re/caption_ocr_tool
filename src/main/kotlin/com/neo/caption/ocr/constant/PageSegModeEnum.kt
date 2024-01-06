@@ -77,3 +77,5 @@ enum class PageSegModeEnum(val code: Int) {
     PSM_RAW_LINE(13),
 
 }
+
+fun PageSegModeEnum.toVector() = "tessedit_pageseg_mode" to this.code.toString()
