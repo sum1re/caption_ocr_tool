@@ -1,6 +1,15 @@
-package com.neo.caption.ocr
+package com.neo.caption.ocr.module.cv
 
-import org.opencv.core.*
+import org.opencv.core.Core
+import org.opencv.core.CvException
+import org.opencv.core.CvType
+import org.opencv.core.Mat
+import org.opencv.core.MatOfByte
+import org.opencv.core.MatOfInt
+import org.opencv.core.MatOfPoint
+import org.opencv.core.Point
+import org.opencv.core.Scalar
+import org.opencv.core.Size
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import kotlin.contracts.ExperimentalContracts
@@ -29,13 +38,13 @@ fun Mat.calcSSIM(dst: Mat): Double {
     val kernelSize = Size(11.0, 11.0)
     val c1 = 6.5025
     val c2 = 58.5225
-    val i1 = this.clone().apply { cvtType(CvType.CV_32F) }
-    val i2 = dst.clone().apply { this.cvtType(CvType.CV_32F) }
+    val i1 = this.clone().apply { cvtType(SingleIntParam(CvType.CV_32F)) }
+    val i2 = dst.clone().apply { this.cvtType(SingleIntParam(CvType.CV_32F)) }
     val i1Mul1 = i1.mul(i1)
     val i2Mul2 = i2.mul(i2)
     val i1MulI2 = i1.mul(i2)
-    val mu1 = i1.clone().apply { this.gaussianBlur(kernelSize, 1.5, 1.5, Core.BORDER_DEFAULT) }
-    val mu2 = i2.clone().apply { this.gaussianBlur(kernelSize, 1.5, 1.5, Core.BORDER_DEFAULT) }
+    val mu1 = i1.clone().apply { this.gaussianBlur(GaussianBlur(kernelSize, 1.5, 1.5, Core.BORDER_DEFAULT)) }
+    val mu2 = i2.clone().apply { this.gaussianBlur(GaussianBlur(kernelSize, 1.5, 1.5, Core.BORDER_DEFAULT)) }
     i1.release()
     i2.release()
 
@@ -45,11 +54,17 @@ fun Mat.calcSSIM(dst: Mat): Double {
     mu1.release()
     mu2.release()
 
-    val sigmaI1Mul1 = i1Mul1.clone().apply { this.gaussianBlur(kernelSize, 1.5, 1.5, Core.BORDER_DEFAULT) }
+    val sigmaI1Mul1 = i1Mul1.clone().apply {
+        this.gaussianBlur(GaussianBlur(kernelSize, 1.5, 1.5, Core.BORDER_DEFAULT))
+    }
     sigmaI1Mul1.subtract(mu1MulMu1)
-    val sigmaI2Mul2 = i2Mul2.clone().apply { this.gaussianBlur(kernelSize, 1.5, 1.5, Core.BORDER_DEFAULT) }
+    val sigmaI2Mul2 = i2Mul2.clone().apply {
+        this.gaussianBlur(GaussianBlur(kernelSize, 1.5, 1.5, Core.BORDER_DEFAULT))
+    }
     sigmaI2Mul2.subtract(mu2MulMu2)
-    val sigmaI1MulI2 = i1MulI2.clone().apply { this.gaussianBlur(kernelSize, 1.5, 1.5, Core.BORDER_DEFAULT) }
+    val sigmaI1MulI2 = i1MulI2.clone().apply {
+        this.gaussianBlur(GaussianBlur(kernelSize, 1.5, 1.5, Core.BORDER_DEFAULT))
+    }
     sigmaI1MulI2.subtract(mu1MulMu2)
     i1Mul1.release()
     i2Mul2.release()
@@ -96,14 +111,14 @@ fun Mat.getPixelColor(x: Int, y: Int): Map<String, Int> {
     map["#Rgb"] = bgr[2].toInt()
     Mat(1, 1, CvType.CV_8UC3, Scalar(bgr)).use { pixel ->
         pixel.clone().use {
-            it.cvtColor(Imgproc.COLOR_BGR2HSV)
+            it.cvtColor(SingleIntParam(Imgproc.COLOR_BGR2HSV))
             val hsv = it.get(0, 0)
             map["#Hsv"] = hsv[0].toInt()
             map["#hSv"] = hsv[1].toInt()
             map["#hsV"] = hsv[2].toInt()
         }
         pixel.clone().use {
-            it.cvtColor(Imgproc.COLOR_BGR2HLS)
+            it.cvtColor(SingleIntParam(Imgproc.COLOR_BGR2HLS))
             val hls = it.get(0, 0)
             map["#Hls"] = hls[0].toInt()
             map["#hLs"] = hls[1].toInt()
@@ -138,43 +153,52 @@ fun Mat.max(dst: Mat) = Core.max(this, dst, this)
 
 fun Mat.min(dst: Mat) = Core.min(this, dst, this)
 
-fun Mat.adaptiveBinarization(adaptiveMethod: Int, thresholdType: Int, blockSize: Int, constant: Double) =
-    Imgproc.adaptiveThreshold(this, this, 255.0, adaptiveMethod, thresholdType, blockSize, constant)
+fun Mat.adaptiveBinarization(param: AdaptiveBinarization) =
+    Imgproc.adaptiveThreshold(
+        this,
+        this,
+        param.maxValue,
+        param.adaptiveMethod,
+        param.thresholdType,
+        param.blockSize,
+        param.constant
+    )
 
-fun Mat.fixedBinarization(threshold: Double, type: Int) =
-    Imgproc.threshold(this, this, threshold, 255.0, type)
+fun Mat.fixedBinarization(param: FixedBinarization) {
+    Imgproc.threshold(this, this, param.thresholdValue, param.maxValue, param.thresholdType)
+}
 
-fun Mat.bilateralFilter(diameter: Int, sigmaColor: Double, sigmaSpace: Double, borderType: Int) =
-    this.clone().use { Imgproc.bilateralFilter(it, this, diameter, sigmaColor, sigmaSpace, borderType) }
+fun Mat.bilateralFilter(param: BilateralFilter) =
+    Imgproc.bilateralFilter(this, this, param.diameter, param.sigmaColor, param.sigmaSpace, param.border)
 
-fun Mat.boxFilter(kernelSize: Size, anchorPoint: Point, normalize: Boolean, borderType: Int) =
-    Imgproc.boxFilter(this, this, -1, kernelSize, anchorPoint, normalize, borderType)
+fun Mat.boxFilter(param: BoxFilter) =
+    Imgproc.boxFilter(this, this, -1, param.kernel, param.anchor, param.normalize, param.border)
 
-fun Mat.crop(upperLeftX: Int, upperLeftY: Int, lowerRightX: Int, lowerRightY: Int): Mat =
-    this.submat(upperLeftY, lowerRightY, upperLeftX, lowerRightX)
+fun Mat.crop(param: CropRange): Mat =
+    this.submat(param.upperLeftY, param.lowerRightY, param.upperLeftX, param.lowerRightX)
 
-fun Mat.checkRange(upperLeftX: Int, upperLeftY: Int, lowerRightX: Int, lowerRightY: Int) {
-    if (lowerRightX <= upperLeftX || abs(lowerRightX - upperLeftX) > this.cols()) {
-        throw CvException("lowerRightX(${lowerRightX}) <= upperLeftX(${upperLeftX}) or range less than ${this.cols()}")
+fun Mat.checkRange(param: CropRange) {
+    if (param.lowerRightX <= param.upperLeftX || abs(param.lowerRightX - param.upperLeftX) > this.cols()) {
+        throw CvException("lowerRightX(${param.lowerRightX}) <= upperLeftX(${param.upperLeftX}) or range less than ${this.cols()}")
     }
-    if (lowerRightY <= upperLeftY || abs(lowerRightY - upperLeftY) > this.rows()) {
-        throw CvException("lowerRightY(${lowerRightY}) <= upperLeftY(${upperLeftY}) or range less than ${this.rows()}")
+    if (param.lowerRightY <= param.upperLeftY || abs(param.lowerRightY - param.upperLeftY) > this.rows()) {
+        throw CvException("lowerRightY(${param.lowerRightY}) <= upperLeftY(${param.upperLeftY}) or range less than ${this.rows()}")
     }
 }
 
-fun Mat.cvtColor(colorType: Int) = Imgproc.cvtColor(this, this, colorType)
+fun Mat.cvtColor(param: SingleIntParam) = Imgproc.cvtColor(this, this, param.i)
 
-fun Mat.cvtType(type: Int) = this.convertTo(this, type)
+fun Mat.cvtType(param: SingleIntParam) = this.convertTo(this, param.i)
 
-fun Mat.equalizeHist(channelIndex: Int) {
+fun Mat.equalizeHist(param: SingleIntParam) {
     val list = mutableListOf<Mat>().also { Core.split(this, it) }
-    if (list.isEmpty() || channelIndex >= list.size) {
+    if (list.isEmpty() || param.i >= list.size) {
         throw CvException("Failed to split mat or the channelIndex is greater than the number of mat channel")
     }
-    if (channelIndex == -1) {
+    if (param.i == -1) {
         list.forEach { Imgproc.equalizeHist(it, it) }
     } else {
-        Imgproc.equalizeHist(list[channelIndex], list[channelIndex])
+        Imgproc.equalizeHist(list[param.i], list[param.i])
     }
     Core.merge(list, this)
 }
@@ -182,11 +206,11 @@ fun Mat.equalizeHist(channelIndex: Int) {
 fun Mat.findContours(contours: List<MatOfPoint>, hierarchy: Mat, mode: Int, method: Int) =
     Imgproc.findContours(this, contours, hierarchy, mode, method)
 
-fun Mat.gaussianBlur(kernelSize: Size, sigmaX: Double, sigmaY: Double, borderType: Int) =
-    Imgproc.GaussianBlur(this, this, kernelSize, sigmaX, sigmaY, borderType)
+fun Mat.gaussianBlur(param: GaussianBlur) =
+    Imgproc.GaussianBlur(this, this, param.kernel, param.sigmaX, param.sigmaY, param.border)
 
-fun Mat.medianBlur(kernelSize: Int) =
-    Imgproc.medianBlur(this, this, kernelSize)
+fun Mat.medianBlur(param: SingleIntParam) =
+    Imgproc.medianBlur(this, this, param.i)
 
 fun Mat.inRange(low1: Double, low2: Double, low3: Double, up1: Double, up2: Double, up3: Double) =
     Core.inRange(this, Scalar(low1, low2, low3), Scalar(up1, up2, up3), this)
@@ -194,17 +218,10 @@ fun Mat.inRange(low1: Double, low2: Double, low3: Double, up1: Double, up2: Doub
 fun Mat.rectangle(upperLeftX: Double, upperLeftY: Double, lowerRightX: Double, lowerRightY: Double, scalar: Scalar) =
     Imgproc.rectangle(this, Point(upperLeftX, upperLeftY), Point(lowerRightX, lowerRightY), scalar)
 
-fun Mat.morphology(
-    morphShape: Int,
-    kernelSize: Size,
-    elementAnchorPoint: Point,
-    morphologyType: Int,
-    anchorPoint: Point,
-    i: Int,
-    borderType: Int
-) = Imgproc.getStructuringElement(morphShape, kernelSize, elementAnchorPoint).let {
-    Imgproc.morphologyEx(this, this, morphologyType, it, anchorPoint, i, borderType)
-}
+fun Mat.morphology(param: Morphology) =
+    Imgproc.getStructuringElement(param.morphShape, param.kernel, param.shapeAnchor).let {
+        Imgproc.morphologyEx(this, this, param.morphType, it, param.morphAnchor, param.iteration, param.border)
+    }
 
 fun Mat.removeLargeArea(maxArea: Double) {
     val contours = mutableListOf<MatOfPoint>()

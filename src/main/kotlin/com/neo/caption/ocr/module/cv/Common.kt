@@ -109,14 +109,9 @@ data class GaussianBlur(
 
 data class GaussianBlurDto(
     val kernel: NumberPair<Double>,
-    val sigmaX: Double,
-    val sigmaY: Double,
+    val sigma: NumberPair<Double>,
     val border: Border
 ) : BaseDto
-
-data class MedianBlur(
-    val kernelSize: Int,
-) : BaseEntity
 
 data class MedianBlurDto(
     val kernelSize: Int
@@ -239,17 +234,15 @@ class BoxFilterConverter : Converter<BoxFilterDto, BoxFilter> {
 class GaussianBlurConverter : Converter<GaussianBlurDto, GaussianBlur> {
     override fun convert(source: GaussianBlurDto) = GaussianBlur(
         kernel = source.kernel.toSize(),
-        sigmaX = source.sigmaX,
-        sigmaY = source.sigmaY,
+        sigmaX = source.sigma.first,
+        sigmaY = source.sigma.second,
         border = source.border.value, // Extract value from enum
     )
 }
 
 @Component
-class MedianBlurConverter : Converter<MedianBlurDto, MedianBlur> {
-    override fun convert(source: MedianBlurDto) = MedianBlur(
-        kernelSize = source.kernelSize,
-    )
+class MedianBlurConverter : Converter<MedianBlurDto, SingleIntParam> {
+    override fun convert(source: MedianBlurDto) = SingleIntParam(source.kernelSize)
 }
 
 @Component
