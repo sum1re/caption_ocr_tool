@@ -1,6 +1,7 @@
 package com.neo.caption.ocr.constant
 
-import com.neo.caption.ocr.domain.vo.RestErrorVo
+import com.neo.caption.ocr.domain.ErrorRest
+import com.neo.caption.ocr.domain.RestErrorVo
 import org.springframework.http.HttpStatus
 
 enum class ErrorCodeEnum(val code: Int, val message: String, val httpStatus: HttpStatus) {
@@ -28,6 +29,6 @@ enum class ErrorCodeEnum(val code: Int, val message: String, val httpStatus: Htt
     UNKNOWN_ERROR(10999, "issue to sum1re/caption_ocr_tool", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
-    fun toRestError(message: String?) = RestErrorVo(this.code, message ?: this.message)
+    fun toResponse(message: String = this.message) = ErrorRest(RestErrorVo(this.code, message))
 
 }
