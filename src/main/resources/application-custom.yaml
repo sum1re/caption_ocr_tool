@@ -1,13 +1,13 @@
 cocr:
   info:
-    app-license: app.license
-    artifact: project.artifactId
-    build-timestamp: maven.build.timestamp
-    group: project.groupId
-    java-version: java.version
-    name: project.name
-    spring-boot-version: project.parent.version
-    version: project.version
+    app-license: ${app.license}
+    artifact: ${project.artifactId}
+    build-timestamp: ${maven.build.timestamp}
+    group: ${project.groupId}
+    java-version: ${java.version}
+    name: ${project.name}
+    spring-boot-version: ${project.parent.version}
+    version: ${}
   cors:
     allowed-header:
       - '*'
@@ -20,6 +20,7 @@ cocr:
     origin-patterns:
       - http://localhost:[*]
   tesseract:
+    uuid: a867d3d5-4964-4ca6-80e5-cca7ff7a1950
     ocr-engine-mode: OEM_LSTM_ONLY
     page-seg-mode: PSM_SINGLE_LINE
     language:

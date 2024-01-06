@@ -2,7 +2,9 @@ package com.neo.caption.ocr.common
 
 import com.neo.caption.ocr.constant.OCREngineModeEnum
 import com.neo.caption.ocr.constant.PageSegModeEnum
+import com.neo.caption.ocr.domain.BaseEntity
 import org.springframework.boot.context.properties.ConfigurationProperties
+import java.util.UUID
 
 @ConfigurationProperties(prefix = "cocr.info")
 data class AppInfoProperties(
@@ -14,7 +16,7 @@ data class AppInfoProperties(
     val springBootVersion: String,
     val version: String,
     val buildTimestamp: String,
-)
+) : BaseEntity
 
 @ConfigurationProperties(prefix = "cocr.cors")
 data class CorsProperties(
@@ -33,6 +35,7 @@ data class OCRProperties(
 
 @ConfigurationProperties(prefix = "cocr.tesseract")
 data class TesseractProperties(
+    val uuid: UUID,
     val ocrEngineMode: OCREngineModeEnum,
     val pageSegMode: PageSegModeEnum,
     val language: List<String>,
