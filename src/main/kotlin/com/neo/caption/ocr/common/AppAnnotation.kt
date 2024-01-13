@@ -2,7 +2,9 @@ package com.neo.caption.ocr.common
 
 import io.github.oshai.KLogger
 import io.github.oshai.KotlinLogging
+import org.springframework.cache.annotation.CacheConfig
 import org.springframework.core.annotation.AliasFor
+import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -27,3 +29,10 @@ annotation class Slf4j {
     }
 
 }
+
+@Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.CLASS)
+@Slf4j
+@Service
+@CacheConfig(cacheNames = ["cocr"])
+annotation class CacheableService
