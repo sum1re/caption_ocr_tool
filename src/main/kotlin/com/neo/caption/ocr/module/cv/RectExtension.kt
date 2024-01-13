@@ -1,4 +1,4 @@
-package com.neo.caption.ocr
+package com.neo.caption.ocr.module.cv
 
 import org.opencv.core.Rect
 
