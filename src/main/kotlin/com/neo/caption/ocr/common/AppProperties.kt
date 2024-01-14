@@ -1,8 +1,8 @@
 package com.neo.caption.ocr.common
 
-import com.neo.caption.ocr.constant.OCREngineModeEnum
-import com.neo.caption.ocr.constant.PageSegModeEnum
 import com.neo.caption.ocr.domain.BaseEntity
+import com.neo.caption.ocr.module.tesseract.OCREngineModeEnum
+import com.neo.caption.ocr.module.tesseract.PageSegModeEnum
 import org.springframework.boot.context.properties.ConfigurationProperties
 import java.util.UUID
 

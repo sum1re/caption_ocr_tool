@@ -1,4 +1,33 @@
-package com.neo.caption.ocr.constant
+package com.neo.caption.ocr.module.tesseract
+
+enum class OCREngineModeEnum(val code: Int) {
+
+    /**
+     * run tesseract only, fastest
+     */
+    @Deprecated(message = "deprecated by tesseract", replaceWith = ReplaceWith("OEM_LSTM_ONLY"))
+    OEM_TESSERACT_ONLY(0),
+
+    /**
+     * lstm line recognizer
+     */
+    OEM_LSTM_ONLY(1),
+
+    /**
+     * run lstm line recognizer, but allow fallback to Tesseract when things get difficult
+     */
+    @Deprecated(message = "deprecated by tesseract", replaceWith = ReplaceWith("OEM_LSTM_ONLY"))
+    OEM_TESSERACT_LSTM_COMBINED(2),
+
+    /**
+     * Specify this mode when calling init, to indicate that any of the above
+     * modes should be automatically inferred from the variables in the language-specific config,
+     * command-line configs, or if not specified in any of the above should be set
+     * to the default OEM_TESSERACT_ONLY
+     */
+    OEM_DEFAULT(3)
+
+}
 
 /**
  * Tesseract page segmentation
@@ -75,7 +104,8 @@ enum class PageSegModeEnum(val code: Int) {
      * Raw line. Treat the image as a single text line, bypassing hacks that are Tesseract-specific.
      */
     PSM_RAW_LINE(13),
+    ;
 
+    fun toVector() = "tessedit_pageseg_mode" to this.code.toString()
 }
 
-fun PageSegModeEnum.toVector() = "tessedit_pageseg_mode" to this.code.toString()

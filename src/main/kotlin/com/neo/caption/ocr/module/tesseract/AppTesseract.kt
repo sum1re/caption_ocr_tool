@@ -1,8 +1,6 @@
 package com.neo.caption.ocr.module.tesseract
 
 import com.neo.caption.ocr.common.languageSeparator
-import com.neo.caption.ocr.constant.OCREngineModeEnum
-import com.neo.caption.ocr.constant.PageSegModeEnum
 import com.neo.caption.ocr.domain.BaseDto
 import com.neo.caption.ocr.domain.BaseEntity
 import com.neo.caption.ocr.service.LoaderService
