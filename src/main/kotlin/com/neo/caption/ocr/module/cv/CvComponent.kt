@@ -142,4 +142,6 @@ class EqualizeComponent : CvComponent<SingleIntParam, Unit>() {
     override val action: Mat.() -> Unit = { this.equalizeHist(componentParam) }
 }
 
+// TODO: add flow for arithmetic operation
+
 private fun NodeComponent.context(): CvContext = this.getContextBean(CvContext::class.java)
