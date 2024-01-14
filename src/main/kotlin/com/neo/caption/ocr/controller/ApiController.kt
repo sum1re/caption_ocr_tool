@@ -3,13 +3,16 @@ package com.neo.caption.ocr.controller
 import com.neo.caption.ocr.common.RestEntityController
 import com.neo.caption.ocr.domain.dto.FileChecksumDto
 import com.neo.caption.ocr.domain.dto.TaskConfigDto
-import com.neo.caption.ocr.domain.entity.FileChunk
-import com.neo.caption.ocr.domain.toEntity
+import com.neo.caption.ocr.domain.response
 import com.neo.caption.ocr.domain.toVo
 import com.neo.caption.ocr.domain.vo.BaseVo
 import com.neo.caption.ocr.domain.vo.RestVo
 import com.neo.caption.ocr.service.*
 import org.springframework.web.bind.annotation.*
+import com.neo.caption.ocr.module.file.FileChecksum
+import com.neo.caption.ocr.module.file.FileChecksumDto
+import com.neo.caption.ocr.module.file.FileService
+import com.neo.caption.ocr.module.file.UploadChunk
 import org.springframework.web.multipart.MultipartFile
 
 @RestEntityController("/api")
@@ -25,9 +28,14 @@ class ApiController(
     @GetMapping("/v1/info")
     fun getAppInfo() = appInfoService.getInfo().toRestVo()
 
-    @PostMapping("/v1/file/{projectId}")
-    fun uploadFileChunk(@PathVariable projectId: String, @RequestPart multipartFile: MultipartFile) =
-        FileChunk(projectId, multipartFile).let { fileService.saveFileChunk(it) }.toRestVo()
+    @PostMapping("/v1/file/{projectId}/{index}")
+    fun uploadFileChunk(
+        @PathVariable projectId: String,
+        @PathVariable index: Int,
+        @RequestPart multipartFile: MultipartFile
+    ) = response {
+        UploadChunk(projectId, multipartFile, index).let { fileService.saveChunk(it) }
+    }
 
     @PatchMapping("/v1/file/{projectId}")
     fun combineFileChunk(@PathVariable projectId: String, fileChecksumDto: FileChecksumDto) =
