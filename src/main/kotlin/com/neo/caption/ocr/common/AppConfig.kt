@@ -1,8 +1,6 @@
 package com.neo.caption.ocr.common
 
 import com.github.benmanes.caffeine.cache.Caffeine
-import com.neo.caption.ocr.handler.AsyncExceptionHandler
-import com.neo.caption.ocr.handler.CaffeineCacheErrorHandler
 import org.springframework.cache.annotation.CachingConfigurer
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.cache.caffeine.CaffeineCacheManager
@@ -12,14 +10,14 @@ import org.springframework.scheduling.annotation.AsyncConfigurer
 import org.springframework.scheduling.annotation.EnableAsync
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
-import java.time.Duration
+import org.springframework.web.servlet.config.annotation.EnableWebMvc
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
 @EnableAsync
 class AsyncConfig : AsyncConfigurer {
-
     override fun getAsyncUncaughtExceptionHandler() = AsyncExceptionHandler()
-
 }
 
 @Configuration
@@ -28,9 +26,7 @@ class CacheConfig : CachingConfigurer {
 
     @Bean
     override fun cacheManager() = Caffeine.newBuilder()
-        .expireAfterAccess(Duration.ofHours(Int.MAX_VALUE.toLong()))
         .initialCapacity(2 shl 6)
-        .maximumSize((2 shl 8).toLong())
         .let { CaffeineCacheManager().apply { this.setCaffeine(it) } }
 
     @Bean
@@ -53,4 +49,13 @@ class WebConfig(
             UrlBasedCorsConfigurationSource().apply { this.registerCorsConfiguration("/**", it) }
         }
 
+}
+
+@Configuration
+@EnableWebMvc
+class MvcConfig : WebMvcConfigurer {
+    override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
+        registry.addResourceHandler("/**")
+            .addResourceLocations("/resources/", "file:${System.getProperty("java.io.tmpdir")}")
+    }
 }
