@@ -2,8 +2,9 @@ package com.neo.caption.ocr.domain
 
 import com.fasterxml.jackson.annotation.JsonInclude
 
-interface BaseDto
-interface BaseEntity
+interface BaseData
+interface BaseDto : BaseData
+interface BaseEntity : BaseData
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class RestVo<T>(

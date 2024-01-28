@@ -18,11 +18,10 @@ class InnerExtension(
 
 lateinit var instant: InnerExtension
 
-inline fun <reified T : BaseDto> BaseEntity.convert(): T = instant.conversionService.convert(this, T::class.java)!!
-inline fun <reified T : BaseEntity> BaseDto.convert(): T = instant.conversionService.convert(this, T::class.java)!!
+inline fun <reified T> BaseData.convert(): T = instant.conversionService.convert(this, T::class.java)!!
 
 fun response(action: () -> Any?): RestVo<Any?> =
-    when(val result= action()) {
+    when (val result = action()) {
         is Collection<*> -> RestVo(result)
         else -> RestVo(result)
     }

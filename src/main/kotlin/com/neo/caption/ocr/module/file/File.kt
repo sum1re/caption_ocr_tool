@@ -1,7 +1,7 @@
 package com.neo.caption.ocr.module.file
 
+import com.neo.caption.ocr.domain.BaseData
 import com.neo.caption.ocr.domain.BaseDto
-import com.neo.caption.ocr.domain.BaseEntity
 import org.springframework.core.convert.converter.Converter
 import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
@@ -11,7 +11,7 @@ data class FileChecksum(
     val hash: String,
     val extension: String,
     val size: Long
-) : BaseEntity
+) : BaseData
 
 data class FileChecksumDto(
     val name: String,
