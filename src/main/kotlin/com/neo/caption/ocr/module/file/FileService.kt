@@ -4,6 +4,7 @@ import com.appmattus.crypto.Algorithm
 import com.neo.caption.ocr.common.BadRequestException
 import com.neo.caption.ocr.common.ErrorCodeEnum
 import com.neo.caption.ocr.common.Slf4j
+import com.neo.caption.ocr.common.TEMP_DIR_PREFIX
 import org.springframework.stereotype.Service
 import java.nio.channels.FileChannel
 import java.nio.file.Files
@@ -21,14 +22,12 @@ import kotlin.io.path.walk
 @Service
 class FileService {
 
-    private val tempDirPrefix = "cocr_"
-
     /**
      * Create temp directory and it will be deleted after application exited
      *
      * @return folder name, example: cocr_3691603552712666795
      */
-    fun createWorkingDirectory(): Path = Files.createTempDirectory(tempDirPrefix).also {
+    fun createWorkingDirectory(): Path = Files.createTempDirectory(TEMP_DIR_PREFIX).also {
         it.toFile().deleteOnExit()
     }
 
@@ -79,7 +78,7 @@ class FileService {
      * linux: /tmp/cocr_xxx
      */
     private fun getWorkingDirectory(projectId: String): Path =
-        Path.of(System.getProperty("java.io.tmpdir")).resolve("$tempDirPrefix$projectId")
+        Path.of(System.getProperty("java.io.tmpdir")).resolve("$TEMP_DIR_PREFIX/$projectId")
 
     @OptIn(ExperimentalStdlibApi::class)
     private fun Path.calcXXHash3() = this.readBytes().let { Algorithm.XXH3_64().hash(it).toHexString() }

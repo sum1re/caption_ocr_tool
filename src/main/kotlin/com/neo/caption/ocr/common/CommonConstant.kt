@@ -3,6 +3,9 @@ package com.neo.caption.ocr.common
 import org.springframework.http.HttpStatus
 
 const val languageSeparator: String = "+"
+const val CACHE_TESS_CONFIG = "tess-option:"
+const val CACHE_PROJECT = "project:"
+const val TEMP_DIR_PREFIX = "cocr_"
 
 enum class ErrorCodeEnum(val code: Int, val message: String, val httpStatus: HttpStatus) {
 
