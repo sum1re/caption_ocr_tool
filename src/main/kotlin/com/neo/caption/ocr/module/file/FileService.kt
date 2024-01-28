@@ -5,6 +5,8 @@ import com.neo.caption.ocr.common.BadRequestException
 import com.neo.caption.ocr.common.ErrorCodeEnum
 import com.neo.caption.ocr.common.Slf4j
 import com.neo.caption.ocr.common.TEMP_DIR_PREFIX
+import com.neo.caption.ocr.module.cv.toEncodeByteArray
+import org.opencv.core.Mat
 import org.springframework.stereotype.Service
 import java.nio.channels.FileChannel
 import java.nio.file.Files
@@ -41,6 +43,12 @@ class FileService {
         uploadChunk.multipartFile.transferTo(savedPath)
     }
 
+    fun saveMat(projectId: String, index: Int, mat: Mat) {
+        val savedPath = getWorkingDirectory(projectId)
+            .resolve("$index.webp")
+        Files.write(savedPath, mat.toEncodeByteArray(quality = 50)).toFile().deleteOnExit()
+    }
+
     /**
      * Combine chunks with the gaven directory
      */
@@ -75,6 +83,10 @@ class FileService {
         Files.find(getWorkingDirectory(projectId), 1, { path, _ -> path.name.startsWith("video.") })
             .findFirst()
             .orElseThrow { BadRequestException(ErrorCodeEnum.VIDEO_NOT_FOUND) }
+
+    fun deleteMat(projectId: String, index: Int) {
+        Files.deleteIfExists(getWorkingDirectory(projectId).resolve("$index.webp"))
+    }
 
     /**
      * Return the working dir
