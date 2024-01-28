@@ -36,7 +36,8 @@ class FileService {
      */
     fun saveChunk(uploadChunk: UploadChunk) {
         val savedPath = getWorkingDirectory(uploadChunk.projectId)
-            .resolve(uploadChunk.chunkIndex.toString().padStart(5, '0'))
+            .resolve("chunk.${uploadChunk.chunkIndex.toString().padStart(5, '0')}")
+            .also { it.toFile().deleteOnExit() }
         uploadChunk.multipartFile.transferTo(savedPath)
     }
 
@@ -46,9 +47,12 @@ class FileService {
     @OptIn(ExperimentalPathApi::class)
     fun combineChunk(workingDirectory: Path, extension: String, checksum: String) {
         val savedPath = workingDirectory.resolve("video.$extension")
+        val chunkSequence = workingDirectory.walk(PathWalkOption.BREADTH_FIRST)
+            .filter { !it.isDirectory() && it.name.startsWith("chunk") }
+            .sorted()
         FileChannel.open(savedPath, StandardOpenOption.CREATE, StandardOpenOption.APPEND).use { savedChannel ->
             var start: Long = 0
-            workingDirectory.walk(PathWalkOption.BREADTH_FIRST).filter { !it.isDirectory() }.sorted().forEach { chunk ->
+            chunkSequence.forEach { chunk ->
                 FileChannel.open(chunk).use {
                     savedChannel.transferFrom(it, start, it.size())
                     start += it.size()
@@ -67,7 +71,7 @@ class FileService {
     /**
      * Find and return the video file.
      */
-    fun findVideoFile(projectId: String) =
+    fun findVideoFile(projectId: String): Path =
         Files.find(getWorkingDirectory(projectId), 1, { path, _ -> path.name.startsWith("video.") })
             .findFirst()
             .orElseThrow { BadRequestException(ErrorCodeEnum.VIDEO_NOT_FOUND) }
