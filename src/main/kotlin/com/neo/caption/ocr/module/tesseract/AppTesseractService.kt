@@ -1,66 +1,82 @@
 package com.neo.caption.ocr.module.tesseract
 
-import com.neo.caption.ocr.common.Slf4j
+import com.neo.caption.ocr.common.BadRequestException
+import com.neo.caption.ocr.common.CACHE_TESS_CONFIG
+import com.neo.caption.ocr.common.CacheableService
+import com.neo.caption.ocr.common.ErrorCodeEnum
 import com.neo.caption.ocr.common.TesseractProperties
 import com.neo.caption.ocr.common.languageSeparator
+import com.neo.caption.ocr.service.LoaderService
 import jakarta.annotation.PostConstruct
-import org.springframework.cache.annotation.CacheConfig
+import org.bytedeco.tesseract.TessBaseAPI
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.stereotype.Service
 import kotlin.jvm.optionals.getOrElse
 import kotlin.jvm.optionals.getOrNull
 
-@Slf4j
-@Service
-@CacheConfig(cacheNames = ["app::tess"])
+@CacheableService
 class AppTesseractService(
+    private val loaderService: LoaderService,
     private val tesseractProperties: TesseractProperties,
-    private val appTesseractConfigRepo: AppTesseractConfigRepo,
+    private val configRepo: AppTesseractConfigRepo,
+    private val vectorRepo: AppTesseractVectorRepo,
 ) {
 
+    private val apiMap: MutableMap<String, TessBaseAPI> = mutableMapOf()
+
     lateinit var appTesseractConfig: AppTesseractConfig
-        @Cacheable("option") get
+        @Cacheable(key = "'${CACHE_TESS_CONFIG}default'") get
 
     @PostConstruct
     private fun init() {
-        appTesseractConfig = appTesseractConfigRepo.findById(tesseractProperties.uuid)
+        appTesseractConfig = configRepo.findById(tesseractProperties.uuid)
             .getOrNull().takeIf { it != null }
-            ?: appTesseractConfigRepo.save(defaultConfig())
+            ?: configRepo.save(defaultConfig())
     }
 
-    @CachePut("option")
-    fun updateTesseractConfig(tesseractConfigDto: TesseractConfigDto): AppTesseractConfig {
-        val source = appTesseractConfigRepo.findById(tesseractProperties.uuid).getOrElse {
+    @CachePut(key = "'${CACHE_TESS_CONFIG}default'")
+    fun updateTesseractConfig(target: AppTesseractConfig): AppTesseractConfig {
+        val source = configRepo.findById(tesseractProperties.uuid).getOrElse {
             throw IllegalArgumentException("Tesseract not found by id (${tesseractProperties.uuid})")
         }
-        val mutableVectors = source.vectors.toMutableList()
-        val vectorKeys = source.vectors.map { it.key }
-        vectorKeys.forEach {
-            // remove deleted
-            if (it !in tesseractConfigDto.vectors.keys) {
-                mutableVectors.remove(source.vectors.first { i -> i.key == it })
-            }
+        return configRepo.save(target.copy(id = source.id)).apply {
+            val targetVectorKey = this.vectors.map { it.key }
+            source.vectors.filterNot { it.key in targetVectorKey }.map { it.key }
+                .run { vectorRepo.deleteByKeyIn(this) }
         }
-        tesseractConfigDto.vectors.forEach {
-            // add new
-            if (it.key !in vectorKeys) {
-                mutableVectors.add(AppTesseractVector(it.key, it.value))
-            }
-        }
-        val patched = AppTesseractConfig(
-            ocrEngineMode = tesseractConfigDto.selectedOcrEngineMode,
-            pageSegMode = tesseractConfigDto.selectedPageSegModeEnum,
-            language = tesseractConfigDto.selectedLanguage.joinToString(languageSeparator),
-            vectors = mutableVectors,
-            id = source.id
-        )
-        return appTesseractConfigRepo.save(patched)
     }
 
-    @CachePut("option")
+    @CachePut(key = "'${CACHE_TESS_CONFIG}default'")
     fun resetConfig() =
-        appTesseractConfigRepo.deleteById(tesseractProperties.uuid).let { appTesseractConfigRepo.save(defaultConfig()) }
+        configRepo.deleteById(tesseractProperties.uuid).let { configRepo.save(defaultConfig()) }
+
+    fun initialTessBaseApi(projectId: String, config: TesseractConfig): TessBaseAPI {
+        val api = TessBaseAPI()
+        api.Init(
+            loaderService.javacpp().tessdataDir,
+            config.language,
+            config.ocrEngineMode,
+            ByteArray(0),
+            config.vectorKey.size().toInt(),
+            config.vectorKey,
+            config.vectorValue,
+            true
+        )
+        apiMap[projectId] = api
+        return api
+    }
+
+    fun getTessBaseApi(projectId: String) =
+        apiMap[projectId] ?: throw BadRequestException(ErrorCodeEnum.INVALID_PARAMETER, "failed to invoke tesseract")
+
+    @CacheEvict(key = "'$CACHE_TESS_CONFIG' + #p0")
+    fun closeTessBaseApi(projectId: String) {
+        apiMap[projectId]?.run {
+            this.releaseReference()
+            apiMap.remove(projectId)
+        }
+    }
 
     private fun defaultConfig() = AppTesseractConfig(
         ocrEngineMode = tesseractProperties.ocrEngineMode,
@@ -70,4 +86,5 @@ class AppTesseractService(
         id = tesseractProperties.uuid
     )
 
+    // TODO: save each project config into database?
 }
