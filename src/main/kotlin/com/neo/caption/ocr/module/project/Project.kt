@@ -8,12 +8,11 @@ import com.neo.caption.ocr.domain.BaseDto
 import com.neo.caption.ocr.module.cv.CropRange
 import com.neo.caption.ocr.module.cv.CropRangeDto
 import com.neo.caption.ocr.module.tesseract.TesseractConfig
+import com.neo.caption.ocr.module.video.VideoInfo
 import org.opencv.core.Mat
 import org.springframework.core.convert.converter.Converter
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
-import java.math.MathContext
-import java.math.RoundingMode
 import java.nio.file.Path
 
 data class Project(
@@ -32,14 +31,7 @@ data class ProjectMetadata(
     val cropRange: CropRange,
     val chain: String, // TODO: dynamical chain
     val tesseractConfig: TesseractConfig,
-    val width: Int,
-    val height: Int,
-    val fps: Double,
-    val totalFrame: Int,
-    val frameDuration: BigDecimal = BigDecimal("1000").divide(
-        BigDecimal(fps.toString()),
-        MathContext(5, RoundingMode.HALF_EVEN)
-    )
+    val videoInfo: VideoInfo
 ) : BaseData
 
 data class ProjectMetadataDto(
@@ -74,7 +66,7 @@ class CaptionRowToCaptionRowDtoConverter(
     private val projectService: ProjectService
 ) : Converter<CaptionRow, CaptionRowDto> {
     override fun convert(source: CaptionRow): CaptionRowDto {
-        val frameDuration = projectService.projectMetadata(source.projectId).frameDuration
+        val frameDuration = projectService.projectMetadata(source.projectId).videoInfo.frameDuration
         return CaptionRowDto(
             start = source.start.let { if (it == 0) BigDecimal.ZERO else it.subtract(frameDuration) },
             end = source.end.add(frameDuration),
