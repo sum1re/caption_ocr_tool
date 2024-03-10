@@ -22,7 +22,7 @@ repositories {
     mavenLocal()
     mavenCentral()
 }
-
+val liteflowVersion = "2.11.3"
 dependencies {
     // bytedeco
     implementation(libs.bundles.bytedeco)
@@ -36,7 +36,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     runtimeOnly("com.h2database:h2")
     // liteflow
-    implementation("com.yomahub:liteflow-spring-boot-starter:2.11.3")
+    implementation("com.yomahub:liteflow-spring-boot-starter:$liteflowVersion")
+    implementation("com.yomahub:liteflow-el-builder:$liteflowVersion")
     // util
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
