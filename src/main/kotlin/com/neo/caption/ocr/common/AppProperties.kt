@@ -1,22 +1,9 @@
 package com.neo.caption.ocr.common
 
-import com.neo.caption.ocr.domain.BaseEntity
 import com.neo.caption.ocr.module.tesseract.OCREngineModeEnum
 import com.neo.caption.ocr.module.tesseract.PageSegModeEnum
 import org.springframework.boot.context.properties.ConfigurationProperties
 import java.util.UUID
-
-@ConfigurationProperties(prefix = "cocr.info")
-data class AppInfoProperties(
-    val artifact: String,
-    val group: String,
-    val name: String,
-    val appLicense: String,
-    val javaVersion: String,
-    val springBootVersion: String,
-    val version: String,
-    val buildTimestamp: String,
-) : BaseEntity
 
 @ConfigurationProperties(prefix = "cocr.cors")
 data class CorsProperties(

@@ -1,6 +1,5 @@
 package com.neo.caption.ocr.service
 
-import com.neo.caption.ocr.common.AppInfoProperties
 import com.neo.caption.ocr.common.Slf4j
 import com.neo.caption.ocr.common.Slf4j.Companion.log
 import org.bytedeco.javacpp.Loader
@@ -38,7 +37,6 @@ data class JavacppInformation(
 @Service
 @CacheConfig(cacheNames = ["system"])
 class LoaderService(
-    private val appInfoProperties: AppInfoProperties,
     private val serverProperties: ServerProperties,
 ) {
 
@@ -73,8 +71,6 @@ class LoaderService(
         log.error("Application will exit because failed loading javacpp library", it)
         exitProcess(-1)
     }
-
-    fun captionOCRTool(): AppInfoProperties = appInfoProperties
 
     private fun Class<*>.loading() {
         Loader.load(this)

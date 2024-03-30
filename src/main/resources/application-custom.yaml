@@ -1,13 +1,4 @@
 cocr:
-  info:
-    app-license: ${app.license}
-    artifact: ${project.artifactId}
-    build-timestamp: ${maven.build.timestamp}
-    group: ${project.groupId}
-    java-version: ${java.version}
-    name: ${project.name}
-    spring-boot-version: ${project.parent.version}
-    version: ${}
   cors:
     allowed-header:
       - '*'
