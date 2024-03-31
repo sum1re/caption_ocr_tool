@@ -6,6 +6,7 @@ import com.yomahub.liteflow.builder.el.ThenELWrapper
 import com.yomahub.liteflow.builder.el.WhenELWrapper
 import org.springframework.core.convert.converter.Converter
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 enum class NodeTypeEnum {
     COMMON, WHEN, IF, SWITCH, SUMMARY, START, END
@@ -229,7 +230,7 @@ class NodeToElConverter : Converter<BaseNode, String> {
     ): ThenELWrapper {
         when (this.type) {
             NodeTypeEnum.COMMON -> {
-                wrapper.then(this.name)
+                wrapper.then(this.wrap())
                 this.negativeNodeList.forEach {
                     it.toEl(wrapper, stack, doneSummary)
                 }
@@ -253,9 +254,9 @@ class NodeToElConverter : Converter<BaseNode, String> {
                 val trueElWrapper = ThenELWrapper()
                 val falseElWrapper = ThenELWrapper()
                 if (this.falseNode!!.type == NodeTypeEnum.SUMMARY) {
-                    wrapper.then(ELBus.ifOpt(this.name, trueElWrapper))
+                    wrapper.then(ELBus.ifOpt(this.wrap(), trueElWrapper))
                 } else {
-                    wrapper.then(ELBus.ifOpt(this.name, trueElWrapper, falseElWrapper))
+                    wrapper.then(ELBus.ifOpt(this.wrap(), trueElWrapper, falseElWrapper))
                 }
                 this.trueNode!!.toEl(trueElWrapper, stack, doneSummary)
                 this.falseNode!!.toEl(falseElWrapper, stack, doneSummary)
@@ -264,7 +265,7 @@ class NodeToElConverter : Converter<BaseNode, String> {
             NodeTypeEnum.SWITCH -> {
                 this as SwitchNode
                 stack.push(wrapper)
-                val switchWrapper = ELBus.switchOpt(this.name)!!
+                val switchWrapper = ELBus.switchOpt(this.wrap())!!
                 wrapper.then(switchWrapper)
                 this.tagMap.forEach {
                     val thenWrapper = ThenELWrapper().id(it.value)!!
@@ -289,4 +290,11 @@ class NodeToElConverter : Converter<BaseNode, String> {
     private fun <T> MutableList<T>.push(t: T) = this.add(0, t)
 
     private fun <T> MutableList<T>.pop() = this.removeFirst()
+
+    private fun <T : BaseNode> T.wrap() = ELBus.node(this.name).also {
+        if (this is BaseNodeWithData && this.data.isNotBlank()) it.data(randomDataName(this.name), this.data)
+    }
+
+    private fun randomDataName(prefix: String): String = "$prefix-${UUID.randomUUID().toString().substring(0, 8)}"
+
 }
