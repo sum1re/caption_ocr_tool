@@ -22,6 +22,10 @@ sealed interface BaseNode : BaseData {
     fun addNextNode(node: BaseNode) = negativeNodeList.add(node)
 }
 
+sealed interface BaseNodeWithData : BaseNode {
+    val data: String
+}
+
 data class EntityAxis(val x: Int, val y: Int) : BaseData
 
 data class Entity(
@@ -29,7 +33,8 @@ data class Entity(
     val name: String, // must be bean name or start or end
     val label: String = "", // used in frontend, empty is safe
     val nodeType: NodeTypeEnum,
-    val axis: EntityAxis = EntityAxis(0, 0) // used in frontend, (0,0) as default
+    val axis: EntityAxis = EntityAxis(0, 0), // used in frontend, (0,0) as default
+    val data: String = "" // used in flow component
 ) : BaseData {
     init {
         require(id.isNotBlank()) { "missing entity id" }
@@ -74,9 +79,10 @@ data class CommonNode(
     override val id: String,
     override val name: String,
     override val type: NodeTypeEnum = NodeTypeEnum.COMMON,
+    override val data: String,
     override val positiveNodeList: MutableList<BaseNode> = mutableListOf(),
     override val negativeNodeList: MutableList<BaseNode> = mutableListOf()
-) : BaseNode
+) : BaseNodeWithData
 
 data class WhenNode(
     override val id: String,
@@ -90,20 +96,22 @@ data class SwitchNode(
     override val id: String,
     override val name: String,
     override val type: NodeTypeEnum = NodeTypeEnum.SWITCH,
+    override val data: String,
     override val positiveNodeList: MutableList<BaseNode> = mutableListOf(),
     override val negativeNodeList: MutableList<BaseNode> = mutableListOf(),
     val tagMap: MutableMap<BaseNode, String> = mutableMapOf()
-) : BaseNode
+) : BaseNodeWithData
 
 data class IfNode(
     override val id: String,
     override val name: String,
     override val type: NodeTypeEnum = NodeTypeEnum.IF,
+    override val data: String,
     override val positiveNodeList: MutableList<BaseNode> = mutableListOf(),
     override val negativeNodeList: MutableList<BaseNode> = mutableListOf(),
     var trueNode: BaseNode? = null,
     var falseNode: BaseNode? = null
-) : BaseNode
+) : BaseNodeWithData
 
 data class SummaryNode(
     override val id: String,
@@ -158,10 +166,10 @@ class AstModelToNodeConverter : Converter<AstModel, BaseNode> {
         // converter
         val nodeMap = source.entityList.associate {
             it.id to when (it.nodeType) {
-                NodeTypeEnum.COMMON -> CommonNode(it.id, it.name)
+                NodeTypeEnum.COMMON -> CommonNode(it.id, it.name, data = it.data)
                 NodeTypeEnum.WHEN -> WhenNode(it.id, it.name)
-                NodeTypeEnum.IF -> IfNode(it.id, it.name)
-                NodeTypeEnum.SWITCH -> SwitchNode(it.id, it.name)
+                NodeTypeEnum.IF -> IfNode(it.id, it.name, data = it.data)
+                NodeTypeEnum.SWITCH -> SwitchNode(it.id, it.name, data = it.data)
                 NodeTypeEnum.SUMMARY -> SummaryNode(it.id, it.name)
                 NodeTypeEnum.START -> StartNode(it.id, it.name)
                 NodeTypeEnum.END -> EndNode(it.id, it.name)
