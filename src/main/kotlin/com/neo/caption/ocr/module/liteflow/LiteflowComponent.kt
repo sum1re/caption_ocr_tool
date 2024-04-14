@@ -1,29 +1,62 @@
-package com.neo.caption.ocr.module.cv
+package com.neo.caption.ocr.module.liteflow
 
+import com.neo.caption.ocr.module.cv.AdaptiveBinarization
+import com.neo.caption.ocr.module.cv.BilateralFilter
+import com.neo.caption.ocr.module.cv.BoxFilter
+import com.neo.caption.ocr.module.cv.CropRange
+import com.neo.caption.ocr.module.cv.FixedBinarization
+import com.neo.caption.ocr.module.cv.GaussianBlur
+import com.neo.caption.ocr.module.cv.HLSRange
+import com.neo.caption.ocr.module.cv.HSVRange
+import com.neo.caption.ocr.module.cv.Morphology
+import com.neo.caption.ocr.module.cv.SingleIntParam
+import com.neo.caption.ocr.module.cv.adaptiveBinarization
+import com.neo.caption.ocr.module.cv.bilateralFilter
+import com.neo.caption.ocr.module.cv.boxFilter
+import com.neo.caption.ocr.module.cv.crop
+import com.neo.caption.ocr.module.cv.cvtColor
+import com.neo.caption.ocr.module.cv.cvtType
+import com.neo.caption.ocr.module.cv.equalizeHist
+import com.neo.caption.ocr.module.cv.fixedBinarization
+import com.neo.caption.ocr.module.cv.gaussianBlur
+import com.neo.caption.ocr.module.cv.inRange
+import com.neo.caption.ocr.module.cv.medianBlur
+import com.neo.caption.ocr.module.cv.morphology
 import com.yomahub.liteflow.annotation.LiteflowComponent
+import com.yomahub.liteflow.core.NodeBreakComponent
 import com.yomahub.liteflow.core.NodeComponent
 import org.opencv.core.Mat
+import org.opencv.videoio.VideoCapture
 import kotlin.reflect.KClass
 
+sealed interface BaseContext
+
 data class CvContext(
-    val originMat: Mat, // initial by flow executor
-    var nextMat: Mat = originMat.clone(), // consume by each NodeComponent,
-    val matHistory: MutableList<Mat> = mutableListOf(originMat.clone()) // store history
-) {
+    val matStack: MutableList<Mat> // store history
+) : BaseContext {
     fun produce(action: Mat.() -> Any) {
-        when (val result = action(nextMat.clone())) {
-            is Mat -> nextMat = result // action returns Mat, just set nextMat to it
-            is Unit -> {} // action returns Unit, meaning that the operation occurs directly on nextMat without manipulation.
+        val copy = matStack.last().clone()!!
+        when (val result = action(copy)) {
+            is Mat -> matStack.add(result) // action returns Mat, add result to stack.
+            is Unit -> matStack.add(copy) // action returns Unit, add copy to stack.
         }
-        matHistory.add(nextMat.clone())
     }
 
     fun release() {
-        originMat.release()
-        nextMat.release()
-        matHistory.forEach { it.release() }
-        matHistory.clear()
+        matStack.forEach { it.release() }
+        matStack.clear()
     }
+}
+
+data class ProjectContext(
+    val projectId: String,
+    val videoCaption: VideoCapture,
+    val filteredMat: MutableList<Mat>,
+) : BaseContext
+
+@LiteflowComponent
+class BreakNode : NodeBreakComponent() {
+    override fun processBreak() = false
 }
 
 abstract class CvComponent<T : Any, R : Any> : NodeComponent() {
@@ -37,12 +70,7 @@ abstract class CvComponent<T : Any, R : Any> : NodeComponent() {
     }
 
     override fun process() {
-        context().produce(action)
-    }
-
-    override fun afterProcess() {
-        super.afterProcess()
-        context().release()
+        context<CvContext>().produce(action)
     }
 }
 
@@ -143,5 +171,3 @@ class EqualizeComponent : CvComponent<SingleIntParam, Unit>() {
 }
 
 // TODO: add flow for arithmetic operation
-
-private fun NodeComponent.context(): CvContext = this.getContextBean(CvContext::class.java)
