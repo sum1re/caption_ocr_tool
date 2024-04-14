@@ -1,5 +1,7 @@
 package com.neo.caption.ocr.module.liteflow
 
+import com.neo.caption.ocr.common.ErrorCodeEnum
+import com.neo.caption.ocr.common.throwLiteFlowException
 import com.neo.caption.ocr.module.cv.AdaptiveBinarization
 import com.neo.caption.ocr.module.cv.BilateralFilter
 import com.neo.caption.ocr.module.cv.BoxFilter
@@ -22,11 +24,17 @@ import com.neo.caption.ocr.module.cv.gaussianBlur
 import com.neo.caption.ocr.module.cv.inRange
 import com.neo.caption.ocr.module.cv.medianBlur
 import com.neo.caption.ocr.module.cv.morphology
+import com.neo.caption.ocr.module.file.FileService
+import com.neo.caption.ocr.module.project.ProjectService
 import com.yomahub.liteflow.annotation.LiteflowComponent
 import com.yomahub.liteflow.core.NodeBreakComponent
 import com.yomahub.liteflow.core.NodeComponent
+import com.yomahub.liteflow.core.NodeIfComponent
+import com.yomahub.liteflow.core.NodeWhileComponent
 import org.opencv.core.Mat
 import org.opencv.videoio.VideoCapture
+import org.opencv.videoio.Videoio
+import kotlin.io.path.absolutePathString
 import kotlin.reflect.KClass
 
 sealed interface BaseContext
@@ -171,3 +179,66 @@ class EqualizeComponent : CvComponent<SingleIntParam, Unit>() {
 }
 
 // TODO: add flow for arithmetic operation
+
+@LiteflowComponent("startProject")
+class StartProjectComponent(
+    private val fileService: FileService
+) : NodeComponent() {
+    override fun process() {
+        val context = context<ProjectContext>()
+        val file = fileService.findVideoFile(context.projectId).absolutePathString()
+        context.videoCaption.open(file)
+        require(context.videoCaption.isOpened) { throwLiteFlowException(ErrorCodeEnum.VIDEO_READ_ERROR) }
+        context.videoCaption.set(Videoio.CAP_PROP_POS_FRAMES, 0.0)
+    }
+}
+
+@LiteflowComponent("finishProject")
+class FinishProjectComponent(private val projectService: ProjectService) : NodeComponent() {
+    override fun process() {
+        context<ProjectContext>().let {
+            it.videoCaption.release()
+            projectService.closeProject(it.projectId)
+        }
+    }
+
+    override fun isAccess(): Boolean {
+        return context<ProjectContext>().videoCaption.isOpened
+    }
+}
+
+@LiteflowComponent("filter")
+class FilterComponent : NodeWhileComponent() {
+    override fun processWhile(): Boolean {
+        val cvContext = context<CvContext>()
+        cvContext.release()
+        val projectContext = context<ProjectContext>()
+        val result = projectContext.videoCaption.grab()
+        if (result) {
+            val mat = Mat()
+            projectContext.videoCaption.retrieve(Mat())
+            cvContext.matStack.add(mat)
+        }
+        return result
+    }
+}
+
+@LiteflowComponent("checkMatChannel")
+class CheckMatChannelComponent : NodeIfComponent() {
+    override fun processIf(): Boolean {
+        require(context<CvContext>().matStack.last().channels() == 1) {
+            throwLiteFlowException(ErrorCodeEnum.INVALID_MAT_CHANNEL)
+        }
+        return true
+    }
+
+}
+
+@LiteflowComponent("saveMat")
+class SaveMatComponent(private val fileService: FileService) : NodeComponent() {
+    override fun process() {
+        val projectContext = context<ProjectContext>()
+        val cvContext = context<CvContext>()
+        fileService.saveMat(projectContext.projectId, cvContext.matStack.size, cvContext.matStack.last())
+    }
+}

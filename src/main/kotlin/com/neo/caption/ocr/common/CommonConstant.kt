@@ -1,5 +1,7 @@
 package com.neo.caption.ocr.common
 
+import com.neo.caption.ocr.domain.ErrorRest
+import com.neo.caption.ocr.domain.RestErrorVo
 import org.springframework.http.HttpStatus
 
 const val languageSeparator: String = "+"
@@ -17,6 +19,7 @@ enum class ErrorCodeEnum(val code: Int, val message: String, val httpStatus: Htt
     ACCESS_DENIED(1007, "You do not have permission to access", HttpStatus.FORBIDDEN),
     INVALID_URL(1008, "404", HttpStatus.NOT_FOUND),
     INVALID_PARAMETER(1034, "invalid param", HttpStatus.BAD_REQUEST),
+    INVALID_MAT_CHANNEL(1035, "invalid channel", HttpStatus.BAD_REQUEST),
     FILE_UPLOAD_FAILED(1200, "file is broken", HttpStatus.BAD_REQUEST),
     VIDEO_NOT_FOUND(1201, "video file not found", HttpStatus.BAD_REQUEST),
     DEFAULT_BAD_REQUEST(1999, "default error", HttpStatus.BAD_REQUEST),
@@ -32,6 +35,6 @@ enum class ErrorCodeEnum(val code: Int, val message: String, val httpStatus: Htt
     UNKNOWN_ERROR(10999, "issue to sum1re/caption_ocr_tool", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
-    //fun toResponse(message: String = this.message): ErrorRest = ErrorRest(RestErrorVo(this.code, message))
+    fun toResponse(message: String = this.message): ErrorRest = ErrorRest(RestErrorVo(this.code, message))
 
 }
