@@ -1,4 +1,4 @@
-package com.neo.caption.ocr.handler
+package com.neo.caption.ocr.common
 
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JsonSerializer

@@ -1,7 +1,6 @@
 package com.neo.caption.ocr.common
 
 import com.neo.caption.ocr.common.Slf4j.Companion.log
-import com.neo.caption.ocr.constant.ErrorCodeEnum
 import com.neo.caption.ocr.domain.ErrorRest
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler
 import org.springframework.cache.Cache
