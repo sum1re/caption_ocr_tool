@@ -41,3 +41,19 @@ private fun Page<*>.toPagination() =
         totalCount = this.totalElements,
         totalPage = this.totalPages
     )
+
+inline fun <T, R : Comparable<R>> Collection<T>.findMinBy(crossinline selector: (T) -> R): T? {
+    if (this.isEmpty()) return null
+    return this.sortedWith(compareBy(selector)).first()
+}
+
+inline fun <T, R : Comparable<R>> Collection<T>.findMaxBy(crossinline selector: (T) -> R): T? {
+    if (this.isEmpty()) return null
+    return this.sortedWith(compareByDescending(selector)).first()
+}
+
+inline fun <T, R : Comparable<R>> Collection<T>.findMidBy(crossinline selector: (T) -> R): T? {
+    if (this.isEmpty()) return null
+    val index = if (this.size % 2 == 0) this.size / 2 else this.size / 2 + 1
+    return this.sortedWith(compareBy(selector))[index]
+}
