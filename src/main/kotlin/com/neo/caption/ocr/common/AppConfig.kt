@@ -59,3 +59,7 @@ class MvcConfig : WebMvcConfigurer {
             .addResourceLocations("/resources/", "file:${System.getProperty("java.io.tmpdir")}")
     }
 }
+
+@Configuration
+@Import(ExposedAutoConfiguration::class)
+class ExposedConfig
