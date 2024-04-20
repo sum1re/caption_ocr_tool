@@ -53,10 +53,12 @@ class WebConfig(
 
 @Configuration
 @EnableWebMvc
-class MvcConfig : WebMvcConfigurer {
+class MvcConfig(
+    private val commonProperties: CommonProperties,
+) : WebMvcConfigurer {
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
         registry.addResourceHandler("/**")
-            .addResourceLocations("/resources/", "file:${System.getProperty("java.io.tmpdir")}")
+            .addResourceLocations("/resources/", "file:${commonProperties.workingDirectory}/")
     }
 }
 
