@@ -1,7 +1,7 @@
 package com.neo.caption.ocr.common
 
 import com.neo.caption.ocr.common.Slf4j.Companion.log
-import com.neo.caption.ocr.domain.ErrorRest
+import com.neo.caption.ocr.domain.ErrorResponse
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler
 import org.springframework.cache.Cache
 import org.springframework.cache.interceptor.CacheErrorHandler
@@ -50,7 +50,7 @@ class RestExceptionHandler {
         code: ErrorCodeEnum,
         message: String = code.message,
         status: HttpStatus = HttpStatus.BAD_REQUEST
-    ): ResponseEntity<ErrorRest> {
+    ): ResponseEntity<ErrorResponse> {
         this.printStackTrace()
         return ResponseEntity(code.toResponse(message), status)
     }
