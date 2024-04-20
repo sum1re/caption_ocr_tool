@@ -1,13 +1,14 @@
 package com.neo.caption.ocr.common
 
-import com.neo.caption.ocr.domain.ErrorRest
-import com.neo.caption.ocr.domain.RestErrorVo
+import com.neo.caption.ocr.domain.CommonError
+import com.neo.caption.ocr.domain.ErrorResponse
 import org.springframework.http.HttpStatus
 
 const val languageSeparator: String = "+"
-const val CACHE_TESS_CONFIG = "tess-option:"
-const val CACHE_PROJECT = "project:"
-const val TEMP_DIR_PREFIX = "cocr_"
+const val CHUNK_PREFIX = "chunk"
+const val MAT_EXTENSION = "webp"
+const val COCR_PROJECT_CHAIN = "cocrProjectFlow"
+const val COCR_BATCH_OCR_CHAIN = "cocrBatchOcrFlow"
 
 enum class ErrorCodeEnum(val code: Int, val message: String, val httpStatus: HttpStatus) {
 
@@ -35,6 +36,6 @@ enum class ErrorCodeEnum(val code: Int, val message: String, val httpStatus: Htt
     UNKNOWN_ERROR(10999, "issue to sum1re/caption_ocr_tool", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
-    fun toResponse(message: String = this.message): ErrorRest = ErrorRest(RestErrorVo(this.code, message))
+    fun toResponse(message: String = this.message): ErrorResponse = ErrorResponse(CommonError(this.code, message))
 
 }
