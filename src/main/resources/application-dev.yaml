@@ -1,5 +1,3 @@
-logging:
-  config: classpath:logback/logback-spring-dev.xml
 spring:
   exposed:
     show-sql: true
