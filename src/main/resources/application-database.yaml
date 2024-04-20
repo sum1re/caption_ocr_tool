@@ -1,13 +1,11 @@
 spring:
-  jpa:
-    database: h2
-    database-platform: org.hibernate.dialect.H2Dialect
-    show-sql: false
   datasource:
-    url: jdbc:h2:file:/data/data.db
+    url: jdbc:h2:file:./data/cocr
     username: sa
     password: passwd
     driver-class-name: org.h2.Driver
   h2:
     console:
       enabled: false
+  exposed:
+    show-sql: false

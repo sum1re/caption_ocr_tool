@@ -1,10 +1,5 @@
 logging:
   config: classpath:logback/logback-spring-dev.xml
 spring:
-  jpa:
+  exposed:
     show-sql: true
-  h2:
-    console:
-      enabled: true
-      settings:
-        web-allow-others: false

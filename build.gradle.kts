@@ -23,6 +23,7 @@ repositories {
     mavenCentral()
 }
 val liteflowVersion = "2.11.3"
+val exposedVersion = "0.49.0"
 dependencies {
     // bytedeco
     implementation(libs.bundles.bytedeco)
@@ -33,7 +34,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     // jpa
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.jetbrains.exposed:exposed-spring-boot-starter:$exposedVersion")
     runtimeOnly("com.h2database:h2")
     // liteflow
     implementation("com.yomahub:liteflow-spring-boot-starter:$liteflowVersion")
@@ -45,6 +46,7 @@ dependencies {
     implementation("com.appmattus.crypto:cryptohash:0.10.1")
     // dev
     developmentOnly("org.springframework.boot:spring-boot-devtools")
+    developmentOnly("org.springframework.boot:spring-boot-starter-actuator")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

@@ -37,3 +37,8 @@ logging:
       max-history: 7
       max-file-size: 4096KB
       file-name-pattern: ${cocr.dir}/logs/%d{yyyy-MM-dd}.%i.log
+
+liteflow:
+  enable: true
+  parse-on-start: true
+  print-banner: false
