@@ -3,6 +3,11 @@ package com.neo.caption.ocr.common
 import com.neo.caption.ocr.module.tesseract.OCREngineModeEnum
 import com.neo.caption.ocr.module.tesseract.PageSegModeEnum
 import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.ConfigurationPropertiesBinding
+import org.springframework.core.convert.converter.Converter
+import org.springframework.stereotype.Component
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.UUID
 
 @ConfigurationProperties(prefix = "cocr.cors")
@@ -34,4 +39,15 @@ data class TesseractProperties(
         vectors.forEach { this[it.name] = it.value }
     }
 
+}
+
+@ConfigurationProperties(prefix = "cocr.common")
+data class CommonProperties(
+    val workingDirectory: Path = Paths.get(System.getProperty("user.home"), "cocr")
+)
+
+@Component
+@ConfigurationPropertiesBinding
+class StringToPathConverter : Converter<String, Path> {
+    override fun convert(source: String): Path = Paths.get(source)
 }
