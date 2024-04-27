@@ -4,7 +4,6 @@ import com.appmattus.crypto.Algorithm
 import com.neo.caption.ocr.common.BadRequestException
 import com.neo.caption.ocr.common.ErrorCodeEnum
 import com.neo.caption.ocr.common.Slf4j
-import com.neo.caption.ocr.common.TEMP_DIR_PREFIX
 import com.neo.caption.ocr.module.cv.toEncodeByteArray
 import org.opencv.core.Mat
 import org.springframework.stereotype.Service
@@ -27,9 +26,12 @@ import kotlin.io.path.walk
 class FileService {
 
     /**
-     * Create temp directory and it will be deleted after application exited
+     * Saves the contents of an [InputStream] to a specified path.
      *
-     * @return folder name, example: cocr_3691603552712666795
+     * @param savedPath The path where the file should be saved.
+     * @param inputStream The input stream containing the data to be saved.
+     *
+     * @return The [XXHash3-64](https://xxhash.com) checksum of the saved file.
      */
     fun saveInputStream(savedPath: Path, inputStream: InputStream): String {
         return savedPath.outputStream(
@@ -42,7 +44,13 @@ class FileService {
     }
 
     /**
-     * Save chunk to working directory
+     * Saves a [Mat] object (image) to a specified path.
+     *
+     * @param savedPath The path where the image should be saved.
+     * @param mat The Mat object containing the image data.
+     * @param quality The desired image quality (default is 80).
+     *
+     * @see [toEncodeByteArray]
      */
     fun saveMat(savedPath: Path, mat: Mat, quality: Int = 80) {
         Files.write(
