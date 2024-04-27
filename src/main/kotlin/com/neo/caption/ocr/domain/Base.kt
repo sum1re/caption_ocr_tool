@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 
 interface BaseData
 interface BaseDto : BaseData
-interface BaseEntity : BaseData
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class RestVo<T>(
