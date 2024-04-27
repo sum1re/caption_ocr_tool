@@ -16,6 +16,7 @@ import java.nio.file.StandardOpenOption
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.PathWalkOption
 import kotlin.io.path.deleteIfExists
+import kotlin.io.path.extension
 import kotlin.io.path.isDirectory
 import kotlin.io.path.outputStream
 import kotlin.io.path.readBytes
@@ -51,21 +52,23 @@ class FileService {
             .also { it.toFile().deleteOnExit() }
         uploadChunk.multipartFile.transferTo(savedPath)
     }
-
-    fun saveMat(projectId: String, index: Int, mat: Mat) {
-        val savedPath = getWorkingDirectory(projectId)
-            .resolve("$index.webp")
-        Files.write(savedPath, mat.toEncodeByteArray(quality = 50)).toFile().deleteOnExit()
+    fun saveMat(savedPath: Path, mat: Mat, quality: Int = 80) {
+        Files.write(
+            savedPath,
+            mat.toEncodeByteArray(ext = ".${savedPath.extension}", quality = quality),
+            StandardOpenOption.CREATE,
+            StandardOpenOption.WRITE,
+            StandardOpenOption.TRUNCATE_EXISTING
+        )
     }
 
     /**
      * Combine chunks with the gaven directory
      */
     @OptIn(ExperimentalPathApi::class)
-    fun combineChunk(workingDirectory: Path, extension: String, checksum: String) {
-        val savedPath = workingDirectory.resolve("video.$extension")
-        val chunkSequence = workingDirectory.walk(PathWalkOption.BREADTH_FIRST)
-            .filter { !it.isDirectory() && it.name.startsWith("chunk") }
+    fun combineChunk(chunkDirectory: Path, chunkExtension: String, savedPath: Path, checksum: String): Path {
+        val chunkSequence = chunkDirectory.walk(PathWalkOption.BREADTH_FIRST)
+            .filter { !it.isDirectory() && it.extension == chunkExtension }
             .sorted()
         FileChannel.open(savedPath, StandardOpenOption.CREATE, StandardOpenOption.APPEND).use { savedChannel ->
             var start: Long = 0
@@ -73,7 +76,6 @@ class FileService {
                 FileChannel.open(chunk).use {
                     savedChannel.transferFrom(it, start, it.size())
                     start += it.size()
-                    chunk.deleteIfExists()
                 }
             }
         }
@@ -82,7 +84,8 @@ class FileService {
             savedPath.deleteIfExists()
             throw BadRequestException(ErrorCodeEnum.FILE_COMBINE_FAILED_ERROR)
         }
-        savedPath.toFile().deleteOnExit()
+        chunkSequence.forEach { it.deleteIfExists() }
+        return savedPath
     }
 
     /**
