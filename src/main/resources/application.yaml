@@ -12,6 +12,7 @@ spring:
     include:
       - custom
       - database
+    active: prod
   mvc:
     converters:
       preferred-json-mapper: jackson
@@ -27,9 +28,9 @@ spring:
   aop:
     auto: true
     proxy-target-class: true
-
-logging:
-  config: classpath:logback/logback-spring.xml
+  servlet:
+    multipart:
+      enabled: false
   pattern:
     dateformat: dd-MM-yyyy HH:mm:ss.SSS
   logback:
