@@ -4,10 +4,9 @@ import com.neo.caption.ocr.common.CommonService
 import com.neo.caption.ocr.common.Slf4j.Companion.log
 import org.bytedeco.javacpp.Loader
 import org.springframework.boot.autoconfigure.web.ServerProperties
-import org.springframework.cache.annotation.CacheConfig
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.scheduling.annotation.Async
-import org.springframework.stereotype.Service
+import java.net.Inet4Address
 import java.nio.file.Files
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -47,7 +46,7 @@ class LoaderService(
         chips = Loader.totalChips(),
         core = Loader.totalCores(),
         processors = Loader.totalProcessors(),
-        ip = serverProperties.address.hostAddress,
+        ip = Inet4Address.getLocalHost().hostAddress ?: "127.0.0.1",
         port = serverProperties.port
     )
 
@@ -64,7 +63,7 @@ class LoaderService(
             } ?: emptyList()
         )
     }.getOrElse {
-        log.error("Application will exit because failed loading javacpp library", it)
+        log.error(it) { "Application will exit because failed loading javacpp library" }
         exitProcess(-1)
     }
 
