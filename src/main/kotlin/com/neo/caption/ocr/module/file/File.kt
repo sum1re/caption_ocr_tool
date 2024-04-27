@@ -4,7 +4,6 @@ import com.neo.caption.ocr.domain.BaseData
 import com.neo.caption.ocr.domain.BaseDto
 import org.springframework.core.convert.converter.Converter
 import org.springframework.stereotype.Component
-import org.springframework.web.multipart.MultipartFile
 
 data class FileChecksum(
     val name: String,
@@ -18,12 +17,6 @@ data class FileChecksumDto(
     val hash: String,
     val size: Long
 ) : BaseDto
-
-data class UploadChunk(
-    val projectId: String,
-    val multipartFile: MultipartFile,
-    val chunkIndex: Int
-)
 
 @Component
 class FileChecksumDtoToFileChecksumConverter : Converter<FileChecksumDto, FileChecksum> {
