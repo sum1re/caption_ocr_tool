@@ -8,6 +8,7 @@ import com.neo.caption.ocr.common.TEMP_DIR_PREFIX
 import com.neo.caption.ocr.module.cv.toEncodeByteArray
 import org.opencv.core.Mat
 import org.springframework.stereotype.Service
+import java.io.InputStream
 import java.nio.channels.FileChannel
 import java.nio.file.Files
 import java.nio.file.Path
@@ -16,7 +17,7 @@ import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.PathWalkOption
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.isDirectory
-import kotlin.io.path.name
+import kotlin.io.path.outputStream
 import kotlin.io.path.readBytes
 import kotlin.io.path.walk
 
@@ -31,6 +32,14 @@ class FileService {
      */
     fun createWorkingDirectory(): Path = Files.createTempDirectory(TEMP_DIR_PREFIX).also {
         it.toFile().deleteOnExit()
+    fun saveInputStream(savedPath: Path, inputStream: InputStream): String {
+        return savedPath.outputStream(
+            StandardOpenOption.CREATE,
+            StandardOpenOption.WRITE,
+            StandardOpenOption.TRUNCATE_EXISTING
+        )
+            .use { inputStream.copyTo(it) }
+            .let { savedPath.calcXXHash3() }
     }
 
     /**
