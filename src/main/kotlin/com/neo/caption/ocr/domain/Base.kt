@@ -6,19 +6,19 @@ interface BaseData
 interface BaseDto : BaseData
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class RestVo<T>(
+data class CommonResponse<T>(
     val success: Boolean,
-    val errors: List<RestErrorVo>,
+    val errors: List<CommonError>,
     val result: T?,
-    val resultInfo: RestPageVo?
+    val resultInfo: CommonPagination?
 ) {
     constructor(result: T) : this(true, emptyList(), result, null)
-    constructor(result: T, resultInfo: RestPageVo) : this(true, emptyList(), result, resultInfo)
-    constructor(error: RestErrorVo, vararg errors: RestErrorVo) : this(false, listOf(error, *errors), null, null)
+    constructor(result: T, resultInfo: CommonPagination) : this(true, emptyList(), result, resultInfo)
+    constructor(error: CommonError, vararg errors: CommonError) : this(false, listOf(error, *errors), null, null)
 }
 
-data class RestErrorVo(val code: Int, val message: String)
+data class CommonError(val code: Int, val message: String)
 
-data class RestPageVo(val count: Int, val size: Int, val totalPage: Int, val totalElements: Long)
+data class CommonPagination(val count: Int, val page: Int, val perPage: Int, val totalCount: Long, val totalPage: Int)
 
-typealias ErrorRest = RestVo<Unit>
+typealias ErrorResponse = CommonResponse<Unit>
