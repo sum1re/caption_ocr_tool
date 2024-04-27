@@ -31,8 +31,6 @@ class FileService {
      *
      * @return folder name, example: cocr_3691603552712666795
      */
-    fun createWorkingDirectory(): Path = Files.createTempDirectory(TEMP_DIR_PREFIX).also {
-        it.toFile().deleteOnExit()
     fun saveInputStream(savedPath: Path, inputStream: InputStream): String {
         return savedPath.outputStream(
             StandardOpenOption.CREATE,
@@ -46,12 +44,6 @@ class FileService {
     /**
      * Save chunk to working directory
      */
-    fun saveChunk(uploadChunk: UploadChunk) {
-        val savedPath = getWorkingDirectory(uploadChunk.projectId)
-            .resolve("chunk.${uploadChunk.chunkIndex.toString().padStart(5, '0')}")
-            .also { it.toFile().deleteOnExit() }
-        uploadChunk.multipartFile.transferTo(savedPath)
-    }
     fun saveMat(savedPath: Path, mat: Mat, quality: Int = 80) {
         Files.write(
             savedPath,
@@ -87,26 +79,6 @@ class FileService {
         chunkSequence.forEach { it.deleteIfExists() }
         return savedPath
     }
-
-    /**
-     * Find and return the video file.
-     */
-    fun findVideoFile(projectId: String): Path =
-        Files.find(getWorkingDirectory(projectId), 1, { path, _ -> path.name.startsWith("video.") })
-            .findFirst()
-            .orElseThrow { BadRequestException(ErrorCodeEnum.VIDEO_NOT_FOUND) }
-
-    fun deleteMat(projectId: String, index: Int) {
-        Files.deleteIfExists(getWorkingDirectory(projectId).resolve("$index.webp"))
-    }
-
-    /**
-     * Return the working dir
-     * windows: %tmp%/cocr_xxx
-     * linux: /tmp/cocr_xxx
-     */
-    private fun getWorkingDirectory(projectId: String): Path =
-        Path.of(System.getProperty("java.io.tmpdir")).resolve("$TEMP_DIR_PREFIX/$projectId")
 
     @OptIn(ExperimentalStdlibApi::class)
     private fun Path.calcXXHash3() = this.readBytes().let { Algorithm.XXH3_64().hash(it).toHexString() }
