@@ -1,6 +1,6 @@
 package com.neo.caption.ocr.service
 
-import com.neo.caption.ocr.common.Slf4j
+import com.neo.caption.ocr.common.CommonService
 import com.neo.caption.ocr.common.Slf4j.Companion.log
 import org.bytedeco.javacpp.Loader
 import org.springframework.boot.autoconfigure.web.ServerProperties
@@ -33,9 +33,7 @@ data class JavacppInformation(
     val supportedLanguage: List<String>,
 )
 
-@Slf4j
-@Service
-@CacheConfig(cacheNames = ["system"])
+@CommonService
 class LoaderService(
     private val serverProperties: ServerProperties,
 ) {
@@ -43,8 +41,7 @@ class LoaderService(
     @Async
     fun loadLib(vararg classes: Class<*>): Unit = classes.forEach { it.loading() }
 
-    @Async
-    @Cacheable("information")
+    @Cacheable(key = "'system:information'")
     fun systemInformation(): SystemInformation = SystemInformation(
         platform = Loader.getPlatform(),
         chips = Loader.totalChips(),
@@ -54,8 +51,7 @@ class LoaderService(
         port = serverProperties.port
     )
 
-    @Async
-    @Cacheable("javacpp")
+    @Cacheable(key = "'system:javacpp'")
     fun javacpp(): JavacppInformation = runCatching {
         val tessdataPath = Path("lib", "tessdata")
         JavacppInformation(

@@ -2,9 +2,11 @@ package com.neo.caption.ocr.common
 
 import io.github.oshai.KLogger
 import io.github.oshai.KotlinLogging
+import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.springframework.cache.annotation.CacheConfig
 import org.springframework.core.annotation.AliasFor
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -35,4 +37,5 @@ annotation class Slf4j {
 @Slf4j
 @Service
 @CacheConfig(cacheNames = ["cocr"])
-annotation class CacheableService
+@Transactional(rollbackFor = [ExposedSQLException::class])
+annotation class CommonService
