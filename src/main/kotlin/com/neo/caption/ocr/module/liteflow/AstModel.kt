@@ -3,43 +3,64 @@ package com.neo.caption.ocr.module.liteflow
 import com.neo.caption.ocr.domain.BaseData
 import org.springframework.core.convert.converter.Converter
 import org.springframework.stereotype.Component
+import java.time.Instant
+import java.util.UUID
 
-data class EntityAxis(val x: Int, val y: Int) : BaseData
-
-data class Entity(
-    val id: String, // must be a unique id or start or end
-    val name: String, // must be bean name or start or end
-    val label: String = "", // used in frontend, empty is safe
-    val nodeType: NodeTypeEnum,
-    val axis: EntityAxis = EntityAxis(0, 0), // used in frontend, (0,0) as default
-    val data: String = "" // used in flow component
-) : BaseData {
-    init {
-        require(id.isNotBlank()) { "missing entity id" }
-        require(name.isNotBlank()) { "missing entity name" }
-    }
+object AstModelTable : UUIDTable("AST_MODEL") {
+    val friendlyName = varchar("FRIENDLY_NAME", 255).uniqueIndex()
+    val createdAt = long("CREATED_AT").clientDefault { Instant.now().epochSecond }
 }
 
-data class Edge(
-    val source: String, // source entity id or start or end
-    val target: String, // target entity id or start or end
-    val ifFlag: Boolean?, // only for IfNode
-    val switchTag: String? // only for SwitchNode
-) : BaseData {
-    init {
-        require(source.isNotBlank()) { "edge require a source entity" }
-        require(target.isNotBlank()) { "edge require a target entity" }
-    }
+object AstEntityTable : UUIDTable("AST_ENTITY") {
+    val astModelId = uuid("AST_MODEL_ID")
+    val name = varchar("BEAN_NAME", 255)
+    val label = varchar("ENTITY_LABEL", 255)
+    val entityType = customEnumeration(
+        name = "ENTITY_TYPE",
+        sql = "ENUM(${EntityTypeEnum.entries.joinToString(",") { "'$it'" }})",
+        fromDb = { EntityTypeEnum.valueOf(it as String) },
+        toDb = { it.name }
+    )
+    val x = integer("GRAPH_X").default(0)
+    val y = integer("GRAPH_Y").default(0)
+    val data = text("NODE_DATA").nullable()
+}
+
+object AstEdgeTable : UUIDTable("AST_EDGE") {
+    val astModelId = uuid("AST_MODEL_ID")
+    val sourceId = uuid("SOURCE_ENTITY_ID")
+    val targetId = uuid("TARGET_ENTITY_ID")
+    val ifFlag = bool("IF_FLAG").nullable()
+    val switchTag = varchar("SWITCH_TAG", 255).nullable()
 }
 
 data class AstModel(
-    val entityList: List<Entity>,
-    val edgeList: List<Edge>,
+    val id: UUID = UUID(0, 0),
+    val friendlyName: String,
+    val entityList: List<AstEntity>,
+    val edgeList: List<AstEdge>,
+) : BaseData
+
+data class AstEntity(
+    val id: UUID,
+    val name: String,
+    val label: String,
+    val entityType: EntityTypeEnum,
+    val x: Int,
+    val y: Int,
+    val data: String?,
+) : BaseData
+
+data class AstEdge(
+    val source: UUID,
+    val target: UUID,
+    val ifFlag: Boolean? = null,
+    val switchTag: String? = null,
 ) : BaseData
 
 @Component
-class AstModelToNodeConverter : Converter<AstModel, BaseNode> {
-    override fun convert(source: AstModel): BaseNode {
+class AstModelToNodeConverter : Converter<AstModel, BaseEntity> {
+    override fun convert(source: AstModel): BaseEntity {
         // check AstModel
         require(source.entityList.isNotEmpty()) { "The node cannot be empty" }
         source.entityList.map { it.id }.toSortedSet().run {
@@ -52,14 +73,14 @@ class AstModelToNodeConverter : Converter<AstModel, BaseNode> {
         var endNodeCount = 0
         var summaryNodeCount = 0
         source.entityList.forEach { entity ->
-            when (entity.nodeType) {
-                NodeTypeEnum.SWITCH -> {
+            when (entity.entityType) {
+                EntityTypeEnum.SWITCH -> {
                     source.edgeList.filter { entity.id == it.source && it.switchTag.isNullOrBlank() }
                         .run { require(this.isEmpty()) { "Invalid Syntax Tree: ${entity.label} don't set tag for each deg" } }
                     validBranchCount++
                 }
 
-                NodeTypeEnum.IF -> {
+                EntityTypeEnum.IF -> {
                     val edges = source.edgeList.filter { entity.id == it.source && it.ifFlag != null }
                     require(edges.size == 2 && edges.first().ifFlag != edges.last().ifFlag) {
                         "Invalid Syntax Tree: ${entity.label} should both have two deg for true and false"
@@ -67,10 +88,10 @@ class AstModelToNodeConverter : Converter<AstModel, BaseNode> {
                     validBranchCount++
                 }
 
-                NodeTypeEnum.WHEN -> validBranchCount++
-                NodeTypeEnum.START -> startNodeCount++
-                NodeTypeEnum.END -> endNodeCount++
-                NodeTypeEnum.SUMMARY -> summaryNodeCount++
+                EntityTypeEnum.PARALLEL -> validBranchCount++
+                EntityTypeEnum.START -> startNodeCount++
+                EntityTypeEnum.END -> endNodeCount++
+                EntityTypeEnum.SUMMARY -> summaryNodeCount++
                 else -> {} //nothing to do
             }
         }
@@ -81,29 +102,33 @@ class AstModelToNodeConverter : Converter<AstModel, BaseNode> {
         require(endNodeCount == 1) { "Invalid Syntax Tree: ast must have one unique end node" }
         // converter
         val nodeMap = source.entityList.associate {
-            it.id to when (it.nodeType) {
-                NodeTypeEnum.COMMON -> CommonNode(it.id, it.name, data = it.data)
-                NodeTypeEnum.WHEN -> WhenNode(it.id, it.name)
-                NodeTypeEnum.IF -> IfNode(it.id, it.name, data = it.data)
-                NodeTypeEnum.SWITCH -> SwitchNode(it.id, it.name, data = it.data)
-                NodeTypeEnum.SUMMARY -> SummaryNode(it.id, it.name)
-                NodeTypeEnum.START -> StartNode(it.id, it.name)
-                NodeTypeEnum.END -> EndNode(it.id, it.name)
+            it.id to when (it.entityType) {
+                EntityTypeEnum.COMMON -> CommonEntity(it.id, it.name, data = it.data)
+                EntityTypeEnum.PARALLEL -> ParallelEntity(it.id, it.name)
+                EntityTypeEnum.IF -> IfEntity(it.id, it.name, data = it.data)
+                EntityTypeEnum.SWITCH -> SwitchEntity(it.id, it.name, data = it.data)
+                EntityTypeEnum.SUMMARY -> SummaryEntity(it.id, it.name)
+                EntityTypeEnum.START -> StartEntity(it.id, it.name)
+                EntityTypeEnum.END -> EndEntity(it.id, it.name)
             }
         }
         source.edgeList.forEach {
             val sourceNode = nodeMap[it.source]!! // already contract
             val targetNode = nodeMap[it.target]!! // already contract
             when (sourceNode.type) {
-                NodeTypeEnum.IF -> {
-                    sourceNode as IfNode
-                    if (it.ifFlag!!)
+                EntityTypeEnum.IF -> {
+                    sourceNode as IfEntity
+                    if (it.ifFlag!!) // already contract
                         sourceNode.trueNode = targetNode
                     else
                         sourceNode.falseNode = targetNode
                 }
 
-                NodeTypeEnum.SWITCH -> (sourceNode as SwitchNode).tagMap[targetNode] = it.switchTag!!
+                EntityTypeEnum.SWITCH -> {
+                    sourceNode as SwitchEntity
+                    sourceNode.tagMap[targetNode] = it.switchTag!! // already contract
+                }
+
                 else -> {} // nothing to do
             }
             sourceNode.addNextNode(targetNode)
@@ -111,15 +136,15 @@ class AstModelToNodeConverter : Converter<AstModel, BaseNode> {
         }
         nodeMap.values.forEach {
             when (it.type) {
-                NodeTypeEnum.COMMON -> require(it.positiveNodeList.size == 1 && it.negativeNodeList.size == 1) {
+                EntityTypeEnum.COMMON -> require(it.positiveNodeList.size == 1 && it.negativeNodeList.size == 1) {
                     "Invalid Syntax Tree: common entity must have one positive deg and one negative deg"
                 }
 
-                NodeTypeEnum.START -> require(it.positiveNodeList.size == 0 && it.negativeNodeList.size == 1) {
+                EntityTypeEnum.START -> require(it.positiveNodeList.size == 0 && it.negativeNodeList.size == 1) {
                     "Invalid Syntax Tree: start entity must have one negative deg and none positive deg"
                 }
 
-                NodeTypeEnum.END -> require(it.positiveNodeList.size == 1 && it.negativeNodeList.size == 0) {
+                EntityTypeEnum.END -> require(it.positiveNodeList.size == 1 && it.negativeNodeList.size == 0) {
                     "Invalid Syntax Tree: end entity must have one positive deg and none negative deg"
                 }
 
