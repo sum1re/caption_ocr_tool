@@ -1,7 +1,7 @@
 package com.neo.caption.ocr.module.cv
 
+import com.neo.caption.ocr.domain.BaseData
 import com.neo.caption.ocr.domain.BaseDto
-import com.neo.caption.ocr.domain.BaseEntity
 import org.opencv.core.Point
 import org.opencv.core.Size
 import org.springframework.core.convert.converter.Converter
@@ -17,7 +17,7 @@ data class CropRange(
     val upperLeftY: Int,
     val lowerRightX: Int,
     val lowerRightY: Int
-) : BaseEntity
+) : BaseData
 
 data class CropRangeDto(
     val upperLeft: NumberPair<Int>,
@@ -32,7 +32,7 @@ data class Morphology(
     val morphAnchor: Point,
     val iteration: Int,
     val border: Int
-) : BaseEntity
+) : BaseData
 
 data class MorphologyDto(
     val morphType: MorphType,
@@ -50,7 +50,7 @@ data class AdaptiveBinarization(
     val thresholdType: Int,
     val blockSize: Int,
     val constant: Double,
-) : BaseEntity
+) : BaseData
 
 data class AdaptiveBinarizationDto(
     val maxValue: Double,
@@ -64,7 +64,7 @@ data class FixedBinarization(
     val maxValue: Double,
     val thresholdValue: Double,
     val thresholdType: Int
-) : BaseEntity
+) : BaseData
 
 data class FixedBinarizationDto(
     val maxValue: Double,
@@ -77,7 +77,7 @@ data class BilateralFilter(
     val sigmaColor: Double,
     val sigmaSpace: Double,
     val border: Int
-) : BaseEntity
+) : BaseData
 
 data class BilateralFilterDto(
     val diameter: Int,
@@ -91,7 +91,7 @@ data class BoxFilter(
     val anchor: Point,
     val normalize: Boolean,
     val border: Int
-) : BaseEntity
+) : BaseData
 
 data class BoxFilterDto(
     val kernel: NumberPair<Double>,
@@ -105,7 +105,7 @@ data class GaussianBlur(
     val sigmaX: Double,
     val sigmaY: Double,
     val border: Int
-) : BaseEntity
+) : BaseData
 
 data class GaussianBlurDto(
     val kernel: NumberPair<Double>,
@@ -125,7 +125,7 @@ data class HLSRange(
     val lightnessMax: Double,
     val saturationMin: Double,
     val saturationMax: Double,
-) : BaseEntity
+) : BaseData
 
 data class HLSRangeDto(
     val mask: Boolean,
@@ -141,7 +141,7 @@ data class HSVRange(
     val saturationMax: Double,
     val valueMin: Double,
     val valueMax: Double,
-) : BaseEntity
+) : BaseData
 
 data class HSVRangeDto(
     val hue: NumberPair<Int>,
@@ -151,7 +151,7 @@ data class HSVRangeDto(
 
 data class SingleIntParam(
     val i: Int
-) : BaseEntity
+) : BaseData
 
 data class ConvertColorDto(
     val colorType: ColorType
