@@ -1,6 +1,10 @@
 package com.neo.caption.ocr.module.liteflow
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.neo.caption.ocr.domain.BaseData
+import com.neo.caption.ocr.domain.BaseDto
+import com.neo.caption.ocr.support.convert
+import org.jetbrains.exposed.dao.id.UUIDTable
 import org.springframework.core.convert.converter.Converter
 import org.springframework.stereotype.Component
 import java.time.Instant
@@ -57,6 +61,33 @@ data class AstEdge(
     val ifFlag: Boolean? = null,
     val switchTag: String? = null,
 ) : BaseData
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class AstModelDto(
+    val id: UUID,
+    val friendlyName: String,
+    val entityList: List<AstEntityDto>,
+    val edgeList: List<AstEdgeDto>
+) : BaseDto
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class AstEntityDto(
+    val id: UUID,
+    val name: String,
+    val label: String,
+    val entityType: EntityTypeEnum,
+    val x: Int,
+    val y: Int,
+    val data: String?,
+) : BaseDto
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class AstEdgeDto(
+    val source: UUID,
+    val target: UUID,
+    val ifFlag: Boolean?,
+    val switchTag: String?,
+) : BaseDto
 
 @Component
 class AstModelToNodeConverter : Converter<AstModel, BaseEntity> {
@@ -153,4 +184,72 @@ class AstModelToNodeConverter : Converter<AstModel, BaseEntity> {
         }
         return nodeMap.values.first()
     }
+}
+
+// All converter written by Gemini
+
+@Component
+class AstModelToAstModelDtoConverter : Converter<AstModel, AstModelDto> {
+    override fun convert(source: AstModel): AstModelDto = AstModelDto(
+        id = source.id,
+        friendlyName = source.friendlyName,
+        entityList = source.entityList.map { it.convert<AstEntityDto>() },
+        edgeList = source.edgeList.map { it.convert<AstEdgeDto>() }
+    )
+}
+
+@Component
+class AstModelDtoToAstModelConverter : Converter<AstModelDto, AstModel> {
+    override fun convert(source: AstModelDto): AstModel = AstModel(
+        id = source.id,
+        friendlyName = source.friendlyName,
+        entityList = source.entityList.map { it.convert<AstEntity>() },
+        edgeList = source.edgeList.map { it.convert<AstEdge>() }
+    )
+}
+
+@Component
+class AstEntityToAstEntityDtoConverter : Converter<AstEntity, AstEntityDto> {
+    override fun convert(source: AstEntity): AstEntityDto = AstEntityDto(
+        id = source.id,
+        name = source.name,
+        label = source.label,
+        entityType = source.entityType,
+        x = source.x,
+        y = source.y,
+        data = source.data
+    )
+}
+
+@Component
+class AstEntityDtoToAstEntityConverter : Converter<AstEntityDto, AstEntity> {
+    override fun convert(source: AstEntityDto): AstEntity = AstEntity(
+        id = source.id,
+        name = source.name,
+        label = source.label,
+        entityType = source.entityType,
+        x = source.x,
+        y = source.y,
+        data = source.data
+    )
+}
+
+@Component
+class AstEdgeToAstEdgeDtoConverter : Converter<AstEdge, AstEdgeDto> {
+    override fun convert(source: AstEdge): AstEdgeDto = AstEdgeDto(
+        source = source.source,
+        target = source.target,
+        ifFlag = source.ifFlag,
+        switchTag = source.switchTag
+    )
+}
+
+@Component
+class AstEdgeDtoToAstEdgeConverter : Converter<AstEdgeDto, AstEdge> {
+    override fun convert(source: AstEdgeDto): AstEdge = AstEdge(
+        source = source.source,
+        target = source.target,
+        ifFlag = source.ifFlag,
+        switchTag = source.switchTag
+    )
 }
