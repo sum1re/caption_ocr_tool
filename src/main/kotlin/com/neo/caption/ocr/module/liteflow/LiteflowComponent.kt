@@ -37,6 +37,20 @@ import org.opencv.videoio.Videoio
 import kotlin.io.path.absolutePathString
 import kotlin.reflect.KClass
 
+/**
+ * NodeComponent class convention:
+ *
+ * Name of NodeComponent should start with Liteflow
+ * followed by the component id.
+ *
+ *  ```
+ *  @LiteflowComponent("actionA")
+ *  class LiteflowActionA : NodeComponent()
+ *
+ *  @LiteflowComponent("switchEnum")
+ *  class LiteflowSwitchEnum : NodeSwitchComponent()
+ *  ```
+ */
 
 }
 
