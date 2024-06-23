@@ -37,30 +37,8 @@ import org.opencv.videoio.Videoio
 import kotlin.io.path.absolutePathString
 import kotlin.reflect.KClass
 
-sealed interface BaseContext
 
-data class CvContext(
-    val matStack: MutableList<Mat> // store history
-) : BaseContext {
-    fun produce(action: Mat.() -> Any) {
-        val copy = matStack.last().clone()!!
-        when (val result = action(copy)) {
-            is Mat -> matStack.add(result) // action returns Mat, add result to stack.
-            is Unit -> matStack.add(copy) // action returns Unit, add copy to stack.
-        }
-    }
-
-    fun release() {
-        matStack.forEach { it.release() }
-        matStack.clear()
-    }
 }
-
-data class ProjectContext(
-    val projectId: String,
-    val videoCaption: VideoCapture,
-    val filteredMat: MutableList<Mat>,
-) : BaseContext
 
 @LiteflowComponent
 class BreakNode : NodeBreakComponent() {
