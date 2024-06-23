@@ -1,6 +1,10 @@
-package com.neo.caption.ocr.module.tesseract
+package com.neo.caption.ocr.module.ocr
 
-enum class OCREngineModeEnum(val code: Int) {
+enum class OcrTypeEnum {
+    TESSERACT, OCR_SPACE
+}
+
+enum class TesseractEngineEnum(val code: Int) {
 
     /**
      * run tesseract only, fastest
@@ -33,7 +37,7 @@ enum class OCREngineModeEnum(val code: Int) {
  * Tesseract page segmentation
  * @see <a href="https://tesseract-ocr.github.com.io/tessapi/5.x/a00008.html#a4d1f965486ce272064ffdbd7a618234c">TessPageSegMod</a>
  */
-enum class PageSegModeEnum(val code: Int) {
+enum class TesseractPageSegModeEnum(val code: Int) {
 
     /**
      * Orientation and script detection (OSD) only.
@@ -109,3 +113,6 @@ enum class PageSegModeEnum(val code: Int) {
     fun toVector() = "tessedit_pageseg_mode" to this.code.toString()
 }
 
+enum class OcrSpaceEngineEnum(val code: Int) {
+    ENGINE_1(1), ENGINE_2(2)
+}
