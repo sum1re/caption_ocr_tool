@@ -1,83 +1,104 @@
 package com.neo.caption.ocr.module.project
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import com.neo.caption.ocr.common.TEMP_DIR_PREFIX
+import com.neo.caption.ocr.common.MatSerialize
 import com.neo.caption.ocr.common.TimelineSerialize
 import com.neo.caption.ocr.domain.BaseData
 import com.neo.caption.ocr.domain.BaseDto
-import com.neo.caption.ocr.module.cv.CropRange
-import com.neo.caption.ocr.module.cv.CropRangeDto
-import com.neo.caption.ocr.module.tesseract.TesseractConfig
-import com.neo.caption.ocr.module.video.VideoInfo
+import com.neo.caption.ocr.domain.default
+import com.neo.caption.ocr.module.liteflow.AstModel
+import com.neo.caption.ocr.module.ocr.OcrProfile
+import org.jetbrains.exposed.dao.id.LongIdTable
+import org.jetbrains.exposed.dao.id.UUIDTable
 import org.opencv.core.Mat
 import org.springframework.core.convert.converter.Converter
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
-import java.nio.file.Path
+import java.time.Instant
+import java.util.UUID
+
+object ProjectTable : UUIDTable("PROJECT") {
+    val createdAt = long("CREATED_AT").clientDefault { Instant.now().epochSecond }
+    val astModelId = uuid("AST_MODEL_ID").default()
+    val ocrProfileId = uuid("OCR_PROFILE_ID").default()
+}
+
+object ProjectMetadataTable : UUIDTable("PROJECT_METADATA") {
+    val projectId = uuid("PROJECT_ID").uniqueIndex()
+    val name = varchar("FILE_NAME", 255).default("")
+    val hash = varchar("FILE_HASH", 32).default("")
+    val extension = varchar("FILE_EXTENSION", 255).default("")
+    val width = integer("VIDEO_WIDTH").default(0)
+    val height = integer("VIDEO_HEIGHT").default(0)
+    val fps = double("VIDEO_FPS").default(1.0)
+    val totalFrames = integer("TOTAL_FRAMES").default(0)
+    val frameDuration = decimal("FRAME_DURATION", 2, 5).default(BigDecimal.ZERO)
+}
+
+object CaptionRowTable : LongIdTable("CAPTION_ROW") {
+    val projectId = uuid("PROJECT_ID")
+    val caption = varchar("CAPTION", 255).default("")
+    val start = decimal("START_TIME", 10, 5).default(BigDecimal.ZERO)
+    val end = decimal("END_TIME", 10, 5).default(BigDecimal.ZERO)
+}
 
 data class Project(
-    val id: String,
-    val workingDirectory: Path,
-    val hash: String,
+    val id: UUID,
+    val ocrProfile: OcrProfile?,
+    val astModel: AstModel,
+    val projectMetadata: ProjectMetadata,
+) : BaseData
+
+data class ProjectMetadata(
     val name: String,
+    val hash: String,
     val extension: String,
+    val width: Int,
+    val height: Int,
+    val fps: Double,
+    val totalFrames: Int,
+    val frameDuration: BigDecimal
+) : BaseData
+
+data class CaptionRow(
+    val id: Long = 0,
+    val projectId: UUID,
+    val caption: String = "",
+    val start: BigDecimal,
+    val end: BigDecimal,
 ) : BaseData
 
 data class ProjectDto(
-    val id: String,
-) : BaseDto
-
-data class ProjectMetadata(
-    val cropRange: CropRange,
-    val chain: String, // TODO: dynamical chain
-    val tesseractConfig: TesseractConfig,
-    val videoInfo: VideoInfo
-) : BaseData
-
-data class ProjectMetadataDto(
-    val cropRange: CropRangeDto,
-    val chain: String, // TODO: dynamical chain
-) : BaseDto
-
-data class CaptionRow(
-    val projectId: String,
-    val start: Int,
-    val end: Int,
-    val mat: Mat,
-    val caption: String,
-) : BaseData {
-    fun clone() = this.copy(mat = this.mat.clone())
-}
+    val id: UUID,
+    val name: String,
+)
 
 data class CaptionRowDto(
+    val id: Long,
     @JsonSerialize(using = TimelineSerialize::class) val start: BigDecimal,
     @JsonSerialize(using = TimelineSerialize::class) val end: BigDecimal,
     val img: String,
     val caption: String,
 ) : BaseDto
 
-@Component
-class ProjectToProjectDtoConverter : Converter<Project, ProjectDto> {
-    override fun convert(source: Project) = ProjectDto(id = source.id)
-}
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class PreviewResultDto(
+    val isMetRequire: Boolean,
+    val channel: Int?,
+    val causedBy: String?,
+    @JsonSerialize(using = MatSerialize::class) val mat: Mat?
+) : BaseDto
 
 @Component
 class CaptionRowToCaptionRowDtoConverter(
     private val projectService: ProjectService
 ) : Converter<CaptionRow, CaptionRowDto> {
-    override fun convert(source: CaptionRow): CaptionRowDto {
-        val frameDuration = projectService.projectMetadata(source.projectId).videoInfo.frameDuration
-        return CaptionRowDto(
-            start = source.start.let { if (it == 0) BigDecimal.ZERO else it.subtract(frameDuration) },
-            end = source.end.add(frameDuration),
-            img = "/${TEMP_DIR_PREFIX}${source.projectId}/${source.start}.webp",
-            caption = source.caption,
-        )
-    }
+    override fun convert(source: CaptionRow): CaptionRowDto = CaptionRowDto(
+        id = source.id,
+        start = source.start,
+        end = source.end,
+        img = projectService.generateMatUrl(source.projectId, source.id),
+        caption = source.caption,
+    )
 }
-
-private fun Int.add(frameDuration: BigDecimal) =
-    BigDecimal(this.toString()).add(BigDecimal("0.5")).multiply(frameDuration)
-
-private fun Int.subtract(frameDuration: BigDecimal) =
-    BigDecimal(this.toString()).subtract(BigDecimal("0.5")).multiply(frameDuration)
