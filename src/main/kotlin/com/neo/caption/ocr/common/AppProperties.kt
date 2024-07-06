@@ -1,7 +1,7 @@
 package com.neo.caption.ocr.common
 
-import com.neo.caption.ocr.module.tesseract.OCREngineModeEnum
-import com.neo.caption.ocr.module.tesseract.PageSegModeEnum
+import com.neo.caption.ocr.module.ocr.TesseractEngineEnum
+import com.neo.caption.ocr.module.ocr.TesseractPageSegModeEnum
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConfigurationPropertiesBinding
 import org.springframework.core.convert.converter.Converter
@@ -28,17 +28,12 @@ data class OCRProperties(
 @ConfigurationProperties(prefix = "cocr.tesseract")
 data class TesseractProperties(
     val uuid: UUID,
-    val ocrEngineMode: OCREngineModeEnum,
-    val pageSegMode: PageSegModeEnum,
-    val language: List<String>,
-    val vectors: List<TesseractVector>,
+    val ocrEngineMode: TesseractEngineEnum,
+    val pageSegMode: TesseractPageSegModeEnum,
+    val language: MutableList<String> = mutableListOf(),
+    val vectors: MutableList<TesseractVector> = mutableListOf(),
 ) {
     data class TesseractVector(val name: String, val value: String)
-
-    fun linkedHashMap() = LinkedHashMap<String, String>(vectors.size).apply {
-        vectors.forEach { this[it.name] = it.value }
-    }
-
 }
 
 @ConfigurationProperties(prefix = "cocr.common")
