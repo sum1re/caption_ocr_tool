@@ -1,37 +1,17 @@
-import appLogo from '/favicon.svg';
-import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import PWABadge from './PWABadge.tsx';
-import './App.css';
+import { CssBaseline, GlobalStyles } from '@mui/material';
+import React from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import { ColorModeProvider } from './provider/ColorModeProvider.tsx';
+import { Router } from './routes/Router.tsx';
 
-function App() {
-  const [count, setCount] = useState(0);
-
+export function App(): React.ReactElement {
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={appLogo} className="logo" alt="Caption OCR Tool logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Caption OCR Tool</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-      <PWABadge />
-    </>
+    <BrowserRouter>
+      <ColorModeProvider>
+        <CssBaseline />
+        <GlobalStyles styles={{ html: { WebkitFontSmoothing: 'auto' } }} />
+        <Router />
+      </ColorModeProvider>
+    </BrowserRouter>
   );
 }
-
-export default App;
