@@ -1,8 +1,12 @@
 package com.neo.caption.ocr.module.liteflow
 
 import com.neo.caption.ocr.common.CommonService
+import com.neo.caption.ocr.module.app.CompareAlgorithm
+import com.neo.caption.ocr.module.ocr.OcrTypeEnum
+import com.yomahub.liteflow.builder.el.ELBus.node
 import com.yomahub.liteflow.builder.el.ELWrapper
 import com.yomahub.liteflow.builder.el.LiteFlowChainELBuilder
+import com.yomahub.liteflow.builder.el.ThenELWrapper
 import com.yomahub.liteflow.core.FlowExecutor
 import com.yomahub.liteflow.flow.FlowBus
 import com.yomahub.liteflow.flow.LiteflowResponse
@@ -21,6 +25,53 @@ class LiteflowService(
     private val futureMap = mutableMapOf<UUID, Future<LiteflowResponse>>()
 
     fun validateEl(el: String): Boolean = LiteFlowChainELBuilder.validate(el)
+
+    fun buildProjectEl(): ThenELWrapper {
+        val mergeGroupEl = node("mergeGroup").then(
+            node("saveMat"),
+            node("needOcrProcessing").ifTrue(
+                node("switchOcr").switch(
+                    OcrTypeEnum.TESSERACT to node("ocrTesseract"),
+                    OcrTypeEnum.OCR_SPACE to node("ocrOcrSpace")
+                )
+            ),
+            node("canProceed").ifTrue(node("publishProgress"))
+        )
+        val compareEl = node("switchCompareAlgorithm").switch(
+            CompareAlgorithm.SSIM to node("ssimAlgorithm"),
+            CompareAlgorithm.PSNR to node("psnrAlgorithm")
+        ).then(node("compareThreshold").ternary(node("pushGroup"), mergeGroupEl))
+        val pixelCheckEl = node("meetPixelThreshold").ternary(
+            trueElWrapper = node("hasTemplate").ternary(
+                trueElWrapper = compareEl,
+                falseElWrapper = node("assignTemplate").then(node("pushGroup"), node("publishProgress"))
+            ),
+            falseElWrapper = node("isStackEmpty").ternary(node("publishProgress"), mergeGroupEl)
+        )
+        return node("startProject").then(
+            node("videoGrab").whileDo(
+                node("isInFilterInterval").ternary(
+                    trueElWrapper = node("retrieveVideoMat").then(
+                        node("executeChain"),
+                        node("isMatSingleChannel").ternary(pixelCheckEl, node("exitLoop")),
+                    ),
+                    falseElWrapper = node("publishProgress")
+                )
+            ),
+            mergeGroupEl,
+        ).finallyOpt(node("releaseResources").then(node("finishProject")))
+    }
+
+    fun buildBatchOcrEl(): ELWrapper {
+        return node("startBatchOcr").then(
+            node("findMatInPath").iterator(
+                node("switchOcr").switch(
+                    OcrTypeEnum.TESSERACT to node("ocrTesseract"),
+                    OcrTypeEnum.OCR_SPACE to node("ocrOcrSpace")
+                )
+            )
+        ).finallyOpt(node("releaseResources"))
+    }
 
     fun createChain(chainId: LiteflowChainId, el: ELWrapper) {
         el.toEL().takeIf { validateEl(it) }?.let {
