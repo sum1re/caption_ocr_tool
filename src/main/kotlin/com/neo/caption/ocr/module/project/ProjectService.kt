@@ -3,6 +3,8 @@ package com.neo.caption.ocr.module.project
 import com.neo.caption.ocr.common.CHUNK_PREFIX
 import com.neo.caption.ocr.common.CommonProperties
 import com.neo.caption.ocr.common.CommonService
+import com.neo.caption.ocr.domain.Page
+import com.neo.caption.ocr.domain.Pageable
 import com.neo.caption.ocr.domain.toCaptionRow
 import com.neo.caption.ocr.domain.toProjectMetadata
 import com.neo.caption.ocr.module.liteflow.AstModelService
@@ -27,8 +29,6 @@ import org.jetbrains.exposed.sql.update
 import org.opencv.core.Mat
 import org.opencv.videoio.VideoCapture
 import org.opencv.videoio.Videoio
-import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.Pageable
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.math.MathContext
@@ -165,14 +165,14 @@ class ProjectService(
         }.value
     }
 
-    fun findCaptionRowByProjectId(projectId: UUID, pageable: Pageable): PageImpl<CaptionRow> {
+    fun findCaptionRowByProjectId(projectId: UUID, pageable: Pageable): Page<CaptionRow> {
         val query = CaptionRowTable.selectAll()
             .where { CaptionRowTable.projectId eq projectId }
         val count = query.count()
-        return query.limit(pageable.pageSize, pageable.offset)
+        return query.limit(pageable.size, pageable.offset)
             .orderBy(CaptionRowTable.start to SortOrder.ASC)
             .map { it.toCaptionRow() }
-            .let { PageImpl(it, pageable, count) }
+            .let { Page(content = it, page = pageable.page, size = pageable.size, totalElements = count) }
     }
 
     fun updateCaption(captionRowId: Long, caption: String) {

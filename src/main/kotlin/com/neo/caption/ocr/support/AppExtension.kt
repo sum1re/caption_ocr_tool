@@ -4,9 +4,9 @@ import com.neo.caption.ocr.common.Slf4j
 import com.neo.caption.ocr.domain.BaseData
 import com.neo.caption.ocr.domain.CommonPagination
 import com.neo.caption.ocr.domain.CommonResponse
+import com.neo.caption.ocr.domain.Page
 import jakarta.annotation.PostConstruct
 import org.springframework.core.convert.ConversionService
-import org.springframework.data.domain.Page
 import org.springframework.stereotype.Component
 
 @Slf4j
@@ -35,9 +35,9 @@ private fun Collection<*>.toPagination() = this.size.let { CommonPagination(it, 
 
 private fun Page<*>.toPagination() =
     CommonPagination(
-        count = this.numberOfElements,
+        count = this.elements,
         page = this.size,
-        perPage = this.number,
+        perPage = this.size,
         totalCount = this.totalElements,
         totalPage = this.totalPages
     )
@@ -57,3 +57,12 @@ inline fun <T, R : Comparable<R>> Collection<T>.findMidBy(crossinline selector: 
     val index = if (this.size % 2 == 0) this.size / 2 else this.size / 2 + 1
     return this.sortedWith(compareBy(selector))[index]
 }
+
+fun <T, R> Page<T>.map(action: (T) -> R): Page<R> = Page(
+    content = this.content.map { action(it) },
+    elements = this.elements,
+    page = this.page,
+    size = this.size,
+    totalElements = this.totalElements,
+    totalPages = this.totalPages,
+)

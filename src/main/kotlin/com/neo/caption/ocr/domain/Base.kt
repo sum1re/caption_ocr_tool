@@ -5,6 +5,21 @@ import com.fasterxml.jackson.annotation.JsonInclude
 interface BaseData
 interface BaseDto : BaseData
 
+data class Pageable(
+    val size: Int,
+    val page: Int,
+    val offset: Long = (size * page).toLong()
+)
+
+data class Page<T>(
+    val content: List<T>,
+    val elements: Int = content.size,
+    val page: Int,
+    val size: Int,
+    val totalElements: Long,
+    val totalPages: Int = (totalElements / size + 1).toInt()
+)
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class CommonResponse<T>(
     val success: Boolean,
