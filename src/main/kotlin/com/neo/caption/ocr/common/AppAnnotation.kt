@@ -1,7 +1,7 @@
 package com.neo.caption.ocr.common
 
-import io.github.oshai.KLogger
-import io.github.oshai.KotlinLogging
+import io.github.oshai.kotlinlogging.KLogger
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.springframework.cache.annotation.CacheConfig
 import org.springframework.core.annotation.AliasFor
@@ -26,7 +26,7 @@ annotation class Slf4j {
 
     companion object {
         @Suppress("UnusedReceiverParameter")
-        val <reified T> T.log: KLogger
+        val <reified T> T.logging: KLogger
             inline get() = KotlinLogging.logger(T::class.java.name)
     }
 

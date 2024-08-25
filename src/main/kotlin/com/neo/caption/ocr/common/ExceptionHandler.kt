@@ -1,6 +1,6 @@
 package com.neo.caption.ocr.common
 
-import com.neo.caption.ocr.common.Slf4j.Companion.log
+import com.neo.caption.ocr.common.Slf4j.Companion.logging
 import com.neo.caption.ocr.domain.ErrorResponse
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler
 import org.springframework.cache.Cache
@@ -16,19 +16,19 @@ import java.lang.reflect.Method
 class CaffeineCacheErrorHandler : CacheErrorHandler {
 
     override fun handleCacheGetError(exception: RuntimeException, cache: Cache, key: Any) {
-        log.error { "CacheError [option: GET, key: $key, cause: ${exception.cause}]" }
+        logging.error { "CacheError [option: GET, key: $key, cause: ${exception.cause}]" }
     }
 
     override fun handleCachePutError(exception: RuntimeException, cache: Cache, key: Any, value: Any?) {
-        log.error { "CacheError [option: PUT, key: $key, value: $value, cause: ${exception.cause}]" }
+        logging.error { "CacheError [option: PUT, key: $key, value: $value, cause: ${exception.cause}]" }
     }
 
     override fun handleCacheEvictError(exception: RuntimeException, cache: Cache, key: Any) {
-        log.error { "CacheError [option: EVICT, key: $key, cause: ${exception.cause}]" }
+        logging.error { "CacheError [option: EVICT, key: $key, cause: ${exception.cause}]" }
     }
 
     override fun handleCacheClearError(exception: RuntimeException, cache: Cache) {
-        log.error { "CacheError [option: CLEAR, cause: ${exception.cause}]" }
+        logging.error { "CacheError [option: CLEAR, cause: ${exception.cause}]" }
     }
 
 }
@@ -61,7 +61,7 @@ class RestExceptionHandler {
 class AsyncExceptionHandler : AsyncUncaughtExceptionHandler {
 
     override fun handleUncaughtException(ex: Throwable, method: Method, vararg params: Any) {
-        log.error { "async exception: [method: $method, params: $params, message: ${ex.stackTraceToString()}]" }
+        logging.error { "async exception: [method: $method, params: $params, message: ${ex.stackTraceToString()}]" }
         throw ex
     }
 

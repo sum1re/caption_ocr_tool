@@ -1,7 +1,7 @@
 package com.neo.caption.ocr.service
 
 import com.neo.caption.ocr.common.CommonService
-import com.neo.caption.ocr.common.Slf4j.Companion.log
+import com.neo.caption.ocr.common.Slf4j.Companion.logging
 import org.bytedeco.javacpp.Loader
 import org.springframework.boot.autoconfigure.web.ServerProperties
 import org.springframework.cache.annotation.Cacheable
@@ -63,13 +63,13 @@ class LoaderService(
             } ?: emptyList()
         )
     }.getOrElse {
-        log.error(it) { "Application will exit because failed loading javacpp library" }
+        logging.error(it) { "Application will exit because failed loading javacpp library" }
         exitProcess(-1)
     }
 
     private fun Class<*>.loading() {
         Loader.load(this)
-        log.debug { "Loading class: $this" }
+        logging.debug { "Loading class: $this" }
     }
 
 }

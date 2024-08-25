@@ -16,7 +16,6 @@ spring:
   mvc:
     converters:
       preferred-json-mapper: jackson
-    throw-exception-if-no-handler-found: true
   task:
     execution:
       pool:
@@ -31,15 +30,18 @@ spring:
   servlet:
     multipart:
       enabled: false
+
+liteflow:
+  enable: true
+  print-banner: false
+  parse-mode: parse_all_on_start
+
+logging:
   pattern:
-    dateformat: dd-MM-yyyy HH:mm:ss.SSS
+    dateformat:
+      dd-MM-yyyy HH:mm:ss.SSS
   logback:
     rollingpolicy:
       max-history: 7
       max-file-size: 4096KB
-      file-name-pattern: ${cocr.dir}/logs/%d{yyyy-MM-dd}.%i.log
-
-liteflow:
-  enable: true
-  parse-on-start: true
-  print-banner: false
+      file-name-pattern: ./data/logs/%d{yyyy-MM-dd}.%i.log

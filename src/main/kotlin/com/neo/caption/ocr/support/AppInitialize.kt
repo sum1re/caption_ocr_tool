@@ -3,7 +3,7 @@ package com.neo.caption.ocr.support
 import com.neo.caption.ocr.common.COCR_BATCH_OCR_CHAIN
 import com.neo.caption.ocr.common.COCR_PROJECT_CHAIN
 import com.neo.caption.ocr.common.CommonProperties
-import com.neo.caption.ocr.common.Slf4j.Companion.log
+import com.neo.caption.ocr.common.Slf4j.Companion.logging
 import com.neo.caption.ocr.module.app.AppConfigTable
 import com.neo.caption.ocr.module.app.AppService
 import com.neo.caption.ocr.module.liteflow.AstEdgeTable
@@ -38,9 +38,9 @@ class AppInitialize(
     override fun run(args: ApplicationArguments?) {
         loaderService.loadLib(opencv_java::class.java)
         val system = loaderService.systemInformation()
-        log.debug { "System: [$system]" }
-        log.debug { "JavaCPP: [${loaderService.javacpp()}]" }
-        log.info {
+        logging.debug { "System: [$system]" }
+        logging.debug { "JavaCPP: [${loaderService.javacpp()}]" }
+        logging.info {
             """
                 |Caption OCR Tool service (v${appService.getAppInfoDto().version}) is ready!
                 |Open http://${system.ip}:${system.port} in your browser.
