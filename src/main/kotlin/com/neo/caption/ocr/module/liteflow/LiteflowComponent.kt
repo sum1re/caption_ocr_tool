@@ -43,12 +43,10 @@ import com.neo.caption.ocr.support.findMidBy
 import com.neo.caption.ocr.support.findMinBy
 import com.yomahub.liteflow.annotation.LiteflowComponent
 import com.yomahub.liteflow.builder.el.ThenELWrapper
-import com.yomahub.liteflow.core.NodeBreakComponent
+import com.yomahub.liteflow.core.NodeBooleanComponent
 import com.yomahub.liteflow.core.NodeComponent
-import com.yomahub.liteflow.core.NodeIfComponent
 import com.yomahub.liteflow.core.NodeIteratorComponent
 import com.yomahub.liteflow.core.NodeSwitchComponent
-import com.yomahub.liteflow.core.NodeWhileComponent
 import com.yomahub.liteflow.flow.LiteflowResponse
 import org.bytedeco.tesseract.TessBaseAPI
 import org.opencv.core.Mat
@@ -81,9 +79,10 @@ import kotlin.reflect.KClass
 
 //=========== BreakComponent =================
 @LiteflowComponent("exitLoop")
-class LiteflowExitLoop : NodeBreakComponent() {
-    override fun processBreak() = true
+class LiteflowExitLoop : NodeBooleanComponent() {
+    override fun processBoolean() = true
     override fun isEnd(): Boolean = true
+
 }
 
 //=========== CvComponent ====================
@@ -202,8 +201,8 @@ class LiteflowEqualize : CvComponent<SingleIntParam, Unit>() {
 
 //=========== WhileComponent =================
 @LiteflowComponent("videoGrab")
-class LiteflowVideoGrab : NodeWhileComponent() {
-    override fun processWhile(): Boolean {
+class LiteflowVideoGrab : NodeBooleanComponent() {
+    override fun processBoolean(): Boolean {
         return context<ProjectContext>().run {
             this.videoCaption.grab().also { if (!it) this.isFinish.set(true) }
         }
@@ -238,19 +237,19 @@ class LiteflowSwitchOcr : NodeSwitchComponent() {
 
 //=========== IfComponent ====================
 @LiteflowComponent("isInFilterInterval")
-class LiteflowIsInCheckFilterInterval : NodeIfComponent() {
-    override fun processIf(): Boolean =
+class LiteflowIsInCheckFilterInterval : NodeBooleanComponent() {
+    override fun processBoolean(): Boolean =
         context<ProjectContext>().let { it.count.get() % it.appConfig.filterInterval != 0 }
 }
 
 @LiteflowComponent("isMatSingleChannel")
-class LiteflowIsMatSingleChannel : NodeIfComponent() {
-    override fun processIf(): Boolean = context<ProjectContext>().matStack.last().channels() == 1
+class LiteflowIsMatSingleChannel : NodeBooleanComponent() {
+    override fun processBoolean(): Boolean = context<ProjectContext>().matStack.last().channels() == 1
 }
 
 @LiteflowComponent("meetPixelThreshold")
-class LiteflowMeetPixelThreshold : NodeIfComponent() {
-    override fun processIf(): Boolean {
+class LiteflowMeetPixelThreshold : NodeBooleanComponent() {
+    override fun processBoolean(): Boolean {
         val context = context<ProjectContext>()
         context.pixelCount.set(context.matStack.last().calcBlackPixel())
         return context.pixelCount.get() >= context<ProjectContext>().appConfig.pixelThreshold
@@ -258,32 +257,32 @@ class LiteflowMeetPixelThreshold : NodeIfComponent() {
 }
 
 @LiteflowComponent("needOcrProcessing")
-class LiteflowNeedOcrProcessing : NodeIfComponent() {
-    override fun processIf(): Boolean = context<ProjectContext>().project.ocrProfile != null
+class LiteflowNeedOcrProcessing : NodeBooleanComponent() {
+    override fun processBoolean(): Boolean = context<ProjectContext>().project.ocrProfile != null
 }
 
 @LiteflowComponent("canProceed")
-class LiteflowCanProceed : NodeIfComponent() {
-    override fun processIf(): Boolean {
+class LiteflowCanProceed : NodeBooleanComponent() {
+    override fun processBoolean(): Boolean {
         context<ProjectContext>().similarGroup.clear()
         return !context<ProjectContext>().isFinish.get()
     }
 }
 
 @LiteflowComponent("compareThreshold")
-class LiteflowCompareThreshold : NodeIfComponent() {
-    override fun processIf(): Boolean = context<ProjectContext>().similar.get()
+class LiteflowCompareThreshold : NodeBooleanComponent() {
+    override fun processBoolean(): Boolean = context<ProjectContext>().similar.get()
         .let { it.second == context<ProjectContext>().appConfig.similarThreshold[it.first] }
 }
 
 @LiteflowComponent("hasTemplate")
-class LiteflowHasTemplate : NodeIfComponent() {
-    override fun processIf(): Boolean = !context<ProjectContext>().templateMat.empty()
+class LiteflowHasTemplate : NodeBooleanComponent() {
+    override fun processBoolean(): Boolean = !context<ProjectContext>().templateMat.empty()
 }
 
 @LiteflowComponent("isStackEmpty")
-class LiteflowIsStackEmpty : NodeIfComponent() {
-    override fun processIf(): Boolean = context<ProjectContext>().matStack.isEmpty()
+class LiteflowIsStackEmpty : NodeBooleanComponent() {
+    override fun processBoolean(): Boolean = context<ProjectContext>().matStack.isEmpty()
 }
 
 //=========== CommonComponent ================
