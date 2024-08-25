@@ -77,14 +77,6 @@ import kotlin.reflect.KClass
  *  ```
  */
 
-//=========== BreakComponent =================
-@LiteflowComponent("exitLoop")
-class LiteflowExitLoop : NodeBooleanComponent() {
-    override fun processBoolean() = true
-    override fun isEnd(): Boolean = true
-
-}
-
 //=========== CvComponent ====================
 abstract class CvComponent<T : Any, R : Any> : NodeComponent() {
     abstract val kClass: KClass<T>
@@ -521,4 +513,10 @@ class LiteflowReleaseResources : NodeComponent() {
             ocrContext.release()
         }
     }
+}
+
+@LiteflowComponent("exitLoop")
+class LiteflowExitLoop : NodeComponent() {
+    override fun process() {}
+    override fun isEnd(): Boolean = true
 }
