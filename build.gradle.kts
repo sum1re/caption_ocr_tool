@@ -1,16 +1,15 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "3.1.0"
-    id("io.spring.dependency-management") version "1.1.0"
-    kotlin("jvm") version "1.9.10"
-    kotlin("plugin.spring") version "1.9.10"
-    kotlin("kapt") version "1.9.10"
+    id("org.springframework.boot") version "3.3.0"
+    id("io.spring.dependency-management") version "1.1.6"
+    kotlin("jvm") version "2.0.20"
+    kotlin("plugin.spring") version "2.0.20"
+    kotlin("kapt") version "2.0.20"
 }
 
 group = "com.neo.caption"
 version = "1.0.0-alpha"
-java.sourceCompatibility = JavaVersion.VERSION_17
 
 configurations {
     compileOnly {
@@ -22,8 +21,9 @@ repositories {
     mavenLocal()
     mavenCentral()
 }
-val liteflowVersion = "2.11.3"
-val exposedVersion = "0.49.0"
+val liteflowVersion = "2.12.2"
+val exposedVersion = "0.53.0"
+val kotlinLoggingVersion = "7.0.0"
 dependencies {
     // bytedeco
     implementation(libs.bundles.bytedeco)
@@ -42,7 +42,7 @@ dependencies {
     // util
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("io.github.oshai:kotlin-logging-jvm:4.0.0-beta-23")
+    implementation("io.github.oshai:kotlin-logging-jvm:$kotlinLoggingVersion")
     implementation("com.appmattus.crypto:cryptohash:0.10.1")
     // dev
     developmentOnly("org.springframework.boot:spring-boot-devtools")
@@ -51,10 +51,15 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xjsr305=strict")
     }
 }
 
