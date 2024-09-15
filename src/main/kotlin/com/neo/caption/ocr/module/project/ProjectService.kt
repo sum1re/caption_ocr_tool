@@ -42,7 +42,6 @@ import kotlin.io.path.deleteIfExists
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.exists
 import kotlin.io.path.extension
-import kotlin.io.path.nameWithoutExtension
 
 @CommonService
 @Transactional
@@ -72,8 +71,8 @@ class ProjectService(
     fun generateMatUrl(projectId: UUID, matId: Long): String = "${projectId}/${matId}.webp"
 
     // CRUD for Project
-    fun insertProject() {
-        ProjectTable.insertAndGetId {}.value.also {
+    fun insertProject(): UUID {
+        return ProjectTable.insertAndGetId {}.value.also {
             it.toWorkingDirectory().createDirectory()
             insertProjectMetadata(it)
         }
