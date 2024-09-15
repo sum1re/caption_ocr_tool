@@ -80,7 +80,7 @@ class FileService {
             }
         }
         val xxHash3 = savedPath.calcXXHash3()
-        if (xxHash3 != checksum) {
+        if (!xxHash3.equals(checksum, ignoreCase = true)) {
             savedPath.deleteIfExists()
             throw BadRequestException(ErrorCodeEnum.FILE_COMBINE_FAILED_ERROR)
         }
