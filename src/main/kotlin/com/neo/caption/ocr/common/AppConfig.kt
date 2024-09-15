@@ -14,8 +14,7 @@ import org.springframework.core.convert.converter.ConverterFactory
 import org.springframework.core.convert.converter.ConverterRegistry
 import org.springframework.scheduling.annotation.AsyncConfigurer
 import org.springframework.scheduling.annotation.EnableAsync
-import org.springframework.web.cors.CorsConfiguration
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
@@ -41,23 +40,6 @@ class CacheConfig : CachingConfigurer {
 }
 
 @Configuration
-class WebConfig(
-    private val corsProperties: CorsProperties
-) {
-
-    @Bean
-    fun corsConfigurationSource() = CorsConfiguration()
-        .let {
-            it.allowCredentials = true
-            it.allowedOriginPatterns = corsProperties.originPatterns
-            it.allowedMethods = corsProperties.allowedMethods
-            it.allowedHeaders = corsProperties.allowedHeader
-            UrlBasedCorsConfigurationSource().apply { this.registerCorsConfiguration("/**", it) }
-        }
-
-}
-
-@Configuration
 class ConverterConfiguration(
     private val autoRegisteredConverters: Set<Converter<*, *>>,
     private val autoRegisteredConverterFactories: Set<ConverterFactory<*, *>>,
@@ -74,9 +56,18 @@ class ConverterConfiguration(
 @EnableWebMvc
 class MvcConfig(
     private val commonProperties: CommonProperties,
+    private val corsProperties: CorsProperties
 ) : WebMvcConfigurer {
+    override fun addCorsMappings(registry: CorsRegistry) {
+        registry.addMapping("/**")
+            .allowCredentials(true)
+            .allowedOriginPatterns(*corsProperties.originPatterns.toTypedArray())
+            .allowedMethods(*corsProperties.allowedMethods.toTypedArray())
+            .allowedHeaders(*corsProperties.allowedHeader.toTypedArray())
+    }
+
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
-        registry.addResourceHandler("/**")
+        registry.addResourceHandler("/**", "/media/**")
             .addResourceLocations("/resources/", "file:${commonProperties.workingDirectory}/")
     }
 }
