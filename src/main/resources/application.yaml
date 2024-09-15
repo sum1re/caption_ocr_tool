@@ -29,7 +29,8 @@ spring:
     proxy-target-class: true
   servlet:
     multipart:
-      enabled: false
+      max-request-size: 40MB
+      max-file-size: 32MB
 
 liteflow:
   enable: true
