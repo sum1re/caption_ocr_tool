@@ -24,7 +24,7 @@ class LiteflowService(
 
     private val futureMap = mutableMapOf<UUID, Future<LiteflowResponse>>()
 
-    fun validateEl(el: String): Boolean = LiteFlowChainELBuilder.validate(el)
+    fun validateEl(el: String): Boolean = LiteFlowChainELBuilder.validateWithEx(el).isSuccess
 
     fun buildProjectEl(): ThenELWrapper {
         val mergeGroupEl = node("mergeGroup").then(
