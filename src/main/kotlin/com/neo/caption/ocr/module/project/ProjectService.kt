@@ -138,19 +138,20 @@ class ProjectService(
             ?: throw RuntimeException("NotFound")
     }
 
-    fun updateProjectMetadataByVideoFile(projectId: UUID, videoFile: Path) {
+    fun updateProjectMetadataByVideoFile(projectId: UUID, videoFile: Path, filename: String) {
         require(videoFile.exists()) { "videoPath does not exist, ${videoFile.absolutePathString()}" }
         val videoCapture = VideoCapture(videoFile.absolutePathString())
+        val fps = videoCapture.get(Videoio.CAP_PROP_FPS).toString()
         require(videoCapture.isOpened) { "Failed to access video file" }
         ProjectMetadataTable.update({ ProjectMetadataTable.projectId eq projectId }) {
-            it[this.name] = videoFile.nameWithoutExtension
+            it[this.name] = filename
             it[this.extension] = videoFile.extension
             it[this.width] = videoCapture.get(Videoio.CAP_PROP_FRAME_WIDTH).toInt()
             it[this.height] = videoCapture.get(Videoio.CAP_PROP_FRAME_HEIGHT).toInt()
-            it[this.fps] = videoCapture.get(Videoio.CAP_PROP_FPS)
+            it[this.fps] = fps
             it[this.totalFrames] = videoCapture.get(Videoio.CAP_PROP_FRAME_COUNT).toInt()
             it[this.frameDuration] = BigDecimal("1000")
-                .divide(BigDecimal(fps.toString()), MathContext(5, RoundingMode.HALF_EVEN))
+                .divide(BigDecimal(fps), MathContext(5, RoundingMode.HALF_EVEN))
         }
         videoCapture.release()
     }

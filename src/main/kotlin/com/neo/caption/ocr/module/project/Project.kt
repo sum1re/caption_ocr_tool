@@ -31,16 +31,16 @@ object ProjectMetadataTable : UUIDTable("PROJECT_METADATA") {
     val extension = varchar("FILE_EXTENSION", 255).default("")
     val width = integer("VIDEO_WIDTH").default(0)
     val height = integer("VIDEO_HEIGHT").default(0)
-    val fps = double("VIDEO_FPS").default(1.0)
+    val fps = text("VIDEO_FPS").default("1.0")
     val totalFrames = integer("TOTAL_FRAMES").default(0)
-    val frameDuration = decimal("FRAME_DURATION", 2, 5).default(BigDecimal.ZERO)
+    val frameDuration = decimal("FRAME_DURATION", 10, 5).default(BigDecimal.ZERO)
 }
 
 object CaptionRowTable : LongIdTable("CAPTION_ROW") {
     val projectId = uuid("PROJECT_ID")
     val caption = varchar("CAPTION", 255).default("")
-    val start = decimal("START_TIME", 10, 5).default(BigDecimal.ZERO)
-    val end = decimal("END_TIME", 10, 5).default(BigDecimal.ZERO)
+    val start = decimal("START_TIME", 20, 5).default(BigDecimal.ZERO)
+    val end = decimal("END_TIME", 20, 5).default(BigDecimal.ZERO)
 }
 
 data class Project(
@@ -56,7 +56,7 @@ data class ProjectMetadata(
     val extension: String,
     val width: Int,
     val height: Int,
-    val fps: Double,
+    val fps: String,
     val totalFrames: Int,
     val frameDuration: BigDecimal
 ) : BaseData
