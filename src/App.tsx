@@ -1,17 +1,26 @@
-import { CssBaseline, GlobalStyles } from '@mui/material';
-import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
-import { ColorModeProvider } from './provider/ColorModeProvider.tsx';
-import { Router } from './routes/Router.tsx';
+import { CssBaseline, GlobalStyles } from '@mui/material'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { SnackbarProvider } from 'notistack'
+import { type ReactElement, Suspense } from 'react'
+import { RouterProvider } from 'react-router-dom'
+import { Placeholder } from './components/placeholder/placeholder'
+import { router } from './components/router/router.tsx'
+import { AtomProvider } from './provider/atom-provider'
 
-export function App(): React.ReactElement {
+const queryClient = new QueryClient()
+
+export function App(): ReactElement {
   return (
-    <BrowserRouter>
-      <ColorModeProvider>
+    <Suspense fallback={<Placeholder />}>
+      <AtomProvider>
         <CssBaseline />
         <GlobalStyles styles={{ html: { WebkitFontSmoothing: 'auto' } }} />
-        <Router />
-      </ColorModeProvider>
-    </BrowserRouter>
-  );
+        <SnackbarProvider>
+          <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router} />
+          </QueryClientProvider>
+        </SnackbarProvider>
+      </AtomProvider>
+    </Suspense>
+  )
 }
