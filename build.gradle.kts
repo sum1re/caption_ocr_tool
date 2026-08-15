@@ -1,68 +1,67 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    id("org.springframework.boot") version "3.3.0"
-    id("io.spring.dependency-management") version "1.1.6"
-    kotlin("jvm") version "2.0.20"
-    kotlin("plugin.spring") version "2.0.20"
-    kotlin("kapt") version "2.0.20"
+    id("org.springframework.boot") version "4.1.0"
+    id("io.spring.dependency-management") version "1.1.7"
+    id("com.google.devtools.ksp") version "2.3.10"
+    kotlin("jvm") version "2.3.21"
+    kotlin("plugin.spring") version "2.3.21"
 }
 
 group = "com.neo.caption"
 version = "1.0.0-alpha"
 
-configurations {
-    compileOnly {
-        extendsFrom(configurations.annotationProcessor.get())
-    }
-}
-
 repositories {
     mavenLocal()
     mavenCentral()
 }
-val liteflowVersion = "2.12.2"
-val exposedVersion = "0.53.0"
-val kotlinLoggingVersion = "7.0.0"
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.ai:spring-ai-bom:2.0.0")
+    }
+}
+
 dependencies {
-    // bytedeco
-    implementation(libs.bundles.bytedeco)
     // cache
     implementation(libs.bundles.spring.cache)
     // web
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    // jpa
-    implementation("org.jetbrains.exposed:exposed-spring-boot-starter:$exposedVersion")
+    implementation("org.springframework.boot:spring-boot-starter-webmvc")
     runtimeOnly("com.h2database:h2")
-    // liteflow
-    implementation("com.yomahub:liteflow-spring-boot-starter:$liteflowVersion")
-    implementation("com.yomahub:liteflow-el-builder:$liteflowVersion")
-    // util
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("io.github.oshai:kotlin-logging-jvm:$kotlinLoggingVersion")
-    implementation("com.appmattus.crypto:cryptohash:0.10.1")
+    implementation(libs.bundles.spring.database)
+    implementation(libs.bundles.common.utils)
+    implementation(libs.bundles.jackson)
     // dev
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
     developmentOnly("org.springframework.boot:spring-boot-starter-actuator")
-    kapt("org.springframework.boot:spring-boot-configuration-processor")
+    ksp("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
 kotlin {
     compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict")
+        freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
     }
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+springBoot {
+    buildInfo {
+        properties {
+            additional.putAll(
+                mapOf(
+                    "version.java" to JavaVersion.current().name,
+                    "version.gradle" to project.gradle.gradleVersion,
+                    "version.kotlin" to "2.3.21",
+                    "license" to "Apache License 2.0"
+                )
+            )
+        }
+    }
 }

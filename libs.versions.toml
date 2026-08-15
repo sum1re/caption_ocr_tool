@@ -1,13 +1,19 @@
 [versions]
-opencv = "4.9.0-1.5.10"
-tesseract = "5.3.4-1.5.10"
+logging = "7.0.13"
+cryptohash = "1.0.2"
 
 [libraries]
 cache-core = { module = "org.springframework.boot:spring-boot-starter-cache" }
 cache-caffeine = { module = "com.github.ben-manes.caffeine:caffeine" }
-opencv-platform = { module = "org.bytedeco:opencv-platform", version.ref = "opencv" }
-tesseract-platform = { module = "org.bytedeco:tesseract-platform", version.ref = "tesseract" }
+kotlin-logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "logging" }
+cryptohash = { module = "com.appmattus.crypto:cryptohash", version.ref = "cryptohash" }
+spring-jdbc = { module = "org.springframework.boot:spring-boot-starter-data-jdbc" }
+spring-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
+jackson-kotlin = { module = "tools.jackson.module:jackson-module-kotlin" }
+jackson2-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
 
 [bundles]
 spring-cache = ["cache-core", "cache-caffeine"]
-bytedeco = ["opencv-platform", "tesseract-platform"]
+spring-database = ["spring-jdbc", "spring-validation"]
+common-utils = ["kotlin-logging", "cryptohash"]
+jackson = ["jackson-kotlin", "jackson2-kotlin"]
