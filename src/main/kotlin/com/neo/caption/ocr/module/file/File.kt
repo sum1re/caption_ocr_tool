@@ -1,33 +1,54 @@
 package com.neo.caption.ocr.module.file
 
-import com.neo.caption.ocr.domain.BaseData
-import com.neo.caption.ocr.domain.BaseDto
-import org.springframework.core.convert.converter.Converter
-import org.springframework.stereotype.Component
+import java.util.UUID
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.io.encoding.Base64
 
-data class FileChecksum(
-    val name: String,
-    val hash: String,
-    val extension: String,
-    val size: Long
-) : BaseData
-
-data class FileChecksumDto(
-    val name: String,
-    val hash: String,
-    val size: Long
-) : BaseDto
-
-@Component
-class FileChecksumDtoToFileChecksumConverter : Converter<FileChecksumDto, FileChecksum> {
-    override fun convert(source: FileChecksumDto): FileChecksum {
-        require(source.name.isNotBlank() && source.name.contains(".")) { "Invalid file name" }
-        return FileChecksum(
-            name = source.name.substringBeforeLast("."),
-            hash = source.hash,
-            extension = source.name.substringAfterLast(".", ""),
-            size = source.size,
-        )
+class UploadLock(private val lock: ReentrantLock) : AutoCloseable {
+    override fun close() {
+        lock.unlock()
     }
-
 }
+
+data class UploadInfo(
+    val id: UUID,
+    val offset: Long = 0,
+    val length: Long? = null,
+    val encodedMetadata: String? = null,
+    val ownerKey: String? = null,
+    val creationTimestamp: Long = System.currentTimeMillis(),
+    val expirationTimestamp: Long? = null,
+    val creatorIpAddresses: String? = null,
+    val uploadType: String? = null,
+    val concatenationPartIds: List<String>? = null,
+    val uploadConcatHeaderValue: String? = null,
+    val checksum: String? = null,
+    val checksumAlgorithm: String? = null,
+)
+
+fun UploadInfo.hasMetadata() = !encodedMetadata.isNullOrBlank()
+
+fun UploadInfo.hasLength() = length != null
+
+fun UploadInfo.isUploadInProgress() = length == null || offset != length
+
+fun UploadInfo.isExpired() = expirationTimestamp != null && expirationTimestamp < System.currentTimeMillis()
+
+fun UploadInfo.getMetadata(): Map<String, String> {
+    val metadata = mutableMapOf<String, String>()
+    if (encodedMetadata.isNullOrBlank()) return metadata
+    encodedMetadata.split(",").forEach { pair ->
+        val parts = pair.trim().split("\\s+".toRegex())
+        if (parts.isNotEmpty()) {
+            val key = parts[0]
+            if (parts.size > 1) {
+                metadata[key] = Base64.decode(parts[1]).decodeToString()
+            } else {
+                metadata[key] = ""
+            }
+        }
+    }
+    return metadata
+}
+
+fun UploadInfo.getFileName() = getMetadata().let { it["filename"] ?: it["name"] ?: id.toString() }
