@@ -23,3 +23,5 @@ dev-dist
 *.njsproj
 *.sln
 *.sw?
+
+.agents/
