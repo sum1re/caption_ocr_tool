@@ -2,7 +2,6 @@ package com.neo.caption.ocr.common
 
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.springframework.cache.annotation.CacheConfig
 import org.springframework.core.annotation.AliasFor
 import org.springframework.stereotype.Service
@@ -25,7 +24,6 @@ annotation class RestEntityController(
 annotation class Slf4j {
 
     companion object {
-        @Suppress("UnusedReceiverParameter")
         val <reified T> T.logging: KLogger
             inline get() = KotlinLogging.logger(T::class.java.name)
     }
@@ -37,5 +35,5 @@ annotation class Slf4j {
 @Slf4j
 @Service
 @CacheConfig(cacheNames = ["cocr"])
-@Transactional(rollbackFor = [ExposedSQLException::class])
+@Transactional(rollbackFor = [Exception::class])
 annotation class CommonService
