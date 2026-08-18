@@ -1,4 +1,4 @@
-rootProject.name = "ocr"
+rootProject.name = "caption_ocr_tool"
 
 dependencyResolutionManagement {
     versionCatalogs {

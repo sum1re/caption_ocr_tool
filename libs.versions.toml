@@ -1,6 +1,7 @@
 [versions]
 logging = "7.0.13"
 cryptohash = "1.0.2"
+springAi = "2.0.0"
 
 [libraries]
 cache-core = { module = "org.springframework.boot:spring-boot-starter-cache" }
@@ -11,9 +12,14 @@ spring-jdbc = { module = "org.springframework.boot:spring-boot-starter-data-jdbc
 spring-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
 jackson-kotlin = { module = "tools.jackson.module:jackson-module-kotlin" }
 jackson2-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
+ai-openai = { module = "org.springframework.ai:spring-ai-starter-model-openai" }
+ai-gemini = { module = "org.springframework.ai:spring-ai-starter-model-google-genai" }
+ai-ollama = { module = "org.springframework.ai:spring-ai-starter-model-ollama" }
+ai-tool-search = { module = "org.springframework.ai:spring-ai-starter-tool-search-advisor", version.ref = "springAi" }
 
 [bundles]
 spring-cache = ["cache-core", "cache-caffeine"]
 spring-database = ["spring-jdbc", "spring-validation"]
 common-utils = ["kotlin-logging", "cryptohash"]
 jackson = ["jackson-kotlin", "jackson2-kotlin"]
+spring-ai = ["ai-tool-search", "ai-ollama"]

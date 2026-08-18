@@ -1,7 +1,7 @@
 plugins {
     id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
-    id("com.google.devtools.ksp") version "2.3.10"
+    kotlin("kapt") version "2.3.21"
     kotlin("jvm") version "2.3.21"
     kotlin("plugin.spring") version "2.3.21"
 }
@@ -29,9 +29,10 @@ dependencies {
     implementation(libs.bundles.spring.database)
     implementation(libs.bundles.common.utils)
     implementation(libs.bundles.jackson)
+    implementation(libs.bundles.spring.ai)
     // dev
     developmentOnly("org.springframework.boot:spring-boot-starter-actuator")
-    ksp("org.springframework.boot:spring-boot-configuration-processor")
+    kapt("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
