@@ -2,18 +2,17 @@ package com.neo.caption.ocr.common
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import jakarta.annotation.PostConstruct
-import org.jetbrains.exposed.spring.autoconfigure.ExposedAutoConfiguration
 import org.springframework.cache.annotation.CachingConfigurer
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Import
 import org.springframework.core.convert.converter.Converter
 import org.springframework.core.convert.converter.ConverterFactory
 import org.springframework.core.convert.converter.ConverterRegistry
 import org.springframework.scheduling.annotation.AsyncConfigurer
 import org.springframework.scheduling.annotation.EnableAsync
+import org.springframework.transaction.annotation.EnableTransactionManagement
 import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
@@ -86,5 +85,5 @@ class MvcConfig(
 }
 
 @Configuration
-@Import(ExposedAutoConfiguration::class)
-class ExposedConfig
+@EnableTransactionManagement
+class DatabaseConfig
