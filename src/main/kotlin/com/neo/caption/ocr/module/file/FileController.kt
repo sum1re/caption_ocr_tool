@@ -3,8 +3,13 @@ package com.neo.caption.ocr.module.file
 import com.neo.caption.ocr.common.CommonProperties
 import com.neo.caption.ocr.common.RestEntityController
 import com.neo.caption.ocr.common.Slf4j
+import com.neo.caption.ocr.common.TusChecksumAlgorithm
+import com.neo.caption.ocr.common.TusExtension
 import com.neo.caption.ocr.common.TusHeader
+import com.neo.caption.ocr.common.TusResumable
+import com.neo.caption.ocr.common.TusVersion
 import jakarta.servlet.http.HttpServletRequest
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -28,24 +33,24 @@ class FileController(
     @PostMapping(value = ["", "/"])
     fun uploadPost(
         @RequestHeader(TusHeader.UPLOAD_LENGTH, required = false) uploadLength: Long?,
-        @RequestHeader("Upload-Defer-Length", required = false) uploadDeferLength: String?,
-        @RequestHeader("Upload-Metadata", required = false) uploadMetadata: String?,
+        @RequestHeader(TusHeader.UPLOAD_DEFER_LENGTH, required = false) uploadDeferLength: String?,
+        @RequestHeader(TusHeader.UPLOAD_METADATA, required = false) uploadMetadata: String?,
     ): ResponseEntity<Void> {
         val info = fileService.initialUpload(uploadLength, uploadDeferLength, uploadMetadata)
 
         return ResponseEntity.status(HttpStatus.CREATED)
-            .header("Tus-Resumable", "1.0.0")
-            .header("Location", "/api/file/${info.id}")
+            .header(TusHeader.TUS_RESUMABLE, TusResumable.V_1_0_0.code)
+            .header(TusHeader.LOCATION, "/api/file/${info.id}")
             .build()
     }
 
     @PatchMapping("/{id}")
     fun uploadPatch(
         @PathVariable id: UUID,
-        @RequestHeader("Upload-Offset") uploadOffset: Long,
-        @RequestHeader("Content-Type") contentType: String,
-        @RequestHeader("Content-Length", required = false) contentLength: Long?,
-        @RequestHeader("Upload-Checksum", required = false) uploadChecksum: String?,
+        @RequestHeader(HttpHeaders.CONTENT_TYPE) contentType: String,
+        @RequestHeader(HttpHeaders.CONTENT_LENGTH, required = false) contentLength: Long?,
+        @RequestHeader(TusHeader.UPLOAD_OFFSET) uploadOffset: Long,
+        @RequestHeader(TusHeader.UPLOAD_CHECKSUM, required = false) uploadChecksum: String?,
         request: HttpServletRequest,
     ): ResponseEntity<Void> {
         val info = fileService.appendUpload(
@@ -64,8 +69,8 @@ class FileController(
         }
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
-            .header("Tus-Resumable", "1.0.0")
-            .header("Upload-Offset", info.offset.toString())
+            .header(TusHeader.TUS_RESUMABLE, TusResumable.V_1_0_0.code)
+            .header(TusHeader.UPLOAD_OFFSET, info.offset.toString())
             .build()
     }
 
@@ -74,14 +79,14 @@ class FileController(
         val info = fileService.findUploadInfoById(id)
 
         val builder = ResponseEntity.status(HttpStatus.OK)
-            .header("Tus-Resumable", "1.0.0")
-            .header("Upload-Offset", info.offset.toString())
+            .header(TusHeader.TUS_RESUMABLE, TusResumable.V_1_0_0.code)
+            .header(TusHeader.UPLOAD_OFFSET, info.offset.toString())
 
         info.length?.let {
             builder.header(TusHeader.UPLOAD_LENGTH, it.toString())
         }
         info.encodedMetadata?.let {
-            builder.header("Upload-Metadata", it)
+            builder.header(TusHeader.UPLOAD_METADATA, it)
         }
 
         return builder.build()
@@ -92,18 +97,25 @@ class FileController(
         fileService.deleteUploadData(id)
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
-            .header("Tus-Resumable", "1.0.0")
+            .header(TusHeader.TUS_RESUMABLE, TusResumable.V_1_0_0.code)
             .build()
     }
 
     @RequestMapping(value = ["", "/", "/**"], method = [RequestMethod.OPTIONS])
     fun uploadOptions(): ResponseEntity<Void> {
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
-            .header("Tus-Resumable", "1.0.0")
-            .header("Tus-Version", "1.0.0")
-            .header("Tus-Max-Size", "1073741824")
-            .header("Tus-Extension", "creation,termination,checksum,expiration,concatenation")
-            .header("Tus-Checksum-Algorithm", "SHA1")
+            .header(TusHeader.TUS_RESUMABLE, TusResumable.V_1_0_0.code)
+            .header(TusHeader.TUS_VERSION, TusVersion.V_1_0_0.code)
+            .header(TusHeader.TUS_MAX_SIZE, appProperties.uploadMaxSize.toString())
+            .header(
+                TusHeader.TUS_EXTENSION,
+                TusExtension.CHECKSUM.code,
+                TusExtension.CONCATENATION.code,
+                TusExtension.CREATION.code,
+                TusExtension.EXPIRATION.code,
+                TusExtension.TERMINATION.code,
+            )
+            .header(TusHeader.TUS_CHECKSUM_ALGORITHM, TusChecksumAlgorithm.SHA1.name)
             .build()
     }
 
