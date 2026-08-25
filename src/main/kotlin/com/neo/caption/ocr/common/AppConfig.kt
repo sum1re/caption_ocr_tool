@@ -56,7 +56,7 @@ class ConverterConfiguration(
 @EnableWebMvc
 class MvcConfig(
     private val commonProperties: CommonProperties,
-    private val corsProperties: CorsProperties
+    private val corsProperties: CorsProperties,
 ) : WebMvcConfigurer {
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**")
@@ -64,6 +64,19 @@ class MvcConfig(
             .allowedOriginPatterns(*corsProperties.originPatterns.toTypedArray())
             .allowedMethods(*corsProperties.allowedMethods.toTypedArray())
             .allowedHeaders(*corsProperties.allowedHeader.toTypedArray())
+            .exposedHeaders(
+                TusHeader.LOCATION,
+                TusHeader.TUS_CHECKSUM_ALGORITHM,
+                TusHeader.TUS_EXTENSION,
+                TusHeader.TUS_MAX_SIZE,
+                TusHeader.TUS_RESUMABLE,
+                TusHeader.TUS_VERSION,
+                TusHeader.UPLOAD_CHECKSUM,
+                TusHeader.UPLOAD_DEFER_LENGTH,
+                TusHeader.UPLOAD_LENGTH,
+                TusHeader.UPLOAD_METADATA,
+                TusHeader.UPLOAD_OFFSET,
+            )
     }
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
