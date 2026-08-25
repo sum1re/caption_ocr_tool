@@ -7,6 +7,7 @@ import com.neo.caption.ocr.domain.CommonResponse
 import com.neo.caption.ocr.domain.Page
 import jakarta.annotation.PostConstruct
 import org.springframework.core.convert.ConversionService
+import org.springframework.core.convert.TypeDescriptor
 import org.springframework.stereotype.Component
 
 @Slf4j
@@ -22,7 +23,11 @@ class AppExtension(
 
 lateinit var instant: AppExtension
 
-inline fun <reified T> BaseData.convert(): T = instant.conversionService.convert(this, T::class.java)!!
+inline fun <reified R> BaseData.convert(): R = instant.conversionService.convert(
+    this,
+    TypeDescriptor.forObject(this),
+    TypeDescriptor.valueOf(R::class.java)
+) as R
 
 fun <T> response(action: () -> T?): CommonResponse<T?> =
     when (val result = action()) {
