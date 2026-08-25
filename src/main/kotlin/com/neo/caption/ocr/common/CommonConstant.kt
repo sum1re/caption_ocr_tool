@@ -39,3 +39,44 @@ enum class ErrorCodeEnum(val code: Int, val message: String, val httpStatus: Htt
     fun toResponse(message: String = this.message): ErrorResponse = ErrorResponse(CommonError(this.code, message))
 
 }
+
+/**
+ * https://tus.io/protocols/resumable-upload#headers
+ */
+object TusHeader {
+    const val LOCATION = "Location"
+    const val TUS_CHECKSUM_ALGORITHM = "Tus-Checksum-Algorithm"
+    const val TUS_EXTENSION = "Tus-Extension"
+    const val TUS_MAX_SIZE = "Tus-Max-Size"
+    const val TUS_RESUMABLE = "Tus-Resumable"
+    const val TUS_VERSION = "Tus-Version"
+    const val UPLOAD_CHECKSUM = "Upload-Checksum"
+    const val UPLOAD_DEFER_LENGTH = "Upload-Defer-Length"
+    const val UPLOAD_LENGTH = "Upload-Length"
+    const val UPLOAD_METADATA = "Upload-Metadata"
+    const val UPLOAD_OFFSET = "Upload-Offset"
+}
+
+enum class TusVersion(val code: String) {
+    V_1_0_0("1.0.0")
+}
+
+enum class TusResumable(val code: String) {
+    V_1_0_0("1.0.0")
+}
+
+enum class TusChecksumAlgorithm {
+    MD5, SHA1, SHA256, SHA384, SHA512, XXH3_64
+}
+
+/**
+ * https://tus.io/protocols/resumable-upload#protocol-extensions
+ */
+enum class TusExtension(val code: String) {
+    CREATION("creation"),
+    TERMINATION("termination"),
+    CHECKSUM("checksum"),
+    EXPIRATION("expiration"),
+    CONCATENATION("concatenation"),
+    CREATION_WITH_UPLOAD("creation with upload"),
+}
