@@ -14,7 +14,7 @@ import java.util.UUID
 data class CorsProperties(
     val originPatterns: List<String>,
     val allowedHeader: List<String>,
-    val allowedMethods: List<String>
+    val allowedMethods: List<String>,
 )
 
 @ConfigurationProperties(prefix = "cocr.ocr")
@@ -38,7 +38,10 @@ data class TesseractProperties(
 
 @ConfigurationProperties(prefix = "cocr.common")
 data class CommonProperties(
-    val workingDirectory: Path = Paths.get(System.getProperty("user.home"), "cocr")
+    val workingDirectory: Path = Paths.get(System.getProperty("user.home"), "cocr"),
+    val storeDirectory: Path = workingDirectory.resolve("store"),
+    val uploadExpirationPeriod: Long = 86_400_000L, // 1 day
+    val uploadMaxSize: Long = 1_073_741_824, // 1 GiB
 )
 
 @Component
